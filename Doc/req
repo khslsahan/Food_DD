@@ -1,0 +1,201 @@
+[Start]
+   |
+   V
+[Receive API Input from App: "Beef Straganoff 2P"]
+   |
+   V
+[Parse Input]
+   - Meal Type: "Beef Straganoff "
+   - Size: "Small"
+   |
+   V
+[Retrieve Recipe for "Beef Straganoff " from recipe DB]
+   - Chicken breast: 200g
+   - Soy sauce: 50ml
+   - Sugar: 20g
+   |
+   V
+[Adjust for "Small" (Factor: 0.5)]
+   - Chicken breast: 100g
+   - Soy sauce: 25ml
+   - Sugar: 10g
+   |
+   V
+[Query Db for Each Ingredient]
+   - Get macros for 100g chicken, 25ml soy sauce, 10g sugar
+   |
+   V
+[Sum Macros]
+   - Total calories, protein, carbs, fats
+   |
+   V
+[Format Response]
+   - JSON with total macros
+   |
+   V
+[Send via API Gateway back to App]
+   |
+   V
+[End]
+
+
+,/
+
+
+
+Recipe DB
+
+Need to store the meal type
+Need to store the components of the meal
+Need to store the ingredients and quantities of each component that makes the meal
+Need to store the portion ratios ( 1P,2P,3P)
+
+Sample Schema:
+-- MEALS TABLE
+CREATE TABLE meals (
+    meal_id INT PRIMARY KEY,
+    meal_name VARCHAR(100) NOT NULL, -- e.g., "Beef Stroganoff"
+    description TEXT
+);
+
+-- COMPONENTS TABLE
+CREATE TABLE components (
+    component_id INT PRIMARY KEY,
+    meal_id INT REFERENCES meals(meal_id),
+    component_name VARCHAR(100) NOT NULL, -- e.g., "Grilled Beef", "Stroganoff Sauce"
+    base_quantity_g INT, -- Total cooked weight (e.g., 867g for beef)
+    caloric_density DECIMAL(5,2) -- e.g., 1.9 Cal/g
+);
+
+-- INGREDIENTS TABLE
+CREATE TABLE ingredients (
+    ingredient_id INT PRIMARY KEY,
+    ingredient_name VARCHAR(100) NOT NULL, -- e.g., "Beef Topside", "Olive Oil"
+    default_unit VARCHAR(20) -- "g", "ml", etc.
+);
+
+-- RECIPE_INGREDIENTS (Junction Table)
+CREATE TABLE recipe_ingredients (
+    component_id INT REFERENCES components(component_id),
+    ingredient_id INT REFERENCES ingredients(ingredient_id),
+    raw_quantity_g INT NOT NULL, -- Quantity before cooking
+    cooked_quantity_g INT, -- Quantity after cooking
+    PRIMARY KEY (component_id, ingredient_id)
+);
+
+-- PORTION_OPTIONS
+CREATE TABLE portion_options (
+    portion_id INT PRIMARY KEY,
+    meal_id INT REFERENCES meals(meal_id),
+    size_name VARCHAR(20), -- "1P", "2P", "3P"
+    component_breakdown JSONB -- Stores weight ratios per component
+);
+
+Sample API request to MVE App:
+
+GET /api/recipes/Beef%20Stroganoff?size=2P
+
+Sample DB query:
+-- Get only recipe composition (no macros)
+SELECT 
+  m.meal_name,
+  c.component_name,
+  i.ingredient_name,
+  (ri.raw_quantity_g * po.component_breakdown->c.component_name->>'ratio') AS scaled_quantity,
+  i.default_unit
+FROM meals m
+JOIN components c ON m.meal_id = c.meal_id
+JOIN portion_options po ON m.meal_id = po.meal_id
+JOIN recipe_ingredients ri ON c.component_id = ri.component_id
+JOIN ingredients i ON ri.ingredient_id = i.ingredient_id
+WHERE m.meal_name = 'Beef Stroganoff'
+AND po.size_name = '2P';
+
+Sample response to the DB query
+
+
+
+Sample edamame API query based on DB response:
+
+curl -X GET \
+  "https://api.edamam.com/api/nutrition-data?app_id=YOUR_ID&app_key=YOUR_KEY&ingr=120g%20Beef%20Topside%20(Strips)" \
+  -H "Accept: application/json"
+
+Sample edamame API response:
+
+{
+  "calories": 228,
+  "totalNutrients": {
+    "PROCNT": { "label": "Protein", "quantity": 42.1, "unit": "g" },
+    "FAT": { "label": "Fat", "quantity": 5.2, "unit": "g" },
+    "CHOCDF": { "label": "Carbs", "quantity": 0, "unit": "g" }
+  }
+}
+
+Sample MVE App API response:
+
+{
+  "meal": "Beef Stroganoff",
+  "portion_size": "2P (340g)",
+  "total_macros": {
+    "calories": 452,
+    "protein_g": 38.2,
+    "fat_g": 22.1,
+    "carbs_g": 24.7,
+    "fiber_g": 3.2
+  },
+  "components": [
+    {
+      "name": "Grilled Beef",
+      "weight_g": 120,
+      "macros": {
+        "calories": 228,
+        "protein_g": 42.1,
+        "fat_g": 5.2,
+        "carbs_g": 0
+      },
+      "ingredients": [
+        {
+          "name": "Beef Topside (Strips)",
+          "quantity": "120g",
+          "calories": 228,
+          "protein_g": 42.1,
+          "fat_g": 5.2
+        },
+        {
+          "name": "Olive Oil",
+          "quantity": "2.4ml",
+          "calories": 21.6,
+          "fat_g": 2.4
+        }
+      ]
+    },
+    {
+      "name": "Stroganoff Sauce",
+      "weight_g": 120,
+      "macros": {
+        "calories": 196.8,
+        "protein_g": 3.6,
+        "fat_g": 19.2,
+        "carbs_g": 4.8
+      },
+      "ingredients": [
+        {
+          "name": "Cooking Cream",
+          "quantity": "60ml",
+          "calories": 196.8,
+          "protein_g": 3.6,
+          "fat_g": 19.2
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "source": "Edamam API",
+    "warnings": [
+      "Mushroom macros estimated (missing in API response)"
+    ]
+  }
+}
+
+

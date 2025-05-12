@@ -1,0 +1,31 @@
+Task,Duration (hrs)
+Database Setup,4
+Insert Sample Data,5
+DB Query for Meal Structure,6
+Create API Endpoint,7
+Query DB and Fetch Meal Structure,8
+Nutrition API Integration,9
+Macro Calculation,10
+JSON Response Formatting,11
+Handle API Failures and Warnings,12
+"Docker Setup (Dockerfile, Docker Compose)",13
+Build Meal Info Page,14
+API Integration,15
+Data Pipeline - Recipe Upload,40
+Data Pipeline - Macro Value Fetching,20
+PDF Generation for the response,24
+Display Total Macros,16
+Display Components & Macros,17
+Display Ingredients Breakdown,18
+Handle Loading & Error States,19
+Metadata Section,20
+"UI Polish (Styling, Responsive)",21
+Deployment Setup,22
+,
+,
+,
+,
+,
+Total hour,331
+,
+4 hours per day,76.75

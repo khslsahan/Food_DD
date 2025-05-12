@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: recipeGenerator
+
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/food_nutrition_db
+    username: postgres
+    password: postgres
+
+server:
+  port: 8080

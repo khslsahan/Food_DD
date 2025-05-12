@@ -1,0 +1,26 @@
+#	Scope Item	Responsibility	Notes
+1	Data Pipeline - Recipe Upload	MavrikTek Team	"The system will accept recipe documents in .docx format, read the contents, and create database entries for each recipe, including ingredients ,their quantities and their type ( dairy,meat,nuts ).
+The recipe count is 400 recipes."
+2	Data Pipeline - Macro Value Fetching	MavrikTek Team	The system will fetch macro-nutritional values from APIs (e.g., Edamam) for each recipe and populate the database with this data.
+3	API Development	MavrikTek Team	"- Input: Item code, dish name with comments (e.g., No Tomatoes + 150g Chicken), and portion size.
+- Users: App users and order summary creators.
+- Response:
+ - App users receive a text response.
+ - Order summary creators receive a text response + a PDF label."
+4	Central Core Module - Macro Calculation and Output	MavrikTek Team	"- Formulates a macro value text response, considering dish details and any associated comments.
+- Generates a PDF label if the request is from an order summary creator."
+5	Admin Module - Recipe Management	MavrikTek Team	"- Portal for adding and modifying recipes.
+- Manual and bulk recipe uploaders will be included."
+6	Logging	MavrikTek Team	Event logs and transaction logs will be maintained for traceability and auditing.
+7	Full system Testing	MavrikTek Team & Diet Delight Team	"-DB Validation will be performed
+-API response will be tested
+-PDF generation will be tested
+- A resource from diet delight is required to co-verify the ingredient classification ( one time)
+- A resoruce from diet delight is required to conduct User Acceptance Test to 'Go - live'."
+8	Infrastructure Provision	Diet Delight	"- Provide the environment for solution deployment. ( Production and Testing)
+- Ensure continuous maintenance and uptime of the environment."
+9	Data Resources  Provision	Diet Delight	"-The recipe documents which contain  recipe ingredients and their quantities.
+-The document with add-on ingredients and standard quantities. (to refer with quanties arent specified)
+  Ex: Olive oil - 25ml
+-The 'special dietary scenario' document.
+  Ex:Spicy"
