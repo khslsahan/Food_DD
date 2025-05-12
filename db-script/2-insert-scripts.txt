@@ -1,0 +1,28 @@
+-- Insert ingredients
+INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+VALUES 
+    ('Beef Topside (Strips)', 'g', 150, 5, 25, 0),
+    ('Olive oil', 'g', 900, 100, 0, 0),
+    ('Salt', 'g', 0, 0, 0, 0),
+    ('Pepper', 'g', 0, 0, 0, 0),
+    ('Sliced Mushroom', 'g', 23, 0.3, 3.1, 3.3);
+
+-- Insert meal
+INSERT INTO meals (meal_name, description, serving_size)
+VALUES ('Beef Stroganoff', 'Classic beef stroganoff', '1p');
+
+-- Insert components
+INSERT INTO components (meal_id, component_name, base_quantity_g)
+VALUES 
+    (1, 'Grilled Beef for Stroganoff', 867),
+    (1, 'Sliced Mushroom', 527);
+
+-- Insert recipe ingredients
+INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g, cooked_quantity_g)
+VALUES 
+    (1, 1, 1000, 867),  -- Beef Topside
+    (1, 2, 20, 20),     -- Olive oil
+    (1, 3, 5, 5),       -- Salt
+    (1, 4, 2, 2),       -- Pepper
+    (2, 5, 600, 527),   -- Sliced Mushroom
+    (2, 2, 20, 20);     -- Olive oil

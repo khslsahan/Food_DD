@@ -1,0 +1,54 @@
+-- MEALS TABLE
+CREATE TABLE meals (
+    meal_id SERIAL PRIMARY KEY,
+    meal_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    serving_size VARCHAR(50) NOT NULL, -- e.g., "1p", "2p"
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- COMPONENTS TABLE
+CREATE TABLE components (
+    component_id SERIAL PRIMARY KEY,
+    meal_id INT REFERENCES meals(meal_id) ON DELETE CASCADE,
+    component_name VARCHAR(100) NOT NULL,
+    base_quantity_g DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- INGREDIENTS TABLE
+CREATE TABLE ingredients (
+    ingredient_id SERIAL PRIMARY KEY,
+    ingredient_name VARCHAR(100) NOT NULL UNIQUE,
+    default_unit VARCHAR(20) NOT NULL, -- "g", "ml", etc.
+    calories_per_100g DECIMAL(10,2) NOT NULL,
+    fat_g DECIMAL(10,2) NOT NULL,
+    protein_g DECIMAL(10,2) NOT NULL,
+    carbohydrates_g DECIMAL(10,2) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- RECIPE_INGREDIENTS (Junction Table)
+CREATE TABLE recipe_ingredients (
+    component_id INT REFERENCES components(component_id) ON DELETE CASCADE,
+    ingredient_id INT REFERENCES ingredients(ingredient_id) ON DELETE CASCADE,
+    raw_quantity_g DECIMAL(10,2) NOT NULL,
+    cooked_quantity_g DECIMAL(10,2),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (component_id, ingredient_id)
+);
+
+-- PORTION_OPTIONS
+CREATE TABLE portion_options (
+    portion_id SERIAL PRIMARY KEY,
+    meal_id INT REFERENCES meals(meal_id) ON DELETE CASCADE,
+    size_name VARCHAR(20) NOT NULL, -- "1P", "2P", "3P"
+    multiplier DECIMAL(5,2) NOT NULL, -- e.g., 1.0 for 1P, 2.0 for 2P
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(meal_id, size_name)
+);

@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# envirenment
+
+- when define application.yml propety always setup with the environment variable 

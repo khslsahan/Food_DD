@@ -1,0 +1,58 @@
+@startuml
+
+entity meals {
+  meal_id SERIAL PK
+  meal_name VARCHAR(100) UNIQUE NOT NULL
+  description TEXT
+  serving_size VARCHAR(50) NOT NULL
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+}
+
+entity components {
+  component_id SERIAL PK
+  meal_id INT FK
+  component_name VARCHAR(100) NOT NULL
+  base_quantity_g DECIMAL(10,2) NOT NULL
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+}
+
+entity ingredients {
+  ingredient_id SERIAL PK
+  ingredient_name VARCHAR(100) UNIQUE NOT NULL
+  default_unit VARCHAR(20) NOT NULL
+  calories_per_100g DECIMAL(10,2) NOT NULL
+  fat_g DECIMAL(10,2) NOT NULL
+  protein_g DECIMAL(10,2) NOT NULL
+  carbohydrates_g DECIMAL(10,2) NOT NULL
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+}
+
+entity recipe_ingredients {
+  component_id INT FK
+  ingredient_id INT FK
+  raw_quantity_g DECIMAL(10,2) NOT NULL
+  cooked_quantity_g DECIMAL(10,2)
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  PK (component_id, ingredient_id)
+}
+
+entity portion_options {
+  portion_id SERIAL PK
+  meal_id INT FK
+  size_name VARCHAR(20) NOT NULL
+  multiplier DECIMAL(5,2) NOT NULL
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
+  UNIQUE (meal_id, size_name)
+}
+
+meals ||--o{ components : contains
+components ||--o{ recipe_ingredients : has
+ingredients ||--o{ recipe_ingredients : used_in
+meals ||--o{ portion_options : has
+
+@enduml

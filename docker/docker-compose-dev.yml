@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: food_nutrition_db
+    environment:
+      POSTGRES_DB: food_nutrition_db
+      POSTGRES_USER: food_nutrition_user
+      POSTGRES_PASSWORD: food_nutrition_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U food_nutrition_user -d food_nutrition_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data: 

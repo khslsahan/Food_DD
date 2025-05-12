@@ -3,9 +3,9 @@ spring:
     name: recipeGenerator
 
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/food_nutrition_db
-    username: postgres
-    password: postgres
+    url: r2dbc:postgresql://localhost:5433/food_nutrition_db
+    username: food_nutrition_user
+    password: food_nutrition_pass
 
 server:
   port: 8080
