@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Header } from "@/components/layout/header"
 import { getIngredients, getMeals } from "@/lib/data"
-import { Apple, ChefHat, Salad, Users } from "lucide-react"
+import { Apple, ChefHat, Salad } from "lucide-react"
 
 export default async function DashboardPage() {
   const meals = await getMeals()
@@ -12,7 +12,7 @@ export default async function DashboardPage() {
       <Header title="Dashboard" description="Overview of your nutrition management system" />
 
       <main className="flex-1 p-6">
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
               <CardTitle className="text-sm font-medium">Total Meals</CardTitle>
@@ -43,17 +43,6 @@ export default async function DashboardPage() {
             <CardContent>
               <div className="text-2xl font-bold">12</div>
               <p className="text-xs text-muted-foreground">Recipe components created</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-              <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-              <Users className="w-4 h-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">2</div>
-              <p className="text-xs text-muted-foreground">Users with access to the system</p>
             </CardContent>
           </Card>
         </div>
