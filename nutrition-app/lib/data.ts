@@ -1,4 +1,5 @@
 import type { Meal, Component, PortionOption, Ingredient, RecipeIngredient } from "./types"
+import prisma from './prisma'
 
 // Mock data - in a real app, this would be fetched from a database
 const meals: Meal[] = [
@@ -139,7 +140,9 @@ let recipeIngredients: RecipeIngredient[] = [
 
 // CRUD operations for Meals
 export async function getMeals() {
-  return [...meals]
+  return prisma.meals.findMany({
+    orderBy: { updated_at: 'desc' },
+  })
 }
 
 export async function getMealById(id: number) {
