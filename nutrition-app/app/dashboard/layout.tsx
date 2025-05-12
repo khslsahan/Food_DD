@@ -12,8 +12,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar className="hidden md:block" />
-      <div className="flex-1 md:ml-64">{children}</div>
+      <div className="flex-1">{children}</div>
     </div>
   )
 }

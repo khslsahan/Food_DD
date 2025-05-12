@@ -2,6 +2,7 @@ import type React from "react"
 import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
+import LayoutShell from "@/components/layout/LayoutShell"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -21,7 +22,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          {children}
+          <LayoutShell>
+            {children}
+          </LayoutShell>
           <Toaster />
         </ThemeProvider>
       </body>
