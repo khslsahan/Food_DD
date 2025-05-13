@@ -20,9 +20,10 @@ import { Input } from "@/components/ui/input"
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  filterColumn?: string
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, filterColumn = "meal_name" }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -45,9 +46,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter meals..."
-          value={(table.getColumn("meal_name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) => table.getColumn("meal_name")?.setFilterValue(event.target.value)}
+          placeholder="Filter..."
+          value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
+          onChange={(event) => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
           className="max-w-sm"
         />
       </div>

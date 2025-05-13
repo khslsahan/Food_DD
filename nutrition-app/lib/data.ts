@@ -14,28 +14,34 @@ export async function getMealById(id: number) {
 
 // CRUD operations for Components
 export async function getComponents(mealId?: number) {
-  if (mealId) {
-    return prisma.components.findMany({
-      where: { meal_id: mealId },
-      orderBy: { updated_at: 'desc' },
-    })
-  }
-  return prisma.components.findMany({
-    orderBy: { updated_at: 'desc' },
-  })
+  const components = mealId
+    ? await prisma.components.findMany({
+        where: { meal_id: mealId },
+        orderBy: { updated_at: 'desc' },
+      })
+    : await prisma.components.findMany({
+        orderBy: { updated_at: 'desc' },
+      })
+  return components.map(component => ({
+    ...component,
+    base_quantity_g: Number(component.base_quantity_g),
+  }))
 }
 
 // CRUD operations for Portion Options
 export async function getPortionOptions(mealId?: number) {
-  if (mealId) {
-    return prisma.portion_options.findMany({
-      where: { meal_id: mealId },
-      orderBy: { updated_at: 'desc' },
-    })
-  }
-  return prisma.portion_options.findMany({
-    orderBy: { updated_at: 'desc' },
-  })
+  const options = mealId
+    ? await prisma.portion_options.findMany({
+        where: { meal_id: mealId },
+        orderBy: { updated_at: 'desc' },
+      })
+    : await prisma.portion_options.findMany({
+        orderBy: { updated_at: 'desc' },
+      })
+  return options.map(option => ({
+    ...option,
+    multiplier: Number(option.multiplier),
+  }))
 }
 
 // CRUD operations for Ingredients
