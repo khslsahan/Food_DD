@@ -1,0 +1,245 @@
+-- Generated SQL statements for recipe import
+BEGIN;
+
+
+    INSERT INTO meals (meal_name, description, serving_size)
+    VALUES ('Beef Kafta Skewers with Hummus and Tabouleh', '', '1P')
+    RETURNING meal_id;
+    
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Beef Topside', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Beef Topside'),
+                1000;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Chopped Onion', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Chopped Onion'),
+                120;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Chopped Parsley', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Chopped Parsley'),
+                40;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Salt', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Salt'),
+                10;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Cinnamon Powder', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Cinnamon Powder'),
+                2;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('White Pepper', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'White Pepper'),
+                2;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Chili Powder', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Chili Powder'),
+                2;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Olive Oil', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Beef Kafta - Make it flat round shape'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Olive Oil'),
+                0;
+            
+
+        INSERT INTO components (meal_id, component_name, base_quantity_g)
+        VALUES ((SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh'), 'Beef Kafta - Make it flat round shape', 0)
+        RETURNING component_id;
+        
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Chickpeas (Garbanzo Beans), Boiled', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Hummus'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Chickpeas (Garbanzo Beans), Boiled'),
+                1000;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Ice Cubes', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Hummus'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Ice Cubes'),
+                400;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Tahini', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Hummus'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Tahini'),
+                350;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Canola Oil', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Hummus'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Canola Oil'),
+                100;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Salt', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Hummus'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Salt'),
+                12;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Lemon Salt', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Hummus'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Lemon Salt'),
+                12;
+            
+
+        INSERT INTO components (meal_id, component_name, base_quantity_g)
+        VALUES ((SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh'), 'Hummus', 0)
+        RETURNING component_id;
+        
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Bulgur', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Tabouleh Mix'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Bulgur'),
+                15;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Chopped Parsley', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Tabouleh Mix'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Chopped Parsley'),
+                60;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Onion', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Tabouleh Mix'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Onion'),
+                15;
+            
+
+            INSERT INTO ingredients (ingredient_name, default_unit, calories_per_100g, fat_g, protein_g, carbohydrates_g)
+            VALUES ('Fresh Tomato', 'g', 0, 0, 0, 0)
+            ON CONFLICT (ingredient_name) DO NOTHING;
+            
+
+            INSERT INTO recipe_ingredients (component_id, ingredient_id, raw_quantity_g)
+            SELECT 
+                (SELECT component_id FROM components WHERE meal_id = (SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh') AND component_name = 'Tabouleh Mix'),
+                (SELECT ingredient_id FROM ingredients WHERE ingredient_name = 'Fresh Tomato'),
+                50;
+            
+
+        INSERT INTO components (meal_id, component_name, base_quantity_g)
+        VALUES ((SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh'), 'Tabouleh Mix', 0)
+        RETURNING component_id;
+        
+
+    INSERT INTO portion_options (meal_id, size_name, multiplier)
+    VALUES ((SELECT meal_id FROM meals WHERE meal_name = 'Beef Kafta Skewers with Hummus and Tabouleh'), '1P', 1);
+    
+
+COMMIT;
