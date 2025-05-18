@@ -20,12 +20,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <LayoutShell>
-            {children}
-          </LayoutShell>
-          <Toaster />
+          <div className={inter.className}>
+            <LayoutShell>
+              {children}
+            </LayoutShell>
+            <Toaster />
+          </div>
         </ThemeProvider>
       </body>
     </html>
