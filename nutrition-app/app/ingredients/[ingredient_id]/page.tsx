@@ -1,6 +1,7 @@
 import { getIngredients } from "@/lib/data";
 import Link from "next/link";
 import { Header } from "@/components/layout/header";
+import BackButton from "@/components/layout/BackButton";
 
 export default async function IngredientViewPage({ params }: { params: { ingredient_id: string } }) {
   const ingredientId = Number(params.ingredient_id);
@@ -14,6 +15,7 @@ export default async function IngredientViewPage({ params }: { params: { ingredi
 
   return (
     <div className="flex flex-col min-h-screen p-6">
+      <div className="mb-2"><BackButton href="/ingredients" /></div>
       <Header title="Ingredient Details" description={`View details for ingredient: ${ingredient.ingredient_name}`} />
       <div className="max-w-xl bg-blue-50 rounded shadow p-6 mt-6 flex flex-row items-start">
         <div className="w-2 h-full rounded-l bg-blue-600 mr-4" />

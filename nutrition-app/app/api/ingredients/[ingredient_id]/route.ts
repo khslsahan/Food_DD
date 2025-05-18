@@ -18,6 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { ingredient
     });
     return NextResponse.json(updated);
   } catch (e) {
+    console.error('PATCH update failed:', e);
     return NextResponse.json({ error: "Ingredient not found or update failed" }, { status: 404 });
   }
 }
@@ -26,6 +27,8 @@ export async function POST(req: NextRequest, { params }: { params: { ingredient_
   // For form submissions from the edit page
   const id = Number(params.ingredient_id);
   const form = await req.formData();
+  const formObj = Object.fromEntries(form.entries());
+  console.log('Updating ingredient:', id, formObj);
   try {
     const updated = await prisma.ingredients.update({
       where: { ingredient_id: id },
@@ -38,9 +41,10 @@ export async function POST(req: NextRequest, { params }: { params: { ingredient_
         carbohydrates_g: Number(form.get("carbohydrates_g")),
       },
     });
-    // Redirect to the ingredient view page
-    return NextResponse.redirect(`/ingredients/${id}`);
+    const origin = req.headers.get("origin") || "http://localhost:3000";
+    return NextResponse.redirect(`${origin}/ingredients/${id}`);
   } catch (e) {
+    console.error('POST update failed:', e, 'ID:', id, 'Form:', formObj);
     return NextResponse.json({ error: "Ingredient not found or update failed" }, { status: 404 });
   }
 } 
