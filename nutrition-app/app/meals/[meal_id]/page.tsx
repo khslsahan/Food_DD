@@ -3,6 +3,7 @@ import { getMeals, getComponents, getRecipeIngredients, getIngredients } from "@
 import { Header } from "@/components/layout/header";
 import Link from "next/link";
 import BackButton from "@/components/layout/BackButton";
+import AddComponentModalClientWrapper from "@/components/AddComponentModalClientWrapper";
 
 function ViewIcon() {
   return (
@@ -71,6 +72,9 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
       </div>
 
       <h2 className="text-xl font-bold mb-4">Components</h2>
+      <div className="mb-4">
+        <AddComponentModalClientWrapper mealId={mealId} />
+      </div>
       
       {components.length === 0 && (
         <div className="text-gray-500 italic">No components found.</div>
