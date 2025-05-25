@@ -67,10 +67,6 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
       <div className="mb-2"><BackButton href="/meals" /></div>
       <Header title={meal.meal_name} description={meal.description || ""} />
       
-      <div className="mb-4 bg-blue-50 p-4 rounded">
-        <strong>Serving Size:</strong> {meal.serving_size}
-      </div>
-
       <h2 className="text-xl font-bold mb-4">Components</h2>
       <div className="mb-4">
         <AddComponentModalClientWrapper mealId={mealId} />
@@ -86,7 +82,10 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
         return (
           <div key={component.component_id} className="mb-8 border rounded-lg p-6 bg-white shadow-sm">
             <div className="font-semibold text-xl mb-2 text-blue-700">{component.component_name}</div>
-            <div className="mb-4 text-sm text-gray-600">Base Quantity: {component.base_quantity_g}g</div>
+            <div className="mb-4 text-sm text-gray-600">
+              Before Cook Weight: {component.before_cook_weight_g ? Number(component.before_cook_weight_g) : ""}g<br />
+              After Cook Weight: {component.after_cook_weight_g ? Number(component.after_cook_weight_g) : ""}g
+            </div>
             
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Ingredients:</h3>

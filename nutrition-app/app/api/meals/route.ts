@@ -16,23 +16,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // Check authentication
-    await requireAuth()
-
     const body = await request.json()
 
     // Validate required fields
-    if (!body.meal_name || !body.serving_size) {
-      return NextResponse.json({ error: "Meal name and serving size are required" }, { status: 400 })
+    if (!body.meal_name) {
+      return NextResponse.json({ error: "Meal name is required" }, { status: 400 })
     }
 
     const newMeal = await createMeal({
       meal_name: body.meal_name,
       description: body.description || "",
-      serving_size: body.serving_size,
     })
 
-    return NextResponse.json(newMeal, { status: 201 })
+    return NextResponse.json({ meal_id: newMeal.meal_id }, { status: 201 })
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }

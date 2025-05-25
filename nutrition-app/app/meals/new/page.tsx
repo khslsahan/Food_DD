@@ -17,7 +17,6 @@ import { Header } from "@/components/layout/header"
 const formSchema = z.object({
   meal_name: z.string().min(2, "Meal name must be at least 2 characters").max(100),
   description: z.string().min(2, "Description must be at least 2 characters"),
-  serving_size: z.string().min(1, "Serving size is required").max(50),
 })
 
 export default function NewMealPage() {
@@ -30,7 +29,6 @@ export default function NewMealPage() {
     defaultValues: {
       meal_name: "",
       description: "",
-      serving_size: "",
     },
   })
 
@@ -57,8 +55,7 @@ export default function NewMealPage() {
         description: `${values.meal_name} has been created successfully.`,
       })
 
-      router.push("/meals")
-      router.refresh()
+      router.push(`/meals/${data.meal_id}`)
     } catch (error) {
       toast({
         variant: "destructive",
@@ -107,21 +104,6 @@ export default function NewMealPage() {
                       <FormControl>
                         <Textarea placeholder="Describe the meal" className="min-h-[100px]" {...field} />
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="serving_size"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Serving Size</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., 250g" {...field} />
-                      </FormControl>
-                      <FormDescription>Standard serving size for this meal.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -24,7 +24,7 @@ export async function getComponents(mealId?: number) {
       })
   return components.map(component => ({
     ...component,
-    base_quantity_g: Number(component.base_quantity_g),
+    before_cook_weight_g: Number(component.before_cook_weight_g),
   }))
 }
 
@@ -73,4 +73,13 @@ export async function getRecipeIngredients(componentId?: number) {
     raw_quantity_g: Number(ri.raw_quantity_g),
     cooked_quantity_g: ri.cooked_quantity_g !== null ? Number(ri.cooked_quantity_g) : null,
   }))
+}
+
+export async function createMeal({ meal_name, description }: { meal_name: string, description?: string }) {
+  return prisma.meals.create({
+    data: {
+      meal_name,
+      description: description || null,
+    },
+  });
 }

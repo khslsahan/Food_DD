@@ -16,9 +16,9 @@ export const columns: ColumnDef<any>[] = [
     header: "Name",
   },
   {
-    accessorKey: "base_quantity_g",
-    header: "Base Quantity (g)",
-    cell: ({ row }) => Number(row.original.base_quantity_g),
+    accessorKey: "before_cook_weight_g",
+    header: "Before Cook Weight (g)",
+    cell: ({ row }) => Number(row.original.before_cook_weight_g),
   },
   {
     accessorKey: "created_at",

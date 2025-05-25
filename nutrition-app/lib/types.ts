@@ -17,7 +17,7 @@ export interface Component {
   component_id: number
   meal_id: number
   component_name: string
-  base_quantity_g: number
+  before_cook_weight_g: number
   created_at: string
   updated_at: string
 }

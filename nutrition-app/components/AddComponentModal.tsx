@@ -35,7 +35,8 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [componentName, setComponentName] = useState("");
-  const [baseQuantity, setBaseQuantity] = useState("");
+  const [beforeCookWeight, setBeforeCookWeight] = useState("");
+  const [afterCookWeight, setAfterCookWeight] = useState("");
   const [ingredients, setIngredients] = useState<IngredientInput[]>([
     { name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" },
   ]);
@@ -62,6 +63,18 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+    // Convert all ingredient nutrition values to per 100g
+    const normalizedIngredients = ingredients.map(ing => {
+      const qty = Number(ing.quantity) || 100; // fallback to 100g if empty
+      const factor = 100 / qty;
+      return {
+        ...ing,
+        calories: (Number(ing.calories) * factor).toFixed(2),
+        fat: (Number(ing.fat) * factor).toFixed(2),
+        protein: (Number(ing.protein) * factor).toFixed(2),
+        carbohydrates: (Number(ing.carbohydrates) * factor).toFixed(2),
+      };
+    });
     try {
       const res = await fetch("/api/components", {
         method: "POST",
@@ -69,14 +82,16 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
         body: JSON.stringify({
           meal_id: mealId,
           component_name: componentName,
-          base_quantity_g: baseQuantity,
-          ingredients,
+          before_cook_weight_g: beforeCookWeight,
+          after_cook_weight_g: afterCookWeight,
+          ingredients: normalizedIngredients,
         }),
       });
       if (!res.ok) throw new Error("Failed to save component");
       setOpen(false);
       setComponentName("");
-      setBaseQuantity("");
+      setBeforeCookWeight("");
+      setAfterCookWeight("");
       setIngredients([{ name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" }]);
       router.refresh();
       toast({ title: "Component saved!", description: "The component was added successfully." });
@@ -153,11 +168,20 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             />
           </div>
           <div>
-            <Label>Base Quantity (g)</Label>
+            <Label>Before Cook Weight (g)</Label>
             <Input
               type="number"
-              value={baseQuantity}
-              onChange={(e) => setBaseQuantity(e.target.value)}
+              value={beforeCookWeight}
+              onChange={(e) => setBeforeCookWeight(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <Label>After Cook Weight (g)</Label>
+            <Input
+              type="number"
+              value={afterCookWeight}
+              onChange={(e) => setAfterCookWeight(e.target.value)}
               required
             />
           </div>
