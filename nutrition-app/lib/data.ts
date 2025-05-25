@@ -18,13 +18,20 @@ export async function getComponents(mealId?: number) {
     ? await prisma.components.findMany({
         where: { meal_id: mealId },
         orderBy: { updated_at: 'desc' },
+        include: { component_portions: true },
       })
     : await prisma.components.findMany({
         orderBy: { updated_at: 'desc' },
+        include: { component_portions: true },
       })
   return components.map(component => ({
     ...component,
     before_cook_weight_g: Number(component.before_cook_weight_g),
+    after_cook_weight_g: Number(component.after_cook_weight_g),
+    component_portions: component.component_portions?.map(p => ({
+      ...p,
+      total_weight_g: Number(p.total_weight_g),
+    })) || [],
   }))
 }
 

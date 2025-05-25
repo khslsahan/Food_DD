@@ -86,6 +86,18 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
               Before Cook Weight: {component.before_cook_weight_g ? Number(component.before_cook_weight_g) : ""}g<br />
               After Cook Weight: {component.after_cook_weight_g ? Number(component.after_cook_weight_g) : ""}g
             </div>
+            {component.component_portions && component.component_portions.length > 0 && (
+              <div className="mb-2 text-sm text-gray-700">
+                <strong>Portion Sizes:</strong>
+                <ul>
+                  {component.component_portions.map((portion: any) => (
+                    <li key={portion.label}>
+                      {portion.label}: {Number(portion.total_weight_g)}g
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             
             <div className="space-y-4">
               <h3 className="font-semibold text-lg">Ingredients:</h3>

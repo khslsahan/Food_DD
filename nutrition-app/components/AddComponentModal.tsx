@@ -42,6 +42,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   ]);
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [portions, setPortions] = useState([{ label: "1P", total_weight_g: "" }]);
 
   const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
     setIngredients((prev) =>
@@ -58,6 +59,18 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
 
   const removeIngredient = (idx: number) => {
     setIngredients((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handlePortionChange = (idx: number, field: "label" | "total_weight_g", value: string) => {
+    setPortions((prev) => prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p)));
+  };
+
+  const addPortion = () => {
+    setPortions((prev) => [...prev, { label: "", total_weight_g: "" }]);
+  };
+
+  const removePortion = (idx: number) => {
+    setPortions((prev) => prev.filter((_, i) => i !== idx));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,6 +98,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
           before_cook_weight_g: beforeCookWeight,
           after_cook_weight_g: afterCookWeight,
           ingredients: normalizedIngredients,
+          portions,
         }),
       });
       if (!res.ok) throw new Error("Failed to save component");
@@ -93,6 +107,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       setBeforeCookWeight("");
       setAfterCookWeight("");
       setIngredients([{ name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" }]);
+      setPortions([{ label: "1P", total_weight_g: "" }]);
       router.refresh();
       toast({ title: "Component saved!", description: "The component was added successfully." });
     } catch (err) {
@@ -254,6 +269,32 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
               <Button type="button" variant="secondary" onClick={addIngredient}>
                 + Add Ingredient
               </Button>
+            </div>
+          </div>
+          <div>
+            <Label>Portion Sizes</Label>
+            <div className="space-y-2">
+              {portions.map((portion, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <Input
+                    placeholder="Label (e.g. 1P)"
+                    value={portion.label}
+                    onChange={e => handlePortionChange(idx, "label", e.target.value)}
+                    required
+                  />
+                  <Input
+                    placeholder="Total Weight (g)"
+                    type="number"
+                    value={portion.total_weight_g}
+                    onChange={e => handlePortionChange(idx, "total_weight_g", e.target.value)}
+                    required
+                  />
+                  {portions.length > 1 && (
+                    <Button type="button" variant="destructive" size="icon" onClick={() => removePortion(idx)}>-</Button>
+                  )}
+                </div>
+              ))}
+              <Button type="button" variant="secondary" onClick={addPortion}>+ Add Portion</Button>
             </div>
           </div>
           <DialogFooter>

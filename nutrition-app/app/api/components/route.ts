@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { meal_id, component_name, before_cook_weight_g, after_cook_weight_g, ingredients } = body;
+    const { meal_id, component_name, before_cook_weight_g, after_cook_weight_g, ingredients, portions } = body;
     if (!meal_id || !component_name || !before_cook_weight_g || !after_cook_weight_g || !Array.isArray(ingredients) || ingredients.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -46,9 +46,18 @@ export async function POST(request: Request) {
             raw_quantity_g: ri.raw_quantity_g,
           })),
         },
+        component_portions: portions && Array.isArray(portions)
+          ? {
+              create: portions.map((p) => ({
+                label: p.label,
+                total_weight_g: Number(p.total_weight_g) || 0,
+              })),
+            }
+          : undefined,
       },
       include: {
         recipe_ingredients: true,
+        component_portions: true,
       },
     });
     return NextResponse.json(component, { status: 201 });
