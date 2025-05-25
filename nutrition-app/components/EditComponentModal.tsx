@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -25,24 +25,51 @@ interface IngredientInput {
   carbohydrates: string;
 }
 
-interface AddComponentModalProps {
-  mealId: number;
-  onSubmit: (data: any) => void;
+interface PortionInput {
+  label: string;
+  total_weight_g: string;
 }
 
-export function AddComponentModal({ mealId }: AddComponentModalProps) {
+interface EditComponentModalProps {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  componentId: number;
+  mealId: number;
+  initialName: string;
+  initialBeforeCookWeight: string;
+  initialAfterCookWeight: string;
+  initialIngredients: IngredientInput[];
+  initialPortions: PortionInput[];
+}
+
+export function EditComponentModal({
+  open,
+  setOpen,
+  componentId,
+  mealId,
+  initialName,
+  initialBeforeCookWeight,
+  initialAfterCookWeight,
+  initialIngredients,
+  initialPortions,
+}: EditComponentModalProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const [open, setOpen] = useState(false);
-  const [componentName, setComponentName] = useState("");
-  const [beforeCookWeight, setBeforeCookWeight] = useState("");
-  const [afterCookWeight, setAfterCookWeight] = useState("");
-  const [ingredients, setIngredients] = useState<IngredientInput[]>([
-    { name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" },
-  ]);
+  const [componentName, setComponentName] = useState(initialName);
+  const [beforeCookWeight, setBeforeCookWeight] = useState(initialBeforeCookWeight);
+  const [afterCookWeight, setAfterCookWeight] = useState(initialAfterCookWeight);
+  const [ingredients, setIngredients] = useState<IngredientInput[]>(initialIngredients);
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
-  const [portions, setPortions] = useState([{ label: "1P", total_weight_g: "" }]);
+  const [portions, setPortions] = useState<PortionInput[]>(initialPortions);
+
+  useEffect(() => {
+    setComponentName(initialName);
+    setBeforeCookWeight(initialBeforeCookWeight);
+    setAfterCookWeight(initialAfterCookWeight);
+    setIngredients(initialIngredients);
+    setPortions(initialPortions);
+  }, [initialName, initialBeforeCookWeight, initialAfterCookWeight, initialIngredients, initialPortions, open]);
 
   const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
     setIngredients((prev) =>
@@ -66,7 +93,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   };
 
   const addPortion = () => {
-    setPortions((prev) => [...prev, { label: "", total_weight_g: "" }]);
+    setPortions((prev) => [...prev, { label: "2P", total_weight_g: "" }]);
   };
 
   const removePortion = (idx: number) => {
@@ -89,8 +116,8 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       };
     });
     try {
-      const res = await fetch("/api/components", {
-        method: "POST",
+      const res = await fetch(`/api/components/${componentId}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           meal_id: mealId,
@@ -101,17 +128,12 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
           portions,
         }),
       });
-      if (!res.ok) throw new Error("Failed to save component");
+      if (!res.ok) throw new Error("Failed to update component");
       setOpen(false);
-      setComponentName("");
-      setBeforeCookWeight("");
-      setAfterCookWeight("");
-      setIngredients([{ name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" }]);
-      setPortions([{ label: "1P", total_weight_g: "" }]);
+      toast({ title: "Component updated!", description: "The component was updated successfully." });
       router.refresh();
-      toast({ title: "Component saved!", description: "The component was added successfully." });
     } catch (err) {
-      toast({ title: "Failed to save component", description: "Please try again.", variant: "destructive" });
+      toast({ title: "Failed to update component", description: "Please try again.", variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -166,12 +188,9 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="default">Add Component</Button>
-      </DialogTrigger>
       <DialogContent className="max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add Component</DialogTitle>
+          <DialogTitle>Edit Component</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -302,7 +321,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Save</Button>
+            <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save"}</Button>
             <DialogClose asChild>
               <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>

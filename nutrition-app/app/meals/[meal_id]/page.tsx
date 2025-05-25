@@ -4,6 +4,8 @@ import { Header } from "@/components/layout/header";
 import Link from "next/link";
 import BackButton from "@/components/layout/BackButton";
 import AddComponentModalClientWrapper from "@/components/AddComponentModalClientWrapper";
+import { EditComponentModal } from "@/components/EditComponentModal";
+import ComponentListClient from "@/components/ComponentListClient";
 
 function ViewIcon() {
   return (
@@ -32,10 +34,10 @@ function NutritionInfo({ ingredient, rawQuantity }: { ingredient: any, rawQuanti
       <div className="mb-1">
         <span className="font-semibold">Per 100g:</span> 
         <span className="font-mono">
-          Calories: {ingredient.calories_per_100g}, 
-          Fat: {ingredient.fat_g}g, 
-          Protein: {ingredient.protein_g}g, 
-          Carbs: {ingredient.carbohydrates_g}g
+          Calories: {ingredient.calories_per_100g ?? 0}, 
+          Fat: {ingredient.fat_g ?? 0}g, 
+          Protein: {ingredient.protein_g ?? 0}g, 
+          Carbs: {ingredient.carbohydrates_g ?? 0}g
         </span>
       </div>
       <div>
@@ -61,6 +63,13 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
   const components = await getComponents(mealId);
   const ingredients = await getIngredients();
   const ingredientMap = new Map(ingredients.map(i => [i.ingredient_id, i]));
+  // Fetch recipeIngredients for each component
+  const componentsWithIngredients = await Promise.all(
+    components.map(async (component) => {
+      const recipeIngredients = await getRecipeIngredients(component.component_id);
+      return { ...component, recipeIngredients };
+    })
+  );
 
   return (
     <div className="flex flex-col min-h-screen p-6">
@@ -72,75 +81,15 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
         <AddComponentModalClientWrapper mealId={mealId} />
       </div>
       
-      {components.length === 0 && (
+      {componentsWithIngredients.length === 0 && (
         <div className="text-gray-500 italic">No components found.</div>
       )}
 
-      {await Promise.all(components.map(async (component) => {
-        const recipeIngredients = await getRecipeIngredients(component.component_id);
-        
-        return (
-          <div key={component.component_id} className="mb-8 border rounded-lg p-6 bg-white shadow-sm">
-            <div className="font-semibold text-xl mb-2 text-blue-700">{component.component_name}</div>
-            <div className="mb-4 text-sm text-gray-600">
-              Before Cook Weight: {component.before_cook_weight_g ? Number(component.before_cook_weight_g) : ""}g<br />
-              After Cook Weight: {component.after_cook_weight_g ? Number(component.after_cook_weight_g) : ""}g
-            </div>
-            {component.component_portions && component.component_portions.length > 0 && (
-              <div className="mb-2 text-sm text-gray-700">
-                <strong>Portion Sizes:</strong>
-                <ul>
-                  {component.component_portions.map((portion: any) => (
-                    <li key={portion.label}>
-                      {portion.label}: {Number(portion.total_weight_g)}g
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Ingredients:</h3>
-              
-              {recipeIngredients.length === 0 ? (
-                <div className="text-gray-500 italic ml-2">No ingredients found.</div>
-              ) : (
-                <ul className="space-y-4">
-                  {recipeIngredients.map((ri) => {
-                    const ingredient = ingredientMap.get(ri.ingredient_id);
-                    
-                    return (
-                      <li key={ri.ingredient_id}>
-                        <div className="flex items-center justify-between bg-gray-50 rounded-lg shadow-sm border-l-4 border-blue-400 px-6 py-4">
-                          <div className="flex items-center min-w-0">
-                            <span className="font-semibold text-lg truncate">
-                              {ingredient?.ingredient_name || `Ingredient ID: ${ri.ingredient_id}`}
-                            </span>
-                          </div>
-                          {ingredient && (
-                            <div className="flex items-center space-x-2">
-                              <Link href={`/ingredients/${ingredient.ingredient_id}`} className="hover:text-blue-600" title="View Ingredient">
-                                <ViewIcon />
-                              </Link>
-                              <Link href={`/ingredients/${ingredient.ingredient_id}/edit`} className="hover:text-green-600" title="Edit Ingredient">
-                                <EditIcon />
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {ingredient && (
-                          <NutritionInfo ingredient={ingredient} rawQuantity={ri.raw_quantity_g} />
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </div>
-        );
-      }))}
+      <ComponentListClient
+        components={componentsWithIngredients}
+        ingredientMap={ingredientMap}
+        mealId={mealId}
+      />
     </div>
   );
 }

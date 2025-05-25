@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const APP_ID = '8819bf57';
-const APP_KEY = '32598bc8d7cdce26bd5c682d0fda24fb';
+const APP_ID = 'fb6aca3d';
+const APP_KEY = '77119808a8169486ed70f354cc38ed9c';
 
 export async function POST(req: NextRequest) {
   const { ingr } = await req.json();
