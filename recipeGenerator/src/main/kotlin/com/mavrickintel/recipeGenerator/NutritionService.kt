@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Service
 class NutritionService(
@@ -24,7 +26,7 @@ class NutritionService(
                 // Find portion multiplier (default to 1.0 if not found)
                 portionOptionRepository.findByMealIdAndSizeName(meal.mealId!!, "${portion}p")
                     .map { it.multiplier }
-                    .defaultIfEmpty(1.0)
+                    .defaultIfEmpty(BigDecimal.ONE)
                     .doOnNext { multiplier -> println("Using portion multiplier: $multiplier") }
                     .flatMap { multiplier ->
                         componentRepository.findAllByMealId(meal.mealId)
@@ -51,14 +53,14 @@ class NutritionService(
                                                         .map { ingredient ->
                                                             try {
                                                                 // Calculate nutrition for this ingredient
-                                                                val factor = (ri.rawQuantityG * multiplier) / 100.0
+                                                                val factor = ri.rawQuantityG.multiply(multiplier).divide(BigDecimal(100), 4, RoundingMode.HALF_UP)
                                                                 println("Calculating nutrition with factor: $factor for ${ingredient.ingredientName}")
                                                                 NutritionIngredient(
                                                                     name = ingredient.ingredientName,
-                                                                    calories = ingredient.caloriesPer100g * factor,
-                                                                    fat = ingredient.fatG * factor,
-                                                                    protein = ingredient.proteinG * factor,
-                                                                    carbs = ingredient.carbohydratesG * factor
+                                                                    calories = ingredient.caloriesPer100g.multiply(factor),
+                                                                    fat = ingredient.fatG.multiply(factor),
+                                                                    protein = ingredient.proteinG.multiply(factor),
+                                                                    carbs = ingredient.carbohydratesG.multiply(factor)
                                                                 )
                                                             } catch (e: Exception) {
                                                                 println("Error calculating nutrition for ${ingredient.ingredientName}: ${e.message}")
@@ -73,18 +75,19 @@ class NutritionService(
                                                 throw ResponseStatusException(HttpStatus.NOT_FOUND, "No ingredients found for meal '$foodItem'")
                                             }
                                             // Sum up nutrition
-                                            val totalCalories = nutritionIngredients.sumOf { it.calories }
-                                            val totalFat = nutritionIngredients.sumOf { it.fat }
-                                            val totalProtein = nutritionIngredients.sumOf { it.protein }
-                                            val totalCarbs = nutritionIngredients.sumOf { it.carbs }
+                                            val totalCalories = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.calories) }
+                                            val totalFat = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.fat) }
+                                            val totalProtein = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.protein) }
+                                            val totalCarbs = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.carbs) }
+                                            
                                             println("Final nutrition values - Calories: $totalCalories, Fat: $totalFat, Protein: $totalProtein, Carbs: $totalCarbs")
                                             NutritionResponse(
                                                 food_item = meal.mealName,
-                                                calories = totalCalories.toInt(),
+                                                calories = totalCalories.setScale(0, RoundingMode.HALF_UP).toInt(),
                                                 serving_size = "${portion}p",
-                                                fat_g = totalFat.toInt(),
-                                                carbohydrates_g = totalCarbs.toInt(),
-                                                protein_g = totalProtein.toInt(),
+                                                fat_g = totalFat.setScale(0, RoundingMode.HALF_UP).toInt(),
+                                                carbohydrates_g = totalCarbs.setScale(0, RoundingMode.HALF_UP).toInt(),
+                                                protein_g = totalProtein.setScale(0, RoundingMode.HALF_UP).toInt(),
                                                 ingredients = nutritionIngredients.map { it.name }
                                             )
                                         }
@@ -100,8 +103,8 @@ class NutritionService(
 
 data class NutritionIngredient(
     val name: String,
-    val calories: Double,
-    val fat: Double,
-    val protein: Double,
-    val carbs: Double
+    val calories: BigDecimal,
+    val fat: BigDecimal,
+    val protein: BigDecimal,
+    val carbs: BigDecimal
 )

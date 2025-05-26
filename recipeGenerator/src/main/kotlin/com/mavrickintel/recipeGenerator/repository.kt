@@ -26,4 +26,10 @@ interface RecipeIngredientRepository : ReactiveCrudRepository<RecipeIngredient, 
 @Repository
 interface PortionOptionRepository : ReactiveCrudRepository<PortionOption, Long> {
     fun findByMealIdAndSizeName(mealId: Long, sizeName: String): reactor.core.publisher.Mono<PortionOption>
+}
+
+@Repository
+interface ComponentPortionRepository : ReactiveCrudRepository<ComponentPortion, Long> {
+    fun findAllByComponentId(componentId: Long): reactor.core.publisher.Flux<ComponentPortion>
+    fun findByComponentIdAndLabel(componentId: Long, label: String): reactor.core.publisher.Mono<ComponentPortion>
 } 
