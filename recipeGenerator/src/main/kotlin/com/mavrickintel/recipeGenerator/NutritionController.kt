@@ -11,6 +11,14 @@ data class NutritionRequest(
 )
 
 // Response DTO
+data class ComponentMacroSummary(
+    val component_name: String,
+    val calories: Int,
+    val fat_g: Int,
+    val protein_g: Int,
+    val carbohydrates_g: Int
+)
+
 data class NutritionResponse(
     val food_item: String,
     val calories: Int,
@@ -18,7 +26,8 @@ data class NutritionResponse(
     val fat_g: Int,
     val carbohydrates_g: Int,
     val protein_g: Int,
-    val ingredients: List<String>
+    val ingredients: List<String>,
+    val components: List<ComponentMacroSummary>
 )
 
 @RestController

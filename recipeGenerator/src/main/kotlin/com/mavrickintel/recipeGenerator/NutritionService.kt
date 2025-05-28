@@ -13,7 +13,8 @@ class NutritionService(
     private val componentRepository: ComponentRepository,
     private val recipeIngredientRepository: RecipeIngredientRepository,
     private val ingredientRepository: IngredientRepository,
-    private val portionOptionRepository: PortionOptionRepository
+    private val portionOptionRepository: PortionOptionRepository,
+    private val componentPortionRepository: ComponentPortionRepository
 ) {
     fun getNutrition(foodItem: String, portion: Int): Mono<NutritionResponse> {
         println("Getting nutrition for food item: $foodItem, portion: $portion")
@@ -23,75 +24,101 @@ class NutritionService(
             )
             .doOnNext { meal -> println("Found meal: ${meal.mealName} with id: ${meal.mealId}") }
             .flatMap { meal ->
-                // Find portion multiplier (default to 1.0 if not found)
-                portionOptionRepository.findByMealIdAndSizeName(meal.mealId!!, "${portion}p")
+                val portionLabel = "${portion}P"
+                portionOptionRepository.findByMealIdAndSizeName(meal.mealId!!, portionLabel)
                     .map { it.multiplier }
                     .defaultIfEmpty(BigDecimal.ONE)
                     .doOnNext { multiplier -> println("Using portion multiplier: $multiplier") }
                     .flatMap { multiplier ->
                         componentRepository.findAllByMealId(meal.mealId)
-                            .doOnNext { component -> println("Processing component: ${component.componentName}") }
                             .collectList()
                             .flatMap { components ->
                                 if (components.isEmpty()) {
                                     Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "No components found for meal '$foodItem'"))
                                 } else {
-                                    // For each component, get its ingredients and calculate nutrition
-                                    reactor.core.publisher.Flux.fromIterable(components)
+                                    return@flatMap reactor.core.publisher.Flux.fromIterable(components)
                                         .flatMap { component ->
-                                            recipeIngredientRepository.findAllByComponentId(component.componentId!!)
-                                                .doOnNext { ri -> println("Found recipe ingredient with raw quantity: ${ri.rawQuantityG}g") }
-                                                .flatMap { ri ->
-                                                    ingredientRepository.findById(ri.ingredientId)
-                                                        .doOnError { error -> 
-                                                            println("Error finding ingredient ${ri.ingredientId}: ${error.message}")
-                                                        }
-                                                        .switchIfEmpty(
-                                                            Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Ingredient with ID ${ri.ingredientId} not found"))
-                                                        )
-                                                        .doOnNext { ingredient -> println("Processing ingredient: ${ingredient.ingredientName}") }
-                                                        .map { ingredient ->
-                                                            try {
-                                                                // Calculate nutrition for this ingredient
-                                                                val factor = ri.rawQuantityG.multiply(multiplier).divide(BigDecimal(100), 4, RoundingMode.HALF_UP)
-                                                                println("Calculating nutrition with factor: $factor for ${ingredient.ingredientName}")
-                                                                NutritionIngredient(
-                                                                    name = ingredient.ingredientName,
-                                                                    calories = ingredient.caloriesPer100g.multiply(factor),
-                                                                    fat = ingredient.fatG.multiply(factor),
-                                                                    protein = ingredient.proteinG.multiply(factor),
-                                                                    carbs = ingredient.carbohydratesG.multiply(factor)
-                                                                )
-                                                            } catch (e: Exception) {
-                                                                println("Error calculating nutrition for ${ingredient.ingredientName}: ${e.message}")
-                                                                throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error calculating nutrition values")
+                                            componentPortionRepository.findByComponentIdAndLabel(component.componentId!!, portionLabel)
+                                                .switchIfEmpty(Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "No portion found for component '${component.componentName}' and label '$portionLabel'")))
+                                                .flatMap { compPortion ->
+                                                    recipeIngredientRepository.findAllByComponentId(component.componentId)
+                                                        .collectList()
+                                                        .flatMap { recipeIngredients ->
+                                                            if (recipeIngredients.isEmpty()) {
+                                                                Mono.just(ComponentMacroSummary(
+                                                                    component_name = component.componentName,
+                                                                    calories = 0,
+                                                                    fat_g = 0,
+                                                                    protein_g = 0,
+                                                                    carbohydrates_g = 0
+                                                                ))
+                                                            } else {
+                                                                // Calculate total macros for the whole batch (using all ingredients and total cooked weight)
+                                                                reactor.core.publisher.Flux.fromIterable(recipeIngredients)
+                                                                    .flatMap { ri ->
+                                                                        ingredientRepository.findById(ri.ingredientId)
+                                                                            .map { ingredient ->
+                                                                                val factor = ri.rawQuantityG.divide(BigDecimal(100), 6, RoundingMode.HALF_UP)
+                                                                                NutritionIngredient(
+                                                                                    name = ingredient.ingredientName,
+                                                                                    calories = ingredient.caloriesPer100g.multiply(factor),
+                                                                                    fat = ingredient.fatG.multiply(factor),
+                                                                                    protein = ingredient.proteinG.multiply(factor),
+                                                                                    carbs = ingredient.carbohydratesG.multiply(factor)
+                                                                                )
+                                                                            }
+                                                                    }
+                                                                    .collectList()
+                                                                    .map { nutritionIngredients ->
+                                                                        val totalCalories = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.calories) }
+                                                                        val totalFat = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.fat) }
+                                                                        val totalProtein = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.protein) }
+                                                                        val totalCarbs = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.carbs) }
+                                                                        val totalCooked = component.afterCookWeightG ?: compPortion.totalWeightG
+                                                                        // Per-gram values
+                                                                        val calPerG = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else totalCalories.divide(totalCooked, 6, RoundingMode.HALF_UP)
+                                                                        val fatPerG = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else totalFat.divide(totalCooked, 6, RoundingMode.HALF_UP)
+                                                                        val proteinPerG = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else totalProtein.divide(totalCooked, 6, RoundingMode.HALF_UP)
+                                                                        val carbsPerG = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else totalCarbs.divide(totalCooked, 6, RoundingMode.HALF_UP)
+                                                                        // Portion macros (use compPortion.totalWeightG as the portion size)
+                                                                        val portionWeight = compPortion.totalWeightG
+                                                                        val portionCalories = portionWeight.multiply(calPerG)
+                                                                        val portionFat = portionWeight.multiply(fatPerG)
+                                                                        val portionProtein = portionWeight.multiply(proteinPerG)
+                                                                        val portionCarbs = portionWeight.multiply(carbsPerG)
+                                                                        ComponentMacroSummary(
+                                                                            component_name = component.componentName,
+                                                                            calories = portionCalories.setScale(0, RoundingMode.HALF_UP).toInt(),
+                                                                            fat_g = portionFat.setScale(1, RoundingMode.HALF_UP).toDouble().toInt(),
+                                                                            protein_g = portionProtein.setScale(1, RoundingMode.HALF_UP).toDouble().toInt(),
+                                                                            carbohydrates_g = portionCarbs.setScale(1, RoundingMode.HALF_UP).toDouble().toInt()
+                                                                        )
+                                                                    }
+                                                                    .flatMap { Mono.just(it) }
                                                             }
                                                         }
                                                 }
                                         }
                                         .collectList()
-                                        .map { nutritionIngredients ->
-                                            if (nutritionIngredients.isEmpty()) {
-                                                throw ResponseStatusException(HttpStatus.NOT_FOUND, "No ingredients found for meal '$foodItem'")
-                                            }
-                                            // Sum up nutrition
-                                            val totalCalories = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.calories) }
-                                            val totalFat = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.fat) }
-                                            val totalProtein = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.protein) }
-                                            val totalCarbs = nutritionIngredients.fold(BigDecimal.ZERO) { acc, it -> acc.add(it.carbs) }
-                                            
-                                            println("Final nutrition values - Calories: $totalCalories, Fat: $totalFat, Protein: $totalProtein, Carbs: $totalCarbs")
-                                            NutritionResponse(
-                                                food_item = meal.mealName,
-                                                calories = totalCalories.setScale(0, RoundingMode.HALF_UP).toInt(),
-                                                serving_size = "${portion}p",
-                                                fat_g = totalFat.setScale(0, RoundingMode.HALF_UP).toInt(),
-                                                carbohydrates_g = totalCarbs.setScale(0, RoundingMode.HALF_UP).toInt(),
-                                                protein_g = totalProtein.setScale(0, RoundingMode.HALF_UP).toInt(),
-                                                ingredients = nutritionIngredients.map { it.name }
+                                        .flatMap { componentMacros ->
+                                            // Sum up all components for meal total
+                                            val totalCalories = componentMacros.sumOf { it.calories }
+                                            val totalFat = componentMacros.sumOf { it.fat_g }
+                                            val totalProtein = componentMacros.sumOf { it.protein_g }
+                                            val totalCarbs = componentMacros.sumOf { it.carbohydrates_g }
+                                            Mono.just(
+                                                NutritionResponse(
+                                                    food_item = meal.mealName,
+                                                    calories = totalCalories,
+                                                    serving_size = portionLabel,
+                                                    fat_g = totalFat,
+                                                    carbohydrates_g = totalCarbs,
+                                                    protein_g = totalProtein,
+                                                    ingredients = componentMacros.map { it.component_name },
+                                                    components = componentMacros
+                                                )
                                             )
                                         }
-                                }
                             }
                     }
             }
@@ -99,6 +126,7 @@ class NutritionService(
                 println("Error processing nutrition request: ${error.message}")
             }
     }
+}
 }
 
 data class NutritionIngredient(
