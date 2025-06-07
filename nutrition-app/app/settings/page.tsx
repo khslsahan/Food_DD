@@ -4,11 +4,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Header } from "@/components/layout/header";
+import { X } from "lucide-react";
 
 export default function SettingsPage() {
   const [useEdamam, setUseEdamam] = useState(false);
-  const [foodItem, setFoodItem] = useState("");
-  const [portion, setPortion] = useState(1);
+  const [foodItemInput, setFoodItemInput] = useState("");
+  const [foodItems, setFoodItems] = useState<string[]>([]);
+  const [objectiveType, setObjectiveType] = useState("");
+  const [packageType, setPackageType] = useState("");
+  const [dislikes, setDislikes] = useState("");
+  const [replacement, setReplacement] = useState("");
+  const [comments, setComments] = useState("");
+  const [allergen, setAllergen] = useState("");
   const [edamamIngr, setEdamamIngr] = useState("");
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -18,6 +25,19 @@ export default function SettingsPage() {
     setUseEdamam(edamam);
     setResponse(null);
     setError(null);
+  }
+
+  function handleAddFoodItem(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    const trimmed = foodItemInput.trim();
+    if (trimmed && !foodItems.includes(trimmed)) {
+      setFoodItems([...foodItems, trimmed]);
+    }
+    setFoodItemInput("");
+  }
+
+  function handleRemoveFoodItem(item: string) {
+    setFoodItems(foodItems.filter(f => f !== item));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -34,10 +54,19 @@ export default function SettingsPage() {
           body: JSON.stringify({ ingr: edamamIngr }),
         });
       } else {
+        const reqBody: any = {
+          food_items: foodItems.map(f => f.trim()).filter(f => f),
+        };
+        if (objectiveType) reqBody.objective_type = objectiveType;
+        if (packageType) reqBody.package_type = packageType;
+        if (dislikes) reqBody.dislikes = dislikes;
+        if (replacement) reqBody.replacement = replacement;
+        if (comments) reqBody.comments = comments;
+        if (allergen) reqBody.allergen = allergen;
         res = await fetch("/api/nutrition-proxy", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ food_item: foodItem, portion }),
+          body: JSON.stringify(reqBody),
         });
       }
       if (!res.ok) {
@@ -86,27 +115,84 @@ export default function SettingsPage() {
           ) : (
             <>
               <div>
-                <label className="block mb-1 font-medium">Food Item</label>
+                <label className="block mb-1 font-medium">Food Items</label>
+                <div className="flex gap-2">
+                  <Input
+                    value={foodItemInput}
+                    onChange={e => setFoodItemInput(e.target.value)}
+                    placeholder="e.g., Shrimp kabse"
+                  />
+                  <Button type="button" onClick={handleAddFoodItem} disabled={!foodItemInput.trim()}>
+                    Add
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {foodItems.map(item => (
+                    <span key={item} className="inline-flex items-center bg-gray-200 rounded px-2 py-1 text-sm">
+                      {item}
+                      <button
+                        type="button"
+                        className="ml-1 text-gray-600 hover:text-red-600"
+                        onClick={() => handleRemoveFoodItem(item)}
+                        aria-label={`Remove ${item}`}
+                      >
+                        <X size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Objective Type (optional)</label>
                 <Input
-                  value={foodItem}
-                  onChange={e => setFoodItem(e.target.value)}
-                  placeholder="e.g., Beef Stroganoff"
-                  required
+                  value={objectiveType}
+                  onChange={e => setObjectiveType(e.target.value)}
+                  placeholder="e.g., fat loss"
                 />
               </div>
               <div>
-                <label className="block mb-1 font-medium">Portion</label>
+                <label className="block mb-1 font-medium">Package Type (optional)</label>
                 <Input
-                  type="number"
-                  value={portion}
-                  onChange={e => setPortion(Number(e.target.value))}
-                  min={1}
-                  required
+                  value={packageType}
+                  onChange={e => setPackageType(e.target.value)}
+                  placeholder="e.g., Balanced"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Dislikes (optional)</label>
+                <Input
+                  value={dislikes}
+                  onChange={e => setDislikes(e.target.value)}
+                  placeholder="e.g., corn"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Replacement (optional)</label>
+                <Input
+                  value={replacement}
+                  onChange={e => setReplacement(e.target.value)}
+                  placeholder="e.g., peas"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Comments (optional)</label>
+                <Input
+                  value={comments}
+                  onChange={e => setComments(e.target.value)}
+                  placeholder="e.g., no sugar; no salt"
+                />
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Allergen (optional)</label>
+                <Input
+                  value={allergen}
+                  onChange={e => setAllergen(e.target.value)}
+                  placeholder="e.g., Dairy"
                 />
               </div>
             </>
           )}
-          <Button type="submit" disabled={loading} className="w-fit">
+          <Button type="submit" disabled={loading || (!useEdamam && foodItems.length === 0)} className="w-fit">
             {loading ? "Requesting..." : useEdamam ? "Try Edamam API" : "Try Nutrition API"}
           </Button>
         </form>
