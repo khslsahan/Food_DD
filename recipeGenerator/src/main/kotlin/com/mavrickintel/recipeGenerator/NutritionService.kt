@@ -24,7 +24,7 @@ class NutritionService(
             )
             .doOnNext { meal -> println("Found meal: ${meal.mealName} with id: ${meal.mealId}") }
             .flatMap { meal ->
-                val portionLabel = "${portion}P"
+                val portionLabel = "2P"
                 portionOptionRepository.findByMealIdAndSizeName(meal.mealId!!, portionLabel)
                     .map { it.multiplier }
                     .defaultIfEmpty(BigDecimal.ONE)

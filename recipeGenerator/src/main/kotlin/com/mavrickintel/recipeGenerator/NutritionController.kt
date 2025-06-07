@@ -6,8 +6,13 @@ import reactor.core.publisher.Mono
 
 // Request DTO
 data class NutritionRequest(
-    val food_item: String,
-    val portion: Int
+    val food_items: List<String>,
+    val objective_type: String? = null,
+    val package_type: String? = null,
+    val dislikes: String? = null,
+    val replacement: String? = null,
+    val comments: String? = null,
+    val allergen: String? = null
 )
 
 // Response DTO
@@ -36,13 +41,17 @@ class NutritionController(private val nutritionService: NutritionService) {
     @GetMapping("/api/nutrition")
     fun getNutritionGet(): Mono<NutritionResponse> {
         println("getNutritionGet")
-        return nutritionService.getNutrition("Grilled Chicken Sandwich" , 1)
+        return nutritionService.getNutrition("Grilled Chicken Sandwich", 1)
             .switchIfEmpty(Mono.error(ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Food item not found")))
     }
 
     @PostMapping("/api/nutrition")
-    fun getNutrition(@RequestBody request: NutritionRequest): Mono<NutritionResponse> {
-        return nutritionService.getNutrition(request.food_item, request.portion)
-            .switchIfEmpty(Mono.error(ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Food item not found")))
+    fun getNutrition(@RequestBody request: NutritionRequest): Mono<List<NutritionResponse>> {
+        return reactor.core.publisher.Flux.fromIterable(request.food_items)
+            .flatMap { foodItem ->
+                nutritionService.getNutrition(foodItem, 2)
+                    .switchIfEmpty(Mono.error(ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND, "Food item not found: $foodItem")))
+            }
+            .collectList()
     }
 } 
