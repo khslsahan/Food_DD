@@ -90,3 +90,30 @@ export async function createMeal({ meal_name, description }: { meal_name: string
     },
   });
 }
+
+export async function createIngredient({
+  ingredient_name,
+  default_unit,
+  calories_per_100g,
+  fat_g,
+  protein_g,
+  carbohydrates_g,
+}: {
+  ingredient_name: string;
+  default_unit: string;
+  calories_per_100g: number;
+  fat_g: number;
+  protein_g: number;
+  carbohydrates_g: number;
+}) {
+  return prisma.ingredients.create({
+    data: {
+      ingredient_name,
+      default_unit,
+      calories_per_100g,
+      fat_g,
+      protein_g,
+      carbohydrates_g,
+    },
+  });
+}
