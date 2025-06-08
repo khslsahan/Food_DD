@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  nutrition-app:
+    build:
+      context: ../nutrition-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://food_nutrition_user:food_nutrition_pass@db:5432/food_nutrition_db?schema=public
+    depends_on:
+      - db
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  recipe-generator:
+    build:
+      context: ../recipeGenerator
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_R2DBC_URL=r2dbc:postgresql://db:5432/food_nutrition_db
+      - SPRING_R2DBC_USERNAME=food_nutrition_user
+      - SPRING_R2DBC_PASSWORD=food_nutrition_pass
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    depends_on:
+      - db
+      - redis
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=food_nutrition_user
+      - POSTGRES_PASSWORD=food_nutrition_pass
+      - POSTGRES_DB=food_nutrition_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U food_nutrition_user -d food_nutrition_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data: 
