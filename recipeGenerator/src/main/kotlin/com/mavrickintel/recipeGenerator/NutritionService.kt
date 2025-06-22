@@ -45,13 +45,15 @@ class NutritionService(
                                                         .collectList()
                                                         .flatMap { recipeIngredients ->
                                                             if (recipeIngredients.isEmpty()) {
-                                                                Mono.just(ComponentMacroSummary(
-                                                                    component_name = component.componentName,
-                                                                    calories = 0,
-                                                                    fat_g = 0,
-                                                                    protein_g = 0,
-                                                                    carbohydrates_g = 0
-                                                                ))
+                                                                Mono.just(
+                                                                    Pair(ComponentMacroSummary(
+                                                                        component_name = component.componentName,
+                                                                        calories = 0,
+                                                                        fat_g = 0,
+                                                                        protein_g = 0,
+                                                                        carbohydrates_g = 0
+                                                                    ), emptyList<IngredientDetails>())
+                                                                )
                                                             } else {
                                                                 // Calculate total macros for the whole batch (using all ingredients and total cooked weight)
                                                                 reactor.core.publisher.Flux.fromIterable(recipeIngredients)
@@ -86,21 +88,35 @@ class NutritionService(
                                                                         val portionFat = portionWeight.multiply(fatPerG)
                                                                         val portionProtein = portionWeight.multiply(proteinPerG)
                                                                         val portionCarbs = portionWeight.multiply(carbsPerG)
-                                                                        ComponentMacroSummary(
+                                                                        val componentMacroSummary = ComponentMacroSummary(
                                                                             component_name = component.componentName,
                                                                             calories = portionCalories.setScale(0, RoundingMode.HALF_UP).toInt(),
                                                                             fat_g = portionFat.setScale(1, RoundingMode.HALF_UP).toDouble().toInt(),
                                                                             protein_g = portionProtein.setScale(1, RoundingMode.HALF_UP).toDouble().toInt(),
                                                                             carbohydrates_g = portionCarbs.setScale(1, RoundingMode.HALF_UP).toDouble().toInt()
                                                                         )
+
+                                                                        val scalingFactor = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else portionWeight.divide(totalCooked, 6, RoundingMode.HALF_UP)
+                                                                        val ingredientDetails = nutritionIngredients.map {
+                                                                            IngredientDetails(
+                                                                                ingredient_name = it.name,
+                                                                                calories = it.calories.multiply(scalingFactor).setScale(0, RoundingMode.HALF_UP).toInt(),
+                                                                                fat_g = it.fat.multiply(scalingFactor).setScale(1, RoundingMode.HALF_UP).toDouble().toInt(),
+                                                                                protein_g = it.protein.multiply(scalingFactor).setScale(1, RoundingMode.HALF_UP).toDouble().toInt(),
+                                                                                carbohydrates_g = it.carbs.multiply(scalingFactor).setScale(1, RoundingMode.HALF_UP).toDouble().toInt()
+                                                                            )
+                                                                        }
+                                                                        Pair(componentMacroSummary, ingredientDetails)
                                                                     }
-                                                                    .flatMap { Mono.just(it) }
                                                             }
                                                         }
                                                 }
                                         }
                                         .collectList()
-                                        .flatMap { componentMacros ->
+                                        .flatMap { results ->
+                                            val componentMacros = results.map { it.first }
+                                            val allIngredientDetails = results.flatMap { it.second }
+
                                             // Sum up all components for meal total
                                             val totalCalories = componentMacros.sumOf { it.calories }
                                             val totalFat = componentMacros.sumOf { it.fat_g }
@@ -114,11 +130,12 @@ class NutritionService(
                                                     fat_g = totalFat,
                                                     carbohydrates_g = totalCarbs,
                                                     protein_g = totalProtein,
-                                                    ingredients = componentMacros.map { it.component_name },
+                                                    ingredients = allIngredientDetails,
                                                     components = componentMacros
                                                 )
                                             )
                                         }
+                                }
                             }
                     }
             }
@@ -126,7 +143,6 @@ class NutritionService(
                 println("Error processing nutrition request: ${error.message}")
             }
     }
-}
 }
 
 data class NutritionIngredient(
