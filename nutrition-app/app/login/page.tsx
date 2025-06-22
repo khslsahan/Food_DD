@@ -117,7 +117,7 @@ export default function LoginPage() {
           </Form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted-foreground">Demo credentials: username: admin, password: admin123</p>
+          <p className="text-sm text-muted-foreground">Please contact your administrator for login credentials</p>
         </CardFooter>
       </Card>
     </div>

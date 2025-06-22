@@ -69,6 +69,16 @@ model portion_options {
   @@unique([meal_id, size_name])
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("users")
+}
+
 model recipe_ingredients {
   component_id      Int
   ingredient_id     Int
