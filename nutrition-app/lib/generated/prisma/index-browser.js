@@ -155,6 +155,9 @@ exports.Prisma.MealsScalarFieldEnum = {
   meal_id: 'meal_id',
   meal_name: 'meal_name',
   description: 'description',
+  is_balanced: 'is_balanced',
+  is_gourmet: 'is_gourmet',
+  is_weight_loss: 'is_weight_loss',
   created_at: 'created_at',
   updated_at: 'updated_at'
 };

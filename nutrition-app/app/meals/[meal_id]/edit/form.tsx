@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -14,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Header } from "@/components/layout/header"
 import { Checkbox } from "@/components/ui/checkbox"
+import type { meals } from "@prisma/client"
 
 const formSchema = z.object({
   meal_name: z.string().min(2, "Meal name must be at least 2 characters").max(100),
@@ -23,19 +23,20 @@ const formSchema = z.object({
   is_weight_loss: z.boolean().default(false),
 })
 
-export default function NewMealPage() {
+export default function EditMealForm({ meal }: { meal: meals }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
+  const mealId = meal.meal_id
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      meal_name: "",
-      description: "",
-      is_balanced: false,
-      is_gourmet: false,
-      is_weight_loss: false,
+      meal_name: meal.meal_name,
+      description: meal.description || "",
+      is_balanced: meal.is_balanced,
+      is_gourmet: meal.is_gourmet,
+      is_weight_loss: meal.is_weight_loss,
     },
   })
 
@@ -43,8 +44,8 @@ export default function NewMealPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/meals", {
-        method: "POST",
+      const response = await fetch(`/api/meals/${mealId}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -52,22 +53,20 @@ export default function NewMealPage() {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to create meal")
+        throw new Error("Failed to update meal")
       }
 
-      const data = await response.json()
-
       toast({
-        title: "Meal created",
-        description: `${values.meal_name} has been created successfully.`,
+        title: "Meal updated",
+        description: `${values.meal_name} has been updated successfully.`,
       })
 
-      router.push(`/meals/${data.meal_id}`)
+      router.push(`/meals`)
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to create meal. Please try again.",
+        description: "Failed to update meal. Please try again.",
       })
     } finally {
       setIsLoading(false)
@@ -76,12 +75,12 @@ export default function NewMealPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header title="Create New Meal" description="Add a new meal to your collection" />
+      <Header title="Edit Meal" description="Update the details of your meal recipe" />
 
       <main className="flex-1 p-6">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
-            <CardTitle>New Meal</CardTitle>
+            <CardTitle>Edit Meal</CardTitle>
             <CardDescription>Enter the details for your new meal recipe</CardDescription>
           </CardHeader>
           <CardContent>
@@ -169,7 +168,7 @@ export default function NewMealPage() {
                     Cancel
                   </Button>
                   <Button type="submit" disabled={isLoading}>
-                    {isLoading ? "Creating..." : "Create Meal"}
+                    {isLoading ? "Updating..." : "Update Meal"}
                   </Button>
                 </div>
               </form>
@@ -179,4 +178,4 @@ export default function NewMealPage() {
       </main>
     </div>
   )
-}
+} 

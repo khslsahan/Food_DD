@@ -8,6 +8,9 @@ export interface Meal {
   meal_id: number
   meal_name: string
   description: string
+  is_balanced: boolean
+  is_gourmet: boolean
+  is_weight_loss: boolean
   serving_size: string
   created_at: string
   updated_at: string

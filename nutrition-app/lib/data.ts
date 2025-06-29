@@ -82,11 +82,14 @@ export async function getRecipeIngredients(componentId?: number) {
   }))
 }
 
-export async function createMeal({ meal_name, description }: { meal_name: string, description?: string }) {
+export async function createMeal({ meal_name, description, is_balanced, is_gourmet, is_weight_loss }: { meal_name: string, description?: string, is_balanced?: boolean, is_gourmet?: boolean, is_weight_loss?: boolean }) {
   return prisma.meals.create({
     data: {
       meal_name,
       description: description || null,
+      is_balanced: is_balanced || false,
+      is_gourmet: is_gourmet || false,
+      is_weight_loss: is_weight_loss || false,
     },
   });
 }
@@ -114,6 +117,15 @@ export async function createIngredient({
       fat_g,
       protein_g,
       carbohydrates_g,
+    },
+  });
+}
+
+export async function updateMeal(id: number, data: Partial<Omit<Meal, 'meal_id'>>) {
+  return prisma.meals.update({
+    where: { meal_id: id },
+    data: {
+      ...data,
     },
   });
 }

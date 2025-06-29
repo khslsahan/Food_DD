@@ -5041,6 +5041,9 @@ export namespace Prisma {
     meal_id: number | null
     meal_name: string | null
     description: string | null
+    is_balanced: boolean | null
+    is_gourmet: boolean | null
+    is_weight_loss: boolean | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -5049,6 +5052,9 @@ export namespace Prisma {
     meal_id: number | null
     meal_name: string | null
     description: string | null
+    is_balanced: boolean | null
+    is_gourmet: boolean | null
+    is_weight_loss: boolean | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -5057,6 +5063,9 @@ export namespace Prisma {
     meal_id: number
     meal_name: number
     description: number
+    is_balanced: number
+    is_gourmet: number
+    is_weight_loss: number
     created_at: number
     updated_at: number
     _all: number
@@ -5075,6 +5084,9 @@ export namespace Prisma {
     meal_id?: true
     meal_name?: true
     description?: true
+    is_balanced?: true
+    is_gourmet?: true
+    is_weight_loss?: true
     created_at?: true
     updated_at?: true
   }
@@ -5083,6 +5095,9 @@ export namespace Prisma {
     meal_id?: true
     meal_name?: true
     description?: true
+    is_balanced?: true
+    is_gourmet?: true
+    is_weight_loss?: true
     created_at?: true
     updated_at?: true
   }
@@ -5091,6 +5106,9 @@ export namespace Prisma {
     meal_id?: true
     meal_name?: true
     description?: true
+    is_balanced?: true
+    is_gourmet?: true
+    is_weight_loss?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -5186,6 +5204,9 @@ export namespace Prisma {
     meal_id: number
     meal_name: string
     description: string | null
+    is_balanced: boolean
+    is_gourmet: boolean
+    is_weight_loss: boolean
     created_at: Date | null
     updated_at: Date | null
     _count: MealsCountAggregateOutputType | null
@@ -5213,6 +5234,9 @@ export namespace Prisma {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: boolean
     updated_at?: boolean
     components?: boolean | meals$componentsArgs<ExtArgs>
@@ -5224,6 +5248,9 @@ export namespace Prisma {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["meals"]>
@@ -5232,6 +5259,9 @@ export namespace Prisma {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["meals"]>
@@ -5240,11 +5270,14 @@ export namespace Prisma {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type mealsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"meal_id" | "meal_name" | "description" | "created_at" | "updated_at", ExtArgs["result"]["meals"]>
+  export type mealsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"meal_id" | "meal_name" | "description" | "is_balanced" | "is_gourmet" | "is_weight_loss" | "created_at" | "updated_at", ExtArgs["result"]["meals"]>
   export type mealsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     components?: boolean | meals$componentsArgs<ExtArgs>
     portion_options?: boolean | meals$portion_optionsArgs<ExtArgs>
@@ -5263,6 +5296,9 @@ export namespace Prisma {
       meal_id: number
       meal_name: string
       description: string | null
+      is_balanced: boolean
+      is_gourmet: boolean
+      is_weight_loss: boolean
       created_at: Date | null
       updated_at: Date | null
     }, ExtArgs["result"]["meals"]>
@@ -5693,6 +5729,9 @@ export namespace Prisma {
     readonly meal_id: FieldRef<"meals", 'Int'>
     readonly meal_name: FieldRef<"meals", 'String'>
     readonly description: FieldRef<"meals", 'String'>
+    readonly is_balanced: FieldRef<"meals", 'Boolean'>
+    readonly is_gourmet: FieldRef<"meals", 'Boolean'>
+    readonly is_weight_loss: FieldRef<"meals", 'Boolean'>
     readonly created_at: FieldRef<"meals", 'DateTime'>
     readonly updated_at: FieldRef<"meals", 'DateTime'>
   }
@@ -9493,6 +9532,9 @@ export namespace Prisma {
     meal_id: 'meal_id',
     meal_name: 'meal_name',
     description: 'description',
+    is_balanced: 'is_balanced',
+    is_gourmet: 'is_gourmet',
+    is_weight_loss: 'is_weight_loss',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -9617,6 +9659,13 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -9857,6 +9906,9 @@ export namespace Prisma {
     meal_id?: IntFilter<"meals"> | number
     meal_name?: StringFilter<"meals"> | string
     description?: StringNullableFilter<"meals"> | string | null
+    is_balanced?: BoolFilter<"meals"> | boolean
+    is_gourmet?: BoolFilter<"meals"> | boolean
+    is_weight_loss?: BoolFilter<"meals"> | boolean
     created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     components?: ComponentsListRelationFilter
@@ -9867,6 +9919,9 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrderInput | SortOrder
+    is_balanced?: SortOrder
+    is_gourmet?: SortOrder
+    is_weight_loss?: SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
     components?: componentsOrderByRelationAggregateInput
@@ -9880,6 +9935,9 @@ export namespace Prisma {
     OR?: mealsWhereInput[]
     NOT?: mealsWhereInput | mealsWhereInput[]
     description?: StringNullableFilter<"meals"> | string | null
+    is_balanced?: BoolFilter<"meals"> | boolean
+    is_gourmet?: BoolFilter<"meals"> | boolean
+    is_weight_loss?: BoolFilter<"meals"> | boolean
     created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     components?: ComponentsListRelationFilter
@@ -9890,6 +9948,9 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrderInput | SortOrder
+    is_balanced?: SortOrder
+    is_gourmet?: SortOrder
+    is_weight_loss?: SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
     _count?: mealsCountOrderByAggregateInput
@@ -9906,6 +9967,9 @@ export namespace Prisma {
     meal_id?: IntWithAggregatesFilter<"meals"> | number
     meal_name?: StringWithAggregatesFilter<"meals"> | string
     description?: StringNullableWithAggregatesFilter<"meals"> | string | null
+    is_balanced?: BoolWithAggregatesFilter<"meals"> | boolean
+    is_gourmet?: BoolWithAggregatesFilter<"meals"> | boolean
+    is_weight_loss?: BoolWithAggregatesFilter<"meals"> | boolean
     created_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
     updated_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
   }
@@ -10314,6 +10378,9 @@ export namespace Prisma {
   export type mealsCreateInput = {
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsCreateNestedManyWithoutMealsInput
@@ -10324,6 +10391,9 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsUncheckedCreateNestedManyWithoutMealsInput
@@ -10333,6 +10403,9 @@ export namespace Prisma {
   export type mealsUpdateInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUpdateManyWithoutMealsNestedInput
@@ -10343,6 +10416,9 @@ export namespace Prisma {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUncheckedUpdateManyWithoutMealsNestedInput
@@ -10353,6 +10429,9 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
   }
@@ -10360,6 +10439,9 @@ export namespace Prisma {
   export type mealsUpdateManyMutationInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -10368,6 +10450,9 @@ export namespace Prisma {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -10901,6 +10986,11 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type ComponentsListRelationFilter = {
     every?: componentsWhereInput
     some?: componentsWhereInput
@@ -10925,6 +11015,9 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrder
+    is_balanced?: SortOrder
+    is_gourmet?: SortOrder
+    is_weight_loss?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -10937,6 +11030,9 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrder
+    is_balanced?: SortOrder
+    is_gourmet?: SortOrder
+    is_weight_loss?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -10945,6 +11041,9 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrder
+    is_balanced?: SortOrder
+    is_gourmet?: SortOrder
+    is_weight_loss?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -10969,6 +11068,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type portion_optionsMeal_idSize_nameCompoundUniqueInput = {
@@ -11351,6 +11458,10 @@ export namespace Prisma {
     set?: string | null
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type componentsUpdateManyWithoutMealsNestedInput = {
     create?: XOR<componentsCreateWithoutMealsInput, componentsUncheckedCreateWithoutMealsInput> | componentsCreateWithoutMealsInput[] | componentsUncheckedCreateWithoutMealsInput[]
     connectOrCreate?: componentsCreateOrConnectWithoutMealsInput | componentsCreateOrConnectWithoutMealsInput[]
@@ -11655,6 +11766,11 @@ export namespace Prisma {
     not?: NestedStringNullableFilter<$PrismaModel> | string | null
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -11670,6 +11786,14 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedStringNullableFilter<$PrismaModel>
     _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -11700,6 +11824,9 @@ export namespace Prisma {
   export type mealsCreateWithoutComponentsInput = {
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
     portion_options?: portion_optionsCreateNestedManyWithoutMealsInput
@@ -11709,6 +11836,9 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
     portion_options?: portion_optionsUncheckedCreateNestedManyWithoutMealsInput
@@ -11784,6 +11914,9 @@ export namespace Prisma {
   export type mealsUpdateWithoutComponentsInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portion_options?: portion_optionsUpdateManyWithoutMealsNestedInput
@@ -11793,6 +11926,9 @@ export namespace Prisma {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portion_options?: portion_optionsUncheckedUpdateManyWithoutMealsNestedInput
@@ -12070,6 +12206,9 @@ export namespace Prisma {
   export type mealsCreateWithoutPortion_optionsInput = {
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsCreateNestedManyWithoutMealsInput
@@ -12079,6 +12218,9 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsUncheckedCreateNestedManyWithoutMealsInput
@@ -12103,6 +12245,9 @@ export namespace Prisma {
   export type mealsUpdateWithoutPortion_optionsInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUpdateManyWithoutMealsNestedInput
@@ -12112,6 +12257,9 @@ export namespace Prisma {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUncheckedUpdateManyWithoutMealsNestedInput

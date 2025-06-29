@@ -26,10 +26,14 @@ export async function POST(request: Request) {
     const newMeal = await createMeal({
       meal_name: body.meal_name,
       description: body.description || "",
+      is_balanced: body.is_balanced,
+      is_gourmet: body.is_gourmet,
+      is_weight_loss: body.is_weight_loss,
     })
 
     return NextResponse.json({ meal_id: newMeal.meal_id }, { status: 201 })
   } catch (error) {
+    console.error("Failed to create meal:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
