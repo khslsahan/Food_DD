@@ -75,6 +75,18 @@ export default async function MealDetailsPage({ params }: { params: { meal_id: s
     <div className="flex flex-col min-h-screen p-6">
       <div className="mb-2"><BackButton href="/meals" /></div>
       <Header title={meal.meal_name} description={meal.description || ""} />
+      {/* Info tags row, always show all three with positive/negative meaning */}
+      <div className="flex items-center gap-3 mb-6 mt-8">
+        <span className={`inline-flex items-center px-2 py-1 rounded text-sm font-semibold ${meal.is_balanced ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+          {meal.is_balanced ? '✔ Balanced' : '✖ Not Balanced'}
+        </span>
+        <span className={`inline-flex items-center px-2 py-1 rounded text-sm font-semibold ${meal.is_gourmet ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+          {meal.is_gourmet ? '🍽 Gourmet' : '🍽 Not Gourmet'}
+        </span>
+        <span className={`inline-flex items-center px-2 py-1 rounded text-sm font-semibold ${meal.is_weight_loss ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+          {meal.is_weight_loss ? '🏃‍♂️ Weight Loss' : '🏃‍♂️ Not Weight Loss'}
+        </span>
+      </div>
       
       <h2 className="text-xl font-bold mb-4">Components</h2>
       <div className="mb-4">
