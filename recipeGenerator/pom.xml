@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.mavrickintel</groupId>
 	<artifactId>recipeGenerator</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.6-SNAPSHOT</version>
 	<name>recipeGenerator</name>
 	<description>System that generates recipes based on available ingredients and nutritional requirements.</description>
 	<url>https://github.com/khslsahan/Food_DD</url>
@@ -29,7 +29,7 @@
 	<scm>
 		<connection>scm:git:git@github.com:khslsahan/Food_DD.git</connection>
 		<developerConnection>scm:git:git@github.com:khslsahan/Food_DD.git</developerConnection>
-		<tag>v0.0.5</tag>
+		<tag>HEAD</tag>
 		<url>https://github.com/khslsahan/Food_DD</url>
 	</scm>
 	<properties>
