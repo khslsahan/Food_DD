@@ -11,6 +11,9 @@ data class Meal(
     @Id @Column("meal_id") val mealId: Long? = null,
     @Column("meal_name") val mealName: String,
     val description: String?,
+    @Column("is_balanced") val isBalanced: Boolean = false,
+    @Column("is_gourmet") val isGourmet: Boolean = false,
+    @Column("is_weight_loss") val isWeightLoss: Boolean = false,
     @Column("created_at") val createdAt: OffsetDateTime? = null,
     @Column("updated_at") val updatedAt: OffsetDateTime? = null
 )
@@ -20,6 +23,7 @@ data class Component(
     @Id @Column("component_id") val componentId: Long? = null,
     @Column("meal_id") val mealId: Long?,
     @Column("component_name") val componentName: String,
+    @Column("category_id") val categoryId: Long? = null,
     @Column("before_cook_weight_g") val beforeCookWeightG: BigDecimal?,
     @Column("after_cook_weight_g") val afterCookWeightG: BigDecimal?,
     @Column("created_at") val createdAt: OffsetDateTime? = null,
@@ -67,4 +71,10 @@ data class ComponentPortion(
     @Column("total_weight_g") val totalWeightG: BigDecimal,
     @Column("created_at") val createdAt: OffsetDateTime? = null,
     @Column("updated_at") val updatedAt: OffsetDateTime? = null
+)
+
+@Table("component_category")
+data class ComponentCategory(
+    @Id @Column("id") val id: Long? = null,
+    @Column("name") val name: String
 ) 

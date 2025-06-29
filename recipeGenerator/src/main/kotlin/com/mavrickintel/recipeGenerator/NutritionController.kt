@@ -18,6 +18,7 @@ data class NutritionRequest(
 // Response DTO
 data class ComponentMacroSummary(
     val component_name: String,
+    val component_category: String,
     val calories: Int,
     val fat_g: Int,
     val protein_g: Int,
@@ -34,6 +35,9 @@ data class IngredientDetails(
 
 data class NutritionResponse(
     val food_item: String,
+    val is_balanced: Boolean = false,
+    val is_gourmet: Boolean = false,
+    val is_weight_loss: Boolean = false,
     val calories: Int,
     val serving_size: String,
     val fat_g: Int,
