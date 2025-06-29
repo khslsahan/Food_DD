@@ -16,16 +16,21 @@ NC='\033[0m' # No Color
 
 # --- Script Logic ---
 
-# Check if a tag was provided by the user
-if [ -z "$1" ]; then
-    echo -e "${RED}❌ Error: No tag provided!${NC}"
-    echo -e "${YELLOW}Usage: ./build-and-push.sh <your-tag>${NC}"
-    echo -e "${YELLOW}Example: ./build-and-push.sh 0.0.2${NC}"
-    exit 1
+# If a tag is provided, use it. Otherwise, get the latest git tag.
+if [ -n "$1" ]; then
+    VERSION="$1"
+else
+    # Try to get the latest git tag
+    VERSION=$(git describe --tags --abbrev=0 2>/dev/null)
+    if [ -z "$VERSION" ]; then
+        echo -e "${RED}❌ Error: No tag provided and no git tag found!${NC}"
+        echo -e "${YELLOW}Usage: ./build-and-push.sh <your-tag>${NC}"
+        echo -e "${YELLOW}Or:    git tag <tag>; ./build-and-push.sh${NC}"
+        exit 1
+    else
+        echo -e "${YELLOW}ℹ️  No tag argument provided. Using latest git tag: ${VERSION}${NC}"
+    fi
 fi
-
-# Use the first command-line argument as the version tag
-VERSION=$1
 
 echo -e "${GREEN}🚀 Starting Docker build & push process...${NC}"
 echo -e "${YELLOW}   Registry: ${REGISTRY}${NC}"
