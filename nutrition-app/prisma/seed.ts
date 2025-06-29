@@ -15,6 +15,21 @@ async function main() {
     },
   })
 
+  // Seed component categories
+  const categories = [
+    'Carb',
+    'Protein',
+    'Garnish',
+    'Fat',
+  ];
+  for (const name of categories) {
+    await prisma.component_category.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
   console.log({ admin })
 }
 

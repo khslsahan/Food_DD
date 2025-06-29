@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -43,6 +43,19 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [portions, setPortions] = useState([{ label: "1P", total_weight_g: "" }]);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | "">("");
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const res = await fetch("/api/component-categories");
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    }
+    fetchCategories();
+  }, []);
 
   const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
     setIngredients((prev) =>
@@ -99,6 +112,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
           after_cook_weight_g: afterCookWeight,
           ingredients: normalizedIngredients,
           portions,
+          category_id: selectedCategory || null,
         }),
       });
       if (!res.ok) throw new Error("Failed to save component");
@@ -181,6 +195,20 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
               onChange={(e) => setComponentName(e.target.value)}
               required
             />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <select
+              className="w-full border rounded px-3 py-2"
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(Number(e.target.value))}
+              required
+            >
+              <option value="">Select category</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <Label>Before Cook Weight (g)</Label>

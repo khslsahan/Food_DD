@@ -48,6 +48,11 @@ export type User = $Result.DefaultSelection<Prisma.$UserPayload>
  * 
  */
 export type recipe_ingredients = $Result.DefaultSelection<Prisma.$recipe_ingredientsPayload>
+/**
+ * Model component_category
+ * 
+ */
+export type component_category = $Result.DefaultSelection<Prisma.$component_categoryPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -243,6 +248,16 @@ export class PrismaClient<
     * ```
     */
   get recipe_ingredients(): Prisma.recipe_ingredientsDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.component_category`: Exposes CRUD operations for the **component_category** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Component_categories
+    * const component_categories = await prisma.component_category.findMany()
+    * ```
+    */
+  get component_category(): Prisma.component_categoryDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -689,7 +704,8 @@ export namespace Prisma {
     meals: 'meals',
     portion_options: 'portion_options',
     User: 'User',
-    recipe_ingredients: 'recipe_ingredients'
+    recipe_ingredients: 'recipe_ingredients',
+    component_category: 'component_category'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -708,7 +724,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "components" | "component_portions" | "ingredients" | "meals" | "portion_options" | "user" | "recipe_ingredients"
+      modelProps: "components" | "component_portions" | "ingredients" | "meals" | "portion_options" | "user" | "recipe_ingredients" | "component_category"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1230,6 +1246,80 @@ export namespace Prisma {
           }
         }
       }
+      component_category: {
+        payload: Prisma.$component_categoryPayload<ExtArgs>
+        fields: Prisma.component_categoryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.component_categoryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.component_categoryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>
+          }
+          findFirst: {
+            args: Prisma.component_categoryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.component_categoryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>
+          }
+          findMany: {
+            args: Prisma.component_categoryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>[]
+          }
+          create: {
+            args: Prisma.component_categoryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>
+          }
+          createMany: {
+            args: Prisma.component_categoryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.component_categoryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>[]
+          }
+          delete: {
+            args: Prisma.component_categoryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>
+          }
+          update: {
+            args: Prisma.component_categoryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>
+          }
+          deleteMany: {
+            args: Prisma.component_categoryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.component_categoryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.component_categoryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>[]
+          }
+          upsert: {
+            args: Prisma.component_categoryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$component_categoryPayload>
+          }
+          aggregate: {
+            args: Prisma.Component_categoryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateComponent_category>
+          }
+          groupBy: {
+            args: Prisma.component_categoryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Component_categoryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.component_categoryCountArgs<ExtArgs>
+            result: $Utils.Optional<Component_categoryCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1321,6 +1411,7 @@ export namespace Prisma {
     portion_options?: portion_optionsOmit
     user?: UserOmit
     recipe_ingredients?: recipe_ingredientsOmit
+    component_category?: component_categoryOmit
   }
 
   /* Types for Logging */
@@ -1522,6 +1613,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type Component_categoryCountOutputType
+   */
+
+  export type Component_categoryCountOutputType = {
+    components: number
+  }
+
+  export type Component_categoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    components?: boolean | Component_categoryCountOutputTypeCountComponentsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * Component_categoryCountOutputType without action
+   */
+  export type Component_categoryCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Component_categoryCountOutputType
+     */
+    select?: Component_categoryCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * Component_categoryCountOutputType without action
+   */
+  export type Component_categoryCountOutputTypeCountComponentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: componentsWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -1542,6 +1664,7 @@ export namespace Prisma {
     meal_id: number | null
     before_cook_weight_g: Decimal | null
     after_cook_weight_g: Decimal | null
+    category_id: number | null
   }
 
   export type ComponentsSumAggregateOutputType = {
@@ -1549,6 +1672,7 @@ export namespace Prisma {
     meal_id: number | null
     before_cook_weight_g: Decimal | null
     after_cook_weight_g: Decimal | null
+    category_id: number | null
   }
 
   export type ComponentsMinAggregateOutputType = {
@@ -1559,6 +1683,7 @@ export namespace Prisma {
     after_cook_weight_g: Decimal | null
     created_at: Date | null
     updated_at: Date | null
+    category_id: number | null
   }
 
   export type ComponentsMaxAggregateOutputType = {
@@ -1569,6 +1694,7 @@ export namespace Prisma {
     after_cook_weight_g: Decimal | null
     created_at: Date | null
     updated_at: Date | null
+    category_id: number | null
   }
 
   export type ComponentsCountAggregateOutputType = {
@@ -1579,6 +1705,7 @@ export namespace Prisma {
     after_cook_weight_g: number
     created_at: number
     updated_at: number
+    category_id: number
     _all: number
   }
 
@@ -1588,6 +1715,7 @@ export namespace Prisma {
     meal_id?: true
     before_cook_weight_g?: true
     after_cook_weight_g?: true
+    category_id?: true
   }
 
   export type ComponentsSumAggregateInputType = {
@@ -1595,6 +1723,7 @@ export namespace Prisma {
     meal_id?: true
     before_cook_weight_g?: true
     after_cook_weight_g?: true
+    category_id?: true
   }
 
   export type ComponentsMinAggregateInputType = {
@@ -1605,6 +1734,7 @@ export namespace Prisma {
     after_cook_weight_g?: true
     created_at?: true
     updated_at?: true
+    category_id?: true
   }
 
   export type ComponentsMaxAggregateInputType = {
@@ -1615,6 +1745,7 @@ export namespace Prisma {
     after_cook_weight_g?: true
     created_at?: true
     updated_at?: true
+    category_id?: true
   }
 
   export type ComponentsCountAggregateInputType = {
@@ -1625,6 +1756,7 @@ export namespace Prisma {
     after_cook_weight_g?: true
     created_at?: true
     updated_at?: true
+    category_id?: true
     _all?: true
   }
 
@@ -1722,6 +1854,7 @@ export namespace Prisma {
     after_cook_weight_g: Decimal | null
     created_at: Date | null
     updated_at: Date | null
+    category_id: number | null
     _count: ComponentsCountAggregateOutputType | null
     _avg: ComponentsAvgAggregateOutputType | null
     _sum: ComponentsSumAggregateOutputType | null
@@ -1751,9 +1884,11 @@ export namespace Prisma {
     after_cook_weight_g?: boolean
     created_at?: boolean
     updated_at?: boolean
+    category_id?: boolean
     meals?: boolean | components$mealsArgs<ExtArgs>
     recipe_ingredients?: boolean | components$recipe_ingredientsArgs<ExtArgs>
     component_portions?: boolean | components$component_portionsArgs<ExtArgs>
+    category?: boolean | components$categoryArgs<ExtArgs>
     _count?: boolean | ComponentsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["components"]>
 
@@ -1765,7 +1900,9 @@ export namespace Prisma {
     after_cook_weight_g?: boolean
     created_at?: boolean
     updated_at?: boolean
+    category_id?: boolean
     meals?: boolean | components$mealsArgs<ExtArgs>
+    category?: boolean | components$categoryArgs<ExtArgs>
   }, ExtArgs["result"]["components"]>
 
   export type componentsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1776,7 +1913,9 @@ export namespace Prisma {
     after_cook_weight_g?: boolean
     created_at?: boolean
     updated_at?: boolean
+    category_id?: boolean
     meals?: boolean | components$mealsArgs<ExtArgs>
+    category?: boolean | components$categoryArgs<ExtArgs>
   }, ExtArgs["result"]["components"]>
 
   export type componentsSelectScalar = {
@@ -1787,20 +1926,24 @@ export namespace Prisma {
     after_cook_weight_g?: boolean
     created_at?: boolean
     updated_at?: boolean
+    category_id?: boolean
   }
 
-  export type componentsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"component_id" | "meal_id" | "component_name" | "before_cook_weight_g" | "after_cook_weight_g" | "created_at" | "updated_at", ExtArgs["result"]["components"]>
+  export type componentsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"component_id" | "meal_id" | "component_name" | "before_cook_weight_g" | "after_cook_weight_g" | "created_at" | "updated_at" | "category_id", ExtArgs["result"]["components"]>
   export type componentsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     meals?: boolean | components$mealsArgs<ExtArgs>
     recipe_ingredients?: boolean | components$recipe_ingredientsArgs<ExtArgs>
     component_portions?: boolean | components$component_portionsArgs<ExtArgs>
+    category?: boolean | components$categoryArgs<ExtArgs>
     _count?: boolean | ComponentsCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type componentsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     meals?: boolean | components$mealsArgs<ExtArgs>
+    category?: boolean | components$categoryArgs<ExtArgs>
   }
   export type componentsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     meals?: boolean | components$mealsArgs<ExtArgs>
+    category?: boolean | components$categoryArgs<ExtArgs>
   }
 
   export type $componentsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -1809,6 +1952,7 @@ export namespace Prisma {
       meals: Prisma.$mealsPayload<ExtArgs> | null
       recipe_ingredients: Prisma.$recipe_ingredientsPayload<ExtArgs>[]
       component_portions: Prisma.$component_portionsPayload<ExtArgs>[]
+      category: Prisma.$component_categoryPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       component_id: number
@@ -1818,6 +1962,7 @@ export namespace Prisma {
       after_cook_weight_g: Prisma.Decimal | null
       created_at: Date | null
       updated_at: Date | null
+      category_id: number | null
     }, ExtArgs["result"]["components"]>
     composites: {}
   }
@@ -2215,6 +2360,7 @@ export namespace Prisma {
     meals<T extends components$mealsArgs<ExtArgs> = {}>(args?: Subset<T, components$mealsArgs<ExtArgs>>): Prisma__mealsClient<$Result.GetResult<Prisma.$mealsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     recipe_ingredients<T extends components$recipe_ingredientsArgs<ExtArgs> = {}>(args?: Subset<T, components$recipe_ingredientsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$recipe_ingredientsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     component_portions<T extends components$component_portionsArgs<ExtArgs> = {}>(args?: Subset<T, components$component_portionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$component_portionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    category<T extends components$categoryArgs<ExtArgs> = {}>(args?: Subset<T, components$categoryArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2251,6 +2397,7 @@ export namespace Prisma {
     readonly after_cook_weight_g: FieldRef<"components", 'Decimal'>
     readonly created_at: FieldRef<"components", 'DateTime'>
     readonly updated_at: FieldRef<"components", 'DateTime'>
+    readonly category_id: FieldRef<"components", 'Int'>
   }
     
 
@@ -2711,6 +2858,25 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Component_portionsScalarFieldEnum | Component_portionsScalarFieldEnum[]
+  }
+
+  /**
+   * components.category
+   */
+  export type components$categoryArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    where?: component_categoryWhereInput
   }
 
   /**
@@ -9475,6 +9641,1071 @@ export namespace Prisma {
 
 
   /**
+   * Model component_category
+   */
+
+  export type AggregateComponent_category = {
+    _count: Component_categoryCountAggregateOutputType | null
+    _avg: Component_categoryAvgAggregateOutputType | null
+    _sum: Component_categorySumAggregateOutputType | null
+    _min: Component_categoryMinAggregateOutputType | null
+    _max: Component_categoryMaxAggregateOutputType | null
+  }
+
+  export type Component_categoryAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Component_categorySumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type Component_categoryMinAggregateOutputType = {
+    id: number | null
+    name: string | null
+  }
+
+  export type Component_categoryMaxAggregateOutputType = {
+    id: number | null
+    name: string | null
+  }
+
+  export type Component_categoryCountAggregateOutputType = {
+    id: number
+    name: number
+    _all: number
+  }
+
+
+  export type Component_categoryAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type Component_categorySumAggregateInputType = {
+    id?: true
+  }
+
+  export type Component_categoryMinAggregateInputType = {
+    id?: true
+    name?: true
+  }
+
+  export type Component_categoryMaxAggregateInputType = {
+    id?: true
+    name?: true
+  }
+
+  export type Component_categoryCountAggregateInputType = {
+    id?: true
+    name?: true
+    _all?: true
+  }
+
+  export type Component_categoryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which component_category to aggregate.
+     */
+    where?: component_categoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of component_categories to fetch.
+     */
+    orderBy?: component_categoryOrderByWithRelationInput | component_categoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: component_categoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` component_categories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` component_categories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned component_categories
+    **/
+    _count?: true | Component_categoryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Component_categoryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Component_categorySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Component_categoryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Component_categoryMaxAggregateInputType
+  }
+
+  export type GetComponent_categoryAggregateType<T extends Component_categoryAggregateArgs> = {
+        [P in keyof T & keyof AggregateComponent_category]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateComponent_category[P]>
+      : GetScalarType<T[P], AggregateComponent_category[P]>
+  }
+
+
+
+
+  export type component_categoryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: component_categoryWhereInput
+    orderBy?: component_categoryOrderByWithAggregationInput | component_categoryOrderByWithAggregationInput[]
+    by: Component_categoryScalarFieldEnum[] | Component_categoryScalarFieldEnum
+    having?: component_categoryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Component_categoryCountAggregateInputType | true
+    _avg?: Component_categoryAvgAggregateInputType
+    _sum?: Component_categorySumAggregateInputType
+    _min?: Component_categoryMinAggregateInputType
+    _max?: Component_categoryMaxAggregateInputType
+  }
+
+  export type Component_categoryGroupByOutputType = {
+    id: number
+    name: string
+    _count: Component_categoryCountAggregateOutputType | null
+    _avg: Component_categoryAvgAggregateOutputType | null
+    _sum: Component_categorySumAggregateOutputType | null
+    _min: Component_categoryMinAggregateOutputType | null
+    _max: Component_categoryMaxAggregateOutputType | null
+  }
+
+  type GetComponent_categoryGroupByPayload<T extends component_categoryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Component_categoryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Component_categoryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Component_categoryGroupByOutputType[P]>
+            : GetScalarType<T[P], Component_categoryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type component_categorySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    components?: boolean | component_category$componentsArgs<ExtArgs>
+    _count?: boolean | Component_categoryCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["component_category"]>
+
+  export type component_categorySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+  }, ExtArgs["result"]["component_category"]>
+
+  export type component_categorySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+  }, ExtArgs["result"]["component_category"]>
+
+  export type component_categorySelectScalar = {
+    id?: boolean
+    name?: boolean
+  }
+
+  export type component_categoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name", ExtArgs["result"]["component_category"]>
+  export type component_categoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    components?: boolean | component_category$componentsArgs<ExtArgs>
+    _count?: boolean | Component_categoryCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type component_categoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type component_categoryIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $component_categoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "component_category"
+    objects: {
+      components: Prisma.$componentsPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      name: string
+    }, ExtArgs["result"]["component_category"]>
+    composites: {}
+  }
+
+  type component_categoryGetPayload<S extends boolean | null | undefined | component_categoryDefaultArgs> = $Result.GetResult<Prisma.$component_categoryPayload, S>
+
+  type component_categoryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<component_categoryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Component_categoryCountAggregateInputType | true
+    }
+
+  export interface component_categoryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['component_category'], meta: { name: 'component_category' } }
+    /**
+     * Find zero or one Component_category that matches the filter.
+     * @param {component_categoryFindUniqueArgs} args - Arguments to find a Component_category
+     * @example
+     * // Get one Component_category
+     * const component_category = await prisma.component_category.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends component_categoryFindUniqueArgs>(args: SelectSubset<T, component_categoryFindUniqueArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Component_category that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {component_categoryFindUniqueOrThrowArgs} args - Arguments to find a Component_category
+     * @example
+     * // Get one Component_category
+     * const component_category = await prisma.component_category.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends component_categoryFindUniqueOrThrowArgs>(args: SelectSubset<T, component_categoryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Component_category that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {component_categoryFindFirstArgs} args - Arguments to find a Component_category
+     * @example
+     * // Get one Component_category
+     * const component_category = await prisma.component_category.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends component_categoryFindFirstArgs>(args?: SelectSubset<T, component_categoryFindFirstArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Component_category that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {component_categoryFindFirstOrThrowArgs} args - Arguments to find a Component_category
+     * @example
+     * // Get one Component_category
+     * const component_category = await prisma.component_category.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends component_categoryFindFirstOrThrowArgs>(args?: SelectSubset<T, component_categoryFindFirstOrThrowArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Component_categories that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {component_categoryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Component_categories
+     * const component_categories = await prisma.component_category.findMany()
+     * 
+     * // Get first 10 Component_categories
+     * const component_categories = await prisma.component_category.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const component_categoryWithIdOnly = await prisma.component_category.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends component_categoryFindManyArgs>(args?: SelectSubset<T, component_categoryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Component_category.
+     * @param {component_categoryCreateArgs} args - Arguments to create a Component_category.
+     * @example
+     * // Create one Component_category
+     * const Component_category = await prisma.component_category.create({
+     *   data: {
+     *     // ... data to create a Component_category
+     *   }
+     * })
+     * 
+     */
+    create<T extends component_categoryCreateArgs>(args: SelectSubset<T, component_categoryCreateArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Component_categories.
+     * @param {component_categoryCreateManyArgs} args - Arguments to create many Component_categories.
+     * @example
+     * // Create many Component_categories
+     * const component_category = await prisma.component_category.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends component_categoryCreateManyArgs>(args?: SelectSubset<T, component_categoryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Component_categories and returns the data saved in the database.
+     * @param {component_categoryCreateManyAndReturnArgs} args - Arguments to create many Component_categories.
+     * @example
+     * // Create many Component_categories
+     * const component_category = await prisma.component_category.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Component_categories and only return the `id`
+     * const component_categoryWithIdOnly = await prisma.component_category.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends component_categoryCreateManyAndReturnArgs>(args?: SelectSubset<T, component_categoryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Component_category.
+     * @param {component_categoryDeleteArgs} args - Arguments to delete one Component_category.
+     * @example
+     * // Delete one Component_category
+     * const Component_category = await prisma.component_category.delete({
+     *   where: {
+     *     // ... filter to delete one Component_category
+     *   }
+     * })
+     * 
+     */
+    delete<T extends component_categoryDeleteArgs>(args: SelectSubset<T, component_categoryDeleteArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Component_category.
+     * @param {component_categoryUpdateArgs} args - Arguments to update one Component_category.
+     * @example
+     * // Update one Component_category
+     * const component_category = await prisma.component_category.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends component_categoryUpdateArgs>(args: SelectSubset<T, component_categoryUpdateArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Component_categories.
+     * @param {component_categoryDeleteManyArgs} args - Arguments to filter Component_categories to delete.
+     * @example
+     * // Delete a few Component_categories
+     * const { count } = await prisma.component_category.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends component_categoryDeleteManyArgs>(args?: SelectSubset<T, component_categoryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Component_categories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {component_categoryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Component_categories
+     * const component_category = await prisma.component_category.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends component_categoryUpdateManyArgs>(args: SelectSubset<T, component_categoryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Component_categories and returns the data updated in the database.
+     * @param {component_categoryUpdateManyAndReturnArgs} args - Arguments to update many Component_categories.
+     * @example
+     * // Update many Component_categories
+     * const component_category = await prisma.component_category.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Component_categories and only return the `id`
+     * const component_categoryWithIdOnly = await prisma.component_category.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends component_categoryUpdateManyAndReturnArgs>(args: SelectSubset<T, component_categoryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Component_category.
+     * @param {component_categoryUpsertArgs} args - Arguments to update or create a Component_category.
+     * @example
+     * // Update or create a Component_category
+     * const component_category = await prisma.component_category.upsert({
+     *   create: {
+     *     // ... data to create a Component_category
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Component_category we want to update
+     *   }
+     * })
+     */
+    upsert<T extends component_categoryUpsertArgs>(args: SelectSubset<T, component_categoryUpsertArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Component_categories.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {component_categoryCountArgs} args - Arguments to filter Component_categories to count.
+     * @example
+     * // Count the number of Component_categories
+     * const count = await prisma.component_category.count({
+     *   where: {
+     *     // ... the filter for the Component_categories we want to count
+     *   }
+     * })
+    **/
+    count<T extends component_categoryCountArgs>(
+      args?: Subset<T, component_categoryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Component_categoryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Component_category.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Component_categoryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Component_categoryAggregateArgs>(args: Subset<T, Component_categoryAggregateArgs>): Prisma.PrismaPromise<GetComponent_categoryAggregateType<T>>
+
+    /**
+     * Group by Component_category.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {component_categoryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends component_categoryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: component_categoryGroupByArgs['orderBy'] }
+        : { orderBy?: component_categoryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, component_categoryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetComponent_categoryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the component_category model
+   */
+  readonly fields: component_categoryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for component_category.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__component_categoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    components<T extends component_category$componentsArgs<ExtArgs> = {}>(args?: Subset<T, component_category$componentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$componentsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the component_category model
+   */
+  interface component_categoryFieldRefs {
+    readonly id: FieldRef<"component_category", 'Int'>
+    readonly name: FieldRef<"component_category", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * component_category findUnique
+   */
+  export type component_categoryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * Filter, which component_category to fetch.
+     */
+    where: component_categoryWhereUniqueInput
+  }
+
+  /**
+   * component_category findUniqueOrThrow
+   */
+  export type component_categoryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * Filter, which component_category to fetch.
+     */
+    where: component_categoryWhereUniqueInput
+  }
+
+  /**
+   * component_category findFirst
+   */
+  export type component_categoryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * Filter, which component_category to fetch.
+     */
+    where?: component_categoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of component_categories to fetch.
+     */
+    orderBy?: component_categoryOrderByWithRelationInput | component_categoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for component_categories.
+     */
+    cursor?: component_categoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` component_categories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` component_categories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of component_categories.
+     */
+    distinct?: Component_categoryScalarFieldEnum | Component_categoryScalarFieldEnum[]
+  }
+
+  /**
+   * component_category findFirstOrThrow
+   */
+  export type component_categoryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * Filter, which component_category to fetch.
+     */
+    where?: component_categoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of component_categories to fetch.
+     */
+    orderBy?: component_categoryOrderByWithRelationInput | component_categoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for component_categories.
+     */
+    cursor?: component_categoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` component_categories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` component_categories.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of component_categories.
+     */
+    distinct?: Component_categoryScalarFieldEnum | Component_categoryScalarFieldEnum[]
+  }
+
+  /**
+   * component_category findMany
+   */
+  export type component_categoryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * Filter, which component_categories to fetch.
+     */
+    where?: component_categoryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of component_categories to fetch.
+     */
+    orderBy?: component_categoryOrderByWithRelationInput | component_categoryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing component_categories.
+     */
+    cursor?: component_categoryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` component_categories from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` component_categories.
+     */
+    skip?: number
+    distinct?: Component_categoryScalarFieldEnum | Component_categoryScalarFieldEnum[]
+  }
+
+  /**
+   * component_category create
+   */
+  export type component_categoryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * The data needed to create a component_category.
+     */
+    data: XOR<component_categoryCreateInput, component_categoryUncheckedCreateInput>
+  }
+
+  /**
+   * component_category createMany
+   */
+  export type component_categoryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many component_categories.
+     */
+    data: component_categoryCreateManyInput | component_categoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * component_category createManyAndReturn
+   */
+  export type component_categoryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * The data used to create many component_categories.
+     */
+    data: component_categoryCreateManyInput | component_categoryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * component_category update
+   */
+  export type component_categoryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * The data needed to update a component_category.
+     */
+    data: XOR<component_categoryUpdateInput, component_categoryUncheckedUpdateInput>
+    /**
+     * Choose, which component_category to update.
+     */
+    where: component_categoryWhereUniqueInput
+  }
+
+  /**
+   * component_category updateMany
+   */
+  export type component_categoryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update component_categories.
+     */
+    data: XOR<component_categoryUpdateManyMutationInput, component_categoryUncheckedUpdateManyInput>
+    /**
+     * Filter which component_categories to update
+     */
+    where?: component_categoryWhereInput
+    /**
+     * Limit how many component_categories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * component_category updateManyAndReturn
+   */
+  export type component_categoryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * The data used to update component_categories.
+     */
+    data: XOR<component_categoryUpdateManyMutationInput, component_categoryUncheckedUpdateManyInput>
+    /**
+     * Filter which component_categories to update
+     */
+    where?: component_categoryWhereInput
+    /**
+     * Limit how many component_categories to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * component_category upsert
+   */
+  export type component_categoryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * The filter to search for the component_category to update in case it exists.
+     */
+    where: component_categoryWhereUniqueInput
+    /**
+     * In case the component_category found by the `where` argument doesn't exist, create a new component_category with this data.
+     */
+    create: XOR<component_categoryCreateInput, component_categoryUncheckedCreateInput>
+    /**
+     * In case the component_category was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<component_categoryUpdateInput, component_categoryUncheckedUpdateInput>
+  }
+
+  /**
+   * component_category delete
+   */
+  export type component_categoryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+    /**
+     * Filter which component_category to delete.
+     */
+    where: component_categoryWhereUniqueInput
+  }
+
+  /**
+   * component_category deleteMany
+   */
+  export type component_categoryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which component_categories to delete
+     */
+    where?: component_categoryWhereInput
+    /**
+     * Limit how many component_categories to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * component_category.components
+   */
+  export type component_category$componentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the components
+     */
+    select?: componentsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the components
+     */
+    omit?: componentsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: componentsInclude<ExtArgs> | null
+    where?: componentsWhereInput
+    orderBy?: componentsOrderByWithRelationInput | componentsOrderByWithRelationInput[]
+    cursor?: componentsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: ComponentsScalarFieldEnum | ComponentsScalarFieldEnum[]
+  }
+
+  /**
+   * component_category without action
+   */
+  export type component_categoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the component_category
+     */
+    select?: component_categorySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the component_category
+     */
+    omit?: component_categoryOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: component_categoryInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -9495,7 +10726,8 @@ export namespace Prisma {
     before_cook_weight_g: 'before_cook_weight_g',
     after_cook_weight_g: 'after_cook_weight_g',
     created_at: 'created_at',
-    updated_at: 'updated_at'
+    updated_at: 'updated_at',
+    category_id: 'category_id'
   };
 
   export type ComponentsScalarFieldEnum = (typeof ComponentsScalarFieldEnum)[keyof typeof ComponentsScalarFieldEnum]
@@ -9575,6 +10807,14 @@ export namespace Prisma {
   };
 
   export type Recipe_ingredientsScalarFieldEnum = (typeof Recipe_ingredientsScalarFieldEnum)[keyof typeof Recipe_ingredientsScalarFieldEnum]
+
+
+  export const Component_categoryScalarFieldEnum: {
+    id: 'id',
+    name: 'name'
+  };
+
+  export type Component_categoryScalarFieldEnum = (typeof Component_categoryScalarFieldEnum)[keyof typeof Component_categoryScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -9697,9 +10937,11 @@ export namespace Prisma {
     after_cook_weight_g?: DecimalNullableFilter<"components"> | Decimal | DecimalJsLike | number | string | null
     created_at?: DateTimeNullableFilter<"components"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"components"> | Date | string | null
+    category_id?: IntNullableFilter<"components"> | number | null
     meals?: XOR<MealsNullableScalarRelationFilter, mealsWhereInput> | null
     recipe_ingredients?: Recipe_ingredientsListRelationFilter
     component_portions?: Component_portionsListRelationFilter
+    category?: XOR<Component_categoryNullableScalarRelationFilter, component_categoryWhereInput> | null
   }
 
   export type componentsOrderByWithRelationInput = {
@@ -9710,9 +10952,11 @@ export namespace Prisma {
     after_cook_weight_g?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
+    category_id?: SortOrderInput | SortOrder
     meals?: mealsOrderByWithRelationInput
     recipe_ingredients?: recipe_ingredientsOrderByRelationAggregateInput
     component_portions?: component_portionsOrderByRelationAggregateInput
+    category?: component_categoryOrderByWithRelationInput
   }
 
   export type componentsWhereUniqueInput = Prisma.AtLeast<{
@@ -9726,9 +10970,11 @@ export namespace Prisma {
     after_cook_weight_g?: DecimalNullableFilter<"components"> | Decimal | DecimalJsLike | number | string | null
     created_at?: DateTimeNullableFilter<"components"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"components"> | Date | string | null
+    category_id?: IntNullableFilter<"components"> | number | null
     meals?: XOR<MealsNullableScalarRelationFilter, mealsWhereInput> | null
     recipe_ingredients?: Recipe_ingredientsListRelationFilter
     component_portions?: Component_portionsListRelationFilter
+    category?: XOR<Component_categoryNullableScalarRelationFilter, component_categoryWhereInput> | null
   }, "component_id">
 
   export type componentsOrderByWithAggregationInput = {
@@ -9739,6 +10985,7 @@ export namespace Prisma {
     after_cook_weight_g?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
+    category_id?: SortOrderInput | SortOrder
     _count?: componentsCountOrderByAggregateInput
     _avg?: componentsAvgOrderByAggregateInput
     _max?: componentsMaxOrderByAggregateInput
@@ -9757,6 +11004,7 @@ export namespace Prisma {
     after_cook_weight_g?: DecimalNullableWithAggregatesFilter<"components"> | Decimal | DecimalJsLike | number | string | null
     created_at?: DateTimeNullableWithAggregatesFilter<"components"> | Date | string | null
     updated_at?: DateTimeNullableWithAggregatesFilter<"components"> | Date | string | null
+    category_id?: IntNullableWithAggregatesFilter<"components"> | number | null
   }
 
   export type component_portionsWhereInput = {
@@ -10157,6 +11405,48 @@ export namespace Prisma {
     updated_at?: DateTimeNullableWithAggregatesFilter<"recipe_ingredients"> | Date | string | null
   }
 
+  export type component_categoryWhereInput = {
+    AND?: component_categoryWhereInput | component_categoryWhereInput[]
+    OR?: component_categoryWhereInput[]
+    NOT?: component_categoryWhereInput | component_categoryWhereInput[]
+    id?: IntFilter<"component_category"> | number
+    name?: StringFilter<"component_category"> | string
+    components?: ComponentsListRelationFilter
+  }
+
+  export type component_categoryOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    components?: componentsOrderByRelationAggregateInput
+  }
+
+  export type component_categoryWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    name?: string
+    AND?: component_categoryWhereInput | component_categoryWhereInput[]
+    OR?: component_categoryWhereInput[]
+    NOT?: component_categoryWhereInput | component_categoryWhereInput[]
+    components?: ComponentsListRelationFilter
+  }, "id" | "name">
+
+  export type component_categoryOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    _count?: component_categoryCountOrderByAggregateInput
+    _avg?: component_categoryAvgOrderByAggregateInput
+    _max?: component_categoryMaxOrderByAggregateInput
+    _min?: component_categoryMinOrderByAggregateInput
+    _sum?: component_categorySumOrderByAggregateInput
+  }
+
+  export type component_categoryScalarWhereWithAggregatesInput = {
+    AND?: component_categoryScalarWhereWithAggregatesInput | component_categoryScalarWhereWithAggregatesInput[]
+    OR?: component_categoryScalarWhereWithAggregatesInput[]
+    NOT?: component_categoryScalarWhereWithAggregatesInput | component_categoryScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"component_category"> | number
+    name?: StringWithAggregatesFilter<"component_category"> | string
+  }
+
   export type componentsCreateInput = {
     component_name: string
     before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
@@ -10166,6 +11456,7 @@ export namespace Prisma {
     meals?: mealsCreateNestedOneWithoutComponentsInput
     recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
+    category?: component_categoryCreateNestedOneWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateInput = {
@@ -10176,6 +11467,7 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category_id?: number | null
     recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
   }
@@ -10189,6 +11481,7 @@ export namespace Prisma {
     meals?: mealsUpdateOneWithoutComponentsNestedInput
     recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
+    category?: component_categoryUpdateOneWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateInput = {
@@ -10199,6 +11492,7 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category_id?: NullableIntFieldUpdateOperationsInput | number | null
     recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
   }
@@ -10211,6 +11505,7 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category_id?: number | null
   }
 
   export type componentsUpdateManyMutationInput = {
@@ -10229,6 +11524,7 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category_id?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type component_portionsCreateInput = {
@@ -10630,6 +11926,42 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
+  export type component_categoryCreateInput = {
+    name: string
+    components?: componentsCreateNestedManyWithoutCategoryInput
+  }
+
+  export type component_categoryUncheckedCreateInput = {
+    id?: number
+    name: string
+    components?: componentsUncheckedCreateNestedManyWithoutCategoryInput
+  }
+
+  export type component_categoryUpdateInput = {
+    name?: StringFieldUpdateOperationsInput | string
+    components?: componentsUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type component_categoryUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+    components?: componentsUncheckedUpdateManyWithoutCategoryNestedInput
+  }
+
+  export type component_categoryCreateManyInput = {
+    id?: number
+    name: string
+  }
+
+  export type component_categoryUpdateManyMutationInput = {
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type component_categoryUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
   export type IntFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel>
     in?: number[] | ListIntFieldRefInput<$PrismaModel>
@@ -10706,6 +12038,11 @@ export namespace Prisma {
     none?: component_portionsWhereInput
   }
 
+  export type Component_categoryNullableScalarRelationFilter = {
+    is?: component_categoryWhereInput | null
+    isNot?: component_categoryWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -10727,6 +12064,7 @@ export namespace Prisma {
     after_cook_weight_g?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    category_id?: SortOrder
   }
 
   export type componentsAvgOrderByAggregateInput = {
@@ -10734,6 +12072,7 @@ export namespace Prisma {
     meal_id?: SortOrder
     before_cook_weight_g?: SortOrder
     after_cook_weight_g?: SortOrder
+    category_id?: SortOrder
   }
 
   export type componentsMaxOrderByAggregateInput = {
@@ -10744,6 +12083,7 @@ export namespace Prisma {
     after_cook_weight_g?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    category_id?: SortOrder
   }
 
   export type componentsMinOrderByAggregateInput = {
@@ -10754,6 +12094,7 @@ export namespace Prisma {
     after_cook_weight_g?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
+    category_id?: SortOrder
   }
 
   export type componentsSumOrderByAggregateInput = {
@@ -10761,6 +12102,7 @@ export namespace Prisma {
     meal_id?: SortOrder
     before_cook_weight_g?: SortOrder
     after_cook_weight_g?: SortOrder
+    category_id?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -11230,6 +12572,29 @@ export namespace Prisma {
     cooked_quantity_g?: SortOrder
   }
 
+  export type component_categoryCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type component_categoryAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type component_categoryMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type component_categoryMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type component_categorySumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
   export type mealsCreateNestedOneWithoutComponentsInput = {
     create?: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
     connectOrCreate?: mealsCreateOrConnectWithoutComponentsInput
@@ -11248,6 +12613,12 @@ export namespace Prisma {
     connectOrCreate?: component_portionsCreateOrConnectWithoutComponentsInput | component_portionsCreateOrConnectWithoutComponentsInput[]
     createMany?: component_portionsCreateManyComponentsInputEnvelope
     connect?: component_portionsWhereUniqueInput | component_portionsWhereUniqueInput[]
+  }
+
+  export type component_categoryCreateNestedOneWithoutComponentsInput = {
+    create?: XOR<component_categoryCreateWithoutComponentsInput, component_categoryUncheckedCreateWithoutComponentsInput>
+    connectOrCreate?: component_categoryCreateOrConnectWithoutComponentsInput
+    connect?: component_categoryWhereUniqueInput
   }
 
   export type recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput = {
@@ -11316,6 +12687,16 @@ export namespace Prisma {
     update?: component_portionsUpdateWithWhereUniqueWithoutComponentsInput | component_portionsUpdateWithWhereUniqueWithoutComponentsInput[]
     updateMany?: component_portionsUpdateManyWithWhereWithoutComponentsInput | component_portionsUpdateManyWithWhereWithoutComponentsInput[]
     deleteMany?: component_portionsScalarWhereInput | component_portionsScalarWhereInput[]
+  }
+
+  export type component_categoryUpdateOneWithoutComponentsNestedInput = {
+    create?: XOR<component_categoryCreateWithoutComponentsInput, component_categoryUncheckedCreateWithoutComponentsInput>
+    connectOrCreate?: component_categoryCreateOrConnectWithoutComponentsInput
+    upsert?: component_categoryUpsertWithoutComponentsInput
+    disconnect?: component_categoryWhereInput | boolean
+    delete?: component_categoryWhereInput | boolean
+    connect?: component_categoryWhereUniqueInput
+    update?: XOR<XOR<component_categoryUpdateToOneWithWhereWithoutComponentsInput, component_categoryUpdateWithoutComponentsInput>, component_categoryUncheckedUpdateWithoutComponentsInput>
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -11564,6 +12945,48 @@ export namespace Prisma {
     upsert?: ingredientsUpsertWithoutRecipe_ingredientsInput
     connect?: ingredientsWhereUniqueInput
     update?: XOR<XOR<ingredientsUpdateToOneWithWhereWithoutRecipe_ingredientsInput, ingredientsUpdateWithoutRecipe_ingredientsInput>, ingredientsUncheckedUpdateWithoutRecipe_ingredientsInput>
+  }
+
+  export type componentsCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<componentsCreateWithoutCategoryInput, componentsUncheckedCreateWithoutCategoryInput> | componentsCreateWithoutCategoryInput[] | componentsUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: componentsCreateOrConnectWithoutCategoryInput | componentsCreateOrConnectWithoutCategoryInput[]
+    createMany?: componentsCreateManyCategoryInputEnvelope
+    connect?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+  }
+
+  export type componentsUncheckedCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<componentsCreateWithoutCategoryInput, componentsUncheckedCreateWithoutCategoryInput> | componentsCreateWithoutCategoryInput[] | componentsUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: componentsCreateOrConnectWithoutCategoryInput | componentsCreateOrConnectWithoutCategoryInput[]
+    createMany?: componentsCreateManyCategoryInputEnvelope
+    connect?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+  }
+
+  export type componentsUpdateManyWithoutCategoryNestedInput = {
+    create?: XOR<componentsCreateWithoutCategoryInput, componentsUncheckedCreateWithoutCategoryInput> | componentsCreateWithoutCategoryInput[] | componentsUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: componentsCreateOrConnectWithoutCategoryInput | componentsCreateOrConnectWithoutCategoryInput[]
+    upsert?: componentsUpsertWithWhereUniqueWithoutCategoryInput | componentsUpsertWithWhereUniqueWithoutCategoryInput[]
+    createMany?: componentsCreateManyCategoryInputEnvelope
+    set?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    disconnect?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    delete?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    connect?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    update?: componentsUpdateWithWhereUniqueWithoutCategoryInput | componentsUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: componentsUpdateManyWithWhereWithoutCategoryInput | componentsUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: componentsScalarWhereInput | componentsScalarWhereInput[]
+  }
+
+  export type componentsUncheckedUpdateManyWithoutCategoryNestedInput = {
+    create?: XOR<componentsCreateWithoutCategoryInput, componentsUncheckedCreateWithoutCategoryInput> | componentsCreateWithoutCategoryInput[] | componentsUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: componentsCreateOrConnectWithoutCategoryInput | componentsCreateOrConnectWithoutCategoryInput[]
+    upsert?: componentsUpsertWithWhereUniqueWithoutCategoryInput | componentsUpsertWithWhereUniqueWithoutCategoryInput[]
+    createMany?: componentsCreateManyCategoryInputEnvelope
+    set?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    disconnect?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    delete?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    connect?: componentsWhereUniqueInput | componentsWhereUniqueInput[]
+    update?: componentsUpdateWithWhereUniqueWithoutCategoryInput | componentsUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: componentsUpdateManyWithWhereWithoutCategoryInput | componentsUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: componentsScalarWhereInput | componentsScalarWhereInput[]
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -11900,6 +13323,20 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type component_categoryCreateWithoutComponentsInput = {
+    name: string
+  }
+
+  export type component_categoryUncheckedCreateWithoutComponentsInput = {
+    id?: number
+    name: string
+  }
+
+  export type component_categoryCreateOrConnectWithoutComponentsInput = {
+    where: component_categoryWhereUniqueInput
+    create: XOR<component_categoryCreateWithoutComponentsInput, component_categoryUncheckedCreateWithoutComponentsInput>
+  }
+
   export type mealsUpsertWithoutComponentsInput = {
     update: XOR<mealsUpdateWithoutComponentsInput, mealsUncheckedUpdateWithoutComponentsInput>
     create: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
@@ -11990,6 +13427,26 @@ export namespace Prisma {
     updated_at?: DateTimeNullableFilter<"component_portions"> | Date | string | null
   }
 
+  export type component_categoryUpsertWithoutComponentsInput = {
+    update: XOR<component_categoryUpdateWithoutComponentsInput, component_categoryUncheckedUpdateWithoutComponentsInput>
+    create: XOR<component_categoryCreateWithoutComponentsInput, component_categoryUncheckedCreateWithoutComponentsInput>
+    where?: component_categoryWhereInput
+  }
+
+  export type component_categoryUpdateToOneWithWhereWithoutComponentsInput = {
+    where?: component_categoryWhereInput
+    data: XOR<component_categoryUpdateWithoutComponentsInput, component_categoryUncheckedUpdateWithoutComponentsInput>
+  }
+
+  export type component_categoryUpdateWithoutComponentsInput = {
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type component_categoryUncheckedUpdateWithoutComponentsInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
   export type componentsCreateWithoutComponent_portionsInput = {
     component_name: string
     before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
@@ -11998,6 +13455,7 @@ export namespace Prisma {
     updated_at?: Date | string | null
     meals?: mealsCreateNestedOneWithoutComponentsInput
     recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
+    category?: component_categoryCreateNestedOneWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutComponent_portionsInput = {
@@ -12008,6 +13466,7 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category_id?: number | null
     recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
   }
 
@@ -12035,6 +13494,7 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     meals?: mealsUpdateOneWithoutComponentsNestedInput
     recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
+    category?: component_categoryUpdateOneWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutComponent_portionsInput = {
@@ -12045,6 +13505,7 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category_id?: NullableIntFieldUpdateOperationsInput | number | null
     recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
   }
 
@@ -12098,6 +13559,7 @@ export namespace Prisma {
     updated_at?: Date | string | null
     recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
+    category?: component_categoryCreateNestedOneWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutMealsInput = {
@@ -12107,6 +13569,7 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category_id?: number | null
     recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
   }
@@ -12173,6 +13636,7 @@ export namespace Prisma {
     after_cook_weight_g?: DecimalNullableFilter<"components"> | Decimal | DecimalJsLike | number | string | null
     created_at?: DateTimeNullableFilter<"components"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"components"> | Date | string | null
+    category_id?: IntNullableFilter<"components"> | number | null
   }
 
   export type portion_optionsUpsertWithWhereUniqueWithoutMealsInput = {
@@ -12273,6 +13737,7 @@ export namespace Prisma {
     updated_at?: Date | string | null
     meals?: mealsCreateNestedOneWithoutComponentsInput
     component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
+    category?: component_categoryCreateNestedOneWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutRecipe_ingredientsInput = {
@@ -12283,6 +13748,7 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category_id?: number | null
     component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
   }
 
@@ -12338,6 +13804,7 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     meals?: mealsUpdateOneWithoutComponentsNestedInput
     component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
+    category?: component_categoryUpdateOneWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutRecipe_ingredientsInput = {
@@ -12348,6 +13815,7 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category_id?: NullableIntFieldUpdateOperationsInput | number | null
     component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
   }
 
@@ -12383,6 +13851,55 @@ export namespace Prisma {
     carbohydrates_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type componentsCreateWithoutCategoryInput = {
+    component_name: string
+    before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
+    after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    meals?: mealsCreateNestedOneWithoutComponentsInput
+    recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
+    component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
+  }
+
+  export type componentsUncheckedCreateWithoutCategoryInput = {
+    component_id?: number
+    meal_id?: number | null
+    component_name: string
+    before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
+    after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
+    component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
+  }
+
+  export type componentsCreateOrConnectWithoutCategoryInput = {
+    where: componentsWhereUniqueInput
+    create: XOR<componentsCreateWithoutCategoryInput, componentsUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type componentsCreateManyCategoryInputEnvelope = {
+    data: componentsCreateManyCategoryInput | componentsCreateManyCategoryInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type componentsUpsertWithWhereUniqueWithoutCategoryInput = {
+    where: componentsWhereUniqueInput
+    update: XOR<componentsUpdateWithoutCategoryInput, componentsUncheckedUpdateWithoutCategoryInput>
+    create: XOR<componentsCreateWithoutCategoryInput, componentsUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type componentsUpdateWithWhereUniqueWithoutCategoryInput = {
+    where: componentsWhereUniqueInput
+    data: XOR<componentsUpdateWithoutCategoryInput, componentsUncheckedUpdateWithoutCategoryInput>
+  }
+
+  export type componentsUpdateManyWithWhereWithoutCategoryInput = {
+    where: componentsScalarWhereInput
+    data: XOR<componentsUpdateManyMutationInput, componentsUncheckedUpdateManyWithoutCategoryInput>
   }
 
   export type recipe_ingredientsCreateManyComponentsInput = {
@@ -12487,6 +14004,7 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category_id?: number | null
   }
 
   export type portion_optionsCreateManyMealsInput = {
@@ -12505,6 +14023,7 @@ export namespace Prisma {
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
+    category?: component_categoryUpdateOneWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutMealsInput = {
@@ -12514,6 +14033,7 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category_id?: NullableIntFieldUpdateOperationsInput | number | null
     recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
   }
@@ -12525,6 +14045,7 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category_id?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type portion_optionsUpdateWithoutMealsInput = {
@@ -12546,6 +14067,49 @@ export namespace Prisma {
     portion_id?: IntFieldUpdateOperationsInput | number
     size_name?: StringFieldUpdateOperationsInput | string
     multiplier?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type componentsCreateManyCategoryInput = {
+    component_id?: number
+    meal_id?: number | null
+    component_name: string
+    before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
+    after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+  }
+
+  export type componentsUpdateWithoutCategoryInput = {
+    component_name?: StringFieldUpdateOperationsInput | string
+    before_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    meals?: mealsUpdateOneWithoutComponentsNestedInput
+    recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
+    component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
+  }
+
+  export type componentsUncheckedUpdateWithoutCategoryInput = {
+    component_id?: IntFieldUpdateOperationsInput | number
+    meal_id?: NullableIntFieldUpdateOperationsInput | number | null
+    component_name?: StringFieldUpdateOperationsInput | string
+    before_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
+    component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
+  }
+
+  export type componentsUncheckedUpdateManyWithoutCategoryInput = {
+    component_id?: IntFieldUpdateOperationsInput | number
+    meal_id?: NullableIntFieldUpdateOperationsInput | number | null
+    component_name?: StringFieldUpdateOperationsInput | string
+    before_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }

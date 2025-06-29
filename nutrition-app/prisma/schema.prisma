@@ -20,6 +20,8 @@ model components {
   meals              meals?               @relation(fields: [meal_id], references: [meal_id], onDelete: Cascade, onUpdate: NoAction)
   recipe_ingredients recipe_ingredients[]
   component_portions component_portions[]
+  category_id        Int?
+  category           component_category?  @relation(fields: [category_id], references: [id])
 }
 
 model component_portions {
@@ -93,4 +95,10 @@ model recipe_ingredients {
   ingredients       ingredients @relation(fields: [ingredient_id], references: [ingredient_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([component_id, ingredient_id])
+}
+
+model component_category {
+  id         Int         @id @default(autoincrement())
+  name       String      @unique
+  components components[]
 }

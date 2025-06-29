@@ -72,6 +72,7 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
         label: p.label,
         total_weight_g: String(p.total_weight_g),
       })),
+      initialCategoryId: component.category?.id || component.category_id || "",
     });
     setEditModalOpen(true);
   };
@@ -82,6 +83,11 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
         <div key={component.component_id} className="mb-8 border rounded-lg p-6 bg-white shadow-sm">
           <div className="flex items-center mb-2">
             <div className="font-semibold text-xl text-blue-700">{component.component_name}</div>
+            {component.category && (
+              <span className="ml-4 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
+                {component.category.name}
+              </span>
+            )}
             <button
               className="ml-2 hover:text-green-600"
               title="Edit Component"

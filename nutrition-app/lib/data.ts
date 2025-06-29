@@ -18,11 +18,11 @@ export async function getComponents(mealId?: number) {
     ? await prisma.components.findMany({
         where: { meal_id: mealId },
         orderBy: { updated_at: 'desc' },
-        include: { component_portions: true },
+        include: { component_portions: true, category: true },
       })
     : await prisma.components.findMany({
         orderBy: { updated_at: 'desc' },
-        include: { component_portions: true },
+        include: { component_portions: true, category: true },
       })
   return components.map(component => ({
     ...component,

@@ -5,7 +5,7 @@ export async function PUT(request, { params }) {
   try {
     const componentId = Number(params.component_id);
     const body = await request.json();
-    const { meal_id, component_name, before_cook_weight_g, after_cook_weight_g, ingredients, portions } = body;
+    const { meal_id, component_name, before_cook_weight_g, after_cook_weight_g, ingredients, portions, category_id } = body;
     if (!meal_id || !component_name || !before_cook_weight_g || !after_cook_weight_g || !Array.isArray(ingredients) || ingredients.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
@@ -42,6 +42,7 @@ export async function PUT(request, { params }) {
         component_name,
         before_cook_weight_g: Number(before_cook_weight_g),
         after_cook_weight_g: Number(after_cook_weight_g),
+        category_id: category_id || null,
         // Remove and recreate recipe_ingredients and component_portions for simplicity
         recipe_ingredients: {
           deleteMany: {},

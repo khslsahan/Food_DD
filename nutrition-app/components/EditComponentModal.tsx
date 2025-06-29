@@ -52,7 +52,8 @@ export function EditComponentModal({
   initialAfterCookWeight,
   initialIngredients,
   initialPortions,
-}: EditComponentModalProps) {
+  initialCategoryId,
+}: EditComponentModalProps & { initialCategoryId?: number }) {
   const router = useRouter();
   const { toast } = useToast();
   const [componentName, setComponentName] = useState(initialName);
@@ -62,6 +63,8 @@ export function EditComponentModal({
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [portions, setPortions] = useState<PortionInput[]>(initialPortions);
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | "">(initialCategoryId || "");
 
   useEffect(() => {
     setComponentName(initialName);
@@ -70,6 +73,21 @@ export function EditComponentModal({
     setIngredients(initialIngredients);
     setPortions(initialPortions);
   }, [initialName, initialBeforeCookWeight, initialAfterCookWeight, initialIngredients, initialPortions, open]);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      const res = await fetch("/api/component-categories");
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+      }
+    }
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    setSelectedCategory(initialCategoryId || "");
+  }, [initialCategoryId, open]);
 
   const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
     setIngredients((prev) =>
@@ -126,6 +144,7 @@ export function EditComponentModal({
           after_cook_weight_g: afterCookWeight,
           ingredients: normalizedIngredients,
           portions,
+          category_id: selectedCategory || null,
         }),
       });
       if (!res.ok) throw new Error("Failed to update component");
@@ -200,6 +219,20 @@ export function EditComponentModal({
               onChange={(e) => setComponentName(e.target.value)}
               required
             />
+          </div>
+          <div>
+            <Label>Category</Label>
+            <select
+              className="w-full border rounded px-3 py-2"
+              value={selectedCategory}
+              onChange={e => setSelectedCategory(Number(e.target.value))}
+              required
+            >
+              <option value="">Select category</option>
+              {categories.map(cat => (
+                <option key={cat.id} value={cat.id}>{cat.name}</option>
+              ))}
+            </select>
           </div>
           <div>
             <Label>Before Cook Weight (g)</Label>

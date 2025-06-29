@@ -127,7 +127,8 @@ exports.Prisma.ComponentsScalarFieldEnum = {
   before_cook_weight_g: 'before_cook_weight_g',
   after_cook_weight_g: 'after_cook_weight_g',
   created_at: 'created_at',
-  updated_at: 'updated_at'
+  updated_at: 'updated_at',
+  category_id: 'category_id'
 };
 
 exports.Prisma.Component_portionsScalarFieldEnum = {
@@ -188,6 +189,11 @@ exports.Prisma.Recipe_ingredientsScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
+exports.Prisma.Component_categoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -211,7 +217,8 @@ exports.Prisma.ModelName = {
   meals: 'meals',
   portion_options: 'portion_options',
   User: 'User',
-  recipe_ingredients: 'recipe_ingredients'
+  recipe_ingredients: 'recipe_ingredients',
+  component_category: 'component_category'
 };
 
 /**
