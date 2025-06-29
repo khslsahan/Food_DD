@@ -71,4 +71,17 @@ export async function PUT(request, { params }) {
     console.error(error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const componentId = Number(params.component_id);
+    await prisma.components.delete({
+      where: { component_id: componentId },
+    });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 } 

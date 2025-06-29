@@ -3,6 +3,19 @@
 import { useState } from "react";
 import { EditComponentModal } from "./EditComponentModal";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from "@/components/ui/alert-dialog";
 
 function ViewIcon() {
   return (
@@ -52,6 +65,8 @@ function NutritionInfo({ ingredient, rawQuantity }) {
 export default function ComponentListClient({ components, ingredientMap, mealId }) {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editComponentData, setEditComponentData] = useState(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(null);
+  const router = useRouter();
 
   const handleEditClick = (component) => {
     setEditComponentData({
@@ -77,6 +92,21 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
     setEditModalOpen(true);
   };
 
+  const handleDelete = async (componentId, componentName) => {
+    try {
+      const res = await fetch(`/api/components/${componentId}`, { method: "DELETE" });
+      if (res.ok) {
+        toast({ title: "Component deleted", description: `Component '${componentName}' was deleted.` });
+        router.refresh();
+      } else {
+        toast({ title: "Error", description: "Failed to delete component.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Failed to delete component.", variant: "destructive" });
+    }
+    setDeleteDialogOpen(null);
+  };
+
   return (
     <>
       {components.map((component) => (
@@ -95,6 +125,25 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
             >
               <EditIcon />
             </button>
+            <AlertDialog open={deleteDialogOpen === component.component_id} onOpenChange={open => setDeleteDialogOpen(open ? component.component_id : null)}>
+              <AlertDialogTrigger asChild>
+                <button className="ml-2 text-red-600 hover:text-red-800" title="Delete Component" onClick={e => { e.preventDefault(); setDeleteDialogOpen(component.component_id); }}>
+                  🗑️
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Component?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete <b>{component.component_name}</b>? This will also delete all related data. This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleDelete(component.component_id, component.component_name)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
           <div className="mb-4 text-sm text-gray-600">
             Before Cook Weight: {component.before_cook_weight_g ? Number(component.before_cook_weight_g) : ""}g<br />

@@ -129,3 +129,9 @@ export async function updateMeal(id: number, data: Partial<Omit<Meal, 'meal_id'>
     },
   });
 }
+
+export async function deleteMeal(id: number) {
+  return prisma.meals.delete({
+    where: { meal_id: id },
+  });
+}

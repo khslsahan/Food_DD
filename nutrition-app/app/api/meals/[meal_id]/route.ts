@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { updateMeal } from "@/lib/data"
+import { updateMeal, deleteMeal } from "@/lib/data"
 import { requireAuth } from "@/lib/auth"
 
 export async function PUT(request: Request, { params }: { params: { meal_id: string } }) {
@@ -25,5 +25,25 @@ export async function PUT(request: Request, { params }: { params: { meal_id: str
   } catch (error) {
     console.error("Failed to update meal:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: { meal_id: string } }) {
+  try {
+    let user = null;
+    try {
+      user = await requireAuth();
+    } catch (error: any) {
+      if (error?.message?.includes("NEXT_REDIRECT")) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      throw error;
+    }
+    const mealId = Number(params.meal_id);
+    await deleteMeal(mealId);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete meal:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 } 

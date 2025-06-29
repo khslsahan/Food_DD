@@ -3,6 +3,20 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "@/components/ui/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -50,9 +64,25 @@ export const columns: ColumnDef<Meal>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     cell: ({ row }) => {
       const meal = row.original
-
+      const [open, setOpen] = useState(false)
+      const router = useRouter()
+      const handleDelete = async () => {
+        try {
+          const res = await fetch(`/api/meals/${meal.meal_id}`, { method: "DELETE" })
+          if (res.ok) {
+            toast({ title: "Meal deleted", description: `Meal '${meal.meal_name}' was deleted.` })
+            router.refresh()
+          } else {
+            toast({ title: "Error", description: "Failed to delete meal.", variant: "destructive" })
+          }
+        } catch {
+          toast({ title: "Error", description: "Failed to delete meal.", variant: "destructive" })
+        }
+        setOpen(false)
+      }
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -77,7 +107,25 @@ export const columns: ColumnDef<Meal>[] = [
               <Link href={`/meals/${meal.meal_id}/portions`}>Manage Portions</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive">
+              <AlertDialog open={open} onOpenChange={setOpen}>
+                <AlertDialogTrigger asChild>
+                  <button className="text-red-600" onClick={e => { e.preventDefault(); setOpen(true) }}>Delete</button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Meal?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete <b>{meal.meal_name}</b>? This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
