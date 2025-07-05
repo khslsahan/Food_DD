@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -19,10 +19,14 @@ import { useToast } from "./ui/use-toast";
 interface IngredientInput {
   name: string;
   quantity: string;
-  calories: string;
-  fat: string;
-  protein: string;
-  carbohydrates: string;
+  calories: string; // calculated value
+  fat: string; // calculated value
+  protein: string; // calculated value
+  carbohydrates: string; // calculated value
+  caloriesPer100g?: string;
+  fatPer100g?: string;
+  proteinPer100g?: string;
+  carbohydratesPer100g?: string;
 }
 
 interface AddComponentModalProps {
@@ -45,6 +49,9 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   const [portions, setPortions] = useState([{ label: "1P", total_weight_g: "" }]);
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | "">("");
+  const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const ingredientInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -178,6 +185,67 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
     }
   };
 
+  // Fetch ingredient suggestions as user types
+  const fetchIngredientSuggestions = async (idx: number, value: string) => {
+    if (!value) {
+      setIngredientSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(value)}`);
+    if (res.ok) {
+      const data = await res.json();
+      setIngredientSuggestions(data);
+      setShowSuggestions(true);
+    }
+  };
+
+  // When user selects a suggestion, fill in nutrition fields (per 100g)
+  const handleSuggestionClick = (idx: number, suggestion: any) => {
+    setIngredients((prev) => prev.map((ing, i) =>
+      i === idx
+        ? {
+            ...ing,
+            name: suggestion.ingredient_name,
+            calories: suggestion.calories_per_100g?.toString() ?? "",
+            fat: suggestion.fat_g?.toString() ?? "",
+            protein: suggestion.protein_g?.toString() ?? "",
+            carbohydrates: suggestion.carbohydrates_g?.toString() ?? "",
+            caloriesPer100g: suggestion.calories_per_100g?.toString() ?? "",
+            fatPer100g: suggestion.fat_g?.toString() ?? "",
+            proteinPer100g: suggestion.protein_g?.toString() ?? "",
+            carbohydratesPer100g: suggestion.carbohydrates_g?.toString() ?? "",
+          }
+        : ing
+    ));
+    setShowSuggestions(false);
+    setIngredientSuggestions([]);
+    setTimeout(() => {
+      ingredientInputRefs.current[idx + 1]?.focus();
+    }, 0);
+  };
+
+  // Recalculate nutrition values when quantity changes
+  const handleQuantityChange = (idx: number, value: string) => {
+    setIngredients((prev) => {
+      const ing = prev[idx];
+      const qty = Number(value) || 0;
+      const factor = qty / 100;
+      return prev.map((ingr, i) =>
+        i === idx
+          ? {
+              ...ingr,
+              quantity: value,
+              calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+              fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+              protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+              carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+            }
+          : ingr
+      );
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -233,18 +301,37 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
                 <div key={idx} className="flex flex-col gap-2 border p-2 rounded-md bg-gray-50">
-                  <div className="flex gap-2 items-center">
+                  <div className="flex gap-2 items-center relative">
                     <Input
                       placeholder="Ingredient Name"
                       value={ingredient.name}
-                      onChange={(e) => handleIngredientChange(idx, "name", e.target.value)}
+                      onChange={(e) => {
+                        handleIngredientChange(idx, "name", e.target.value);
+                        fetchIngredientSuggestions(idx, e.target.value);
+                      }}
+                      onFocus={() => ingredientSuggestions.length > 0 && setShowSuggestions(true)}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
                       required
+                      ref={el => { ingredientInputRefs.current[idx] = el; }}
                     />
+                    {showSuggestions && ingredientSuggestions.length > 0 && (
+                      <div className="absolute z-10 bg-white border rounded shadow w-full top-12 left-0 max-h-40 overflow-y-auto">
+                        {ingredientSuggestions.map((suggestion, sidx) => (
+                          <div
+                            key={suggestion.ingredient_id}
+                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            onMouseDown={() => handleSuggestionClick(idx, suggestion)}
+                          >
+                            {suggestion.ingredient_name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     <Input
                       placeholder="Quantity (g)"
                       type="number"
                       value={ingredient.quantity}
-                      onChange={(e) => handleIngredientChange(idx, "quantity", e.target.value)}
+                      onChange={(e) => handleQuantityChange(idx, e.target.value)}
                       required
                     />
                     <Button
@@ -266,28 +353,28 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
                     <Input
                       placeholder="Calories (per 100g)"
                       type="number"
-                      value={ingredient.calories ?? 0}
+                      value={ingredient.calories ?? ""}
                       onChange={(e) => handleIngredientChange(idx, "calories", e.target.value)}
                       required
                     />
                     <Input
                       placeholder="Fat (g)"
                       type="number"
-                      value={ingredient.fat ?? 0}
+                      value={ingredient.fat ?? ""}
                       onChange={(e) => handleIngredientChange(idx, "fat", e.target.value)}
                       required
                     />
                     <Input
                       placeholder="Protein (g)"
                       type="number"
-                      value={ingredient.protein ?? 0}
+                      value={ingredient.protein ?? ""}
                       onChange={(e) => handleIngredientChange(idx, "protein", e.target.value)}
                       required
                     />
                     <Input
                       placeholder="Carbohydrates (g)"
                       type="number"
-                      value={ingredient.carbohydrates ?? 0}
+                      value={ingredient.carbohydrates ?? ""}
                       onChange={(e) => handleIngredientChange(idx, "carbohydrates", e.target.value)}
                       required
                     />

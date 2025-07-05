@@ -2,12 +2,14 @@ import { NextResponse } from "next/server"
 import { createIngredient, getIngredients } from "@/lib/data"
 import { requireAuth } from "@/lib/auth"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Check authentication
     await requireAuth()
 
-    const ingredients = await getIngredients()
+    const { searchParams } = new URL(request.url)
+    const search = searchParams.get('search') || undefined
+    const ingredients = await getIngredients(search)
     return NextResponse.json(ingredients)
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })

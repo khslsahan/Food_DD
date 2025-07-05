@@ -52,17 +52,21 @@ export async function getPortionOptions(mealId?: number) {
 }
 
 // CRUD operations for Ingredients
-export async function getIngredients() {
+export async function getIngredients(search?: string) {
+  const where = search
+    ? { ingredient_name: { contains: search, mode: 'insensitive' } }
+    : undefined;
   const ingredients = await prisma.ingredients.findMany({
+    where,
     orderBy: { updated_at: 'desc' },
-  })
+  });
   return ingredients.map(ingredient => ({
     ...ingredient,
     calories_per_100g: Number(ingredient.calories_per_100g),
     fat_g: Number(ingredient.fat_g),
     protein_g: Number(ingredient.protein_g),
     carbohydrates_g: Number(ingredient.carbohydrates_g),
-  }))
+  }));
 }
 
 // CRUD operations for Recipe Ingredients
