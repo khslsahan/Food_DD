@@ -53,6 +53,11 @@ export type recipe_ingredients = $Result.DefaultSelection<Prisma.$recipe_ingredi
  * 
  */
 export type component_category = $Result.DefaultSelection<Prisma.$component_categoryPayload>
+/**
+ * Model SystemConfig
+ * 
+ */
+export type SystemConfig = $Result.DefaultSelection<Prisma.$SystemConfigPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -258,6 +263,16 @@ export class PrismaClient<
     * ```
     */
   get component_category(): Prisma.component_categoryDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.systemConfig`: Exposes CRUD operations for the **SystemConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SystemConfigs
+    * const systemConfigs = await prisma.systemConfig.findMany()
+    * ```
+    */
+  get systemConfig(): Prisma.SystemConfigDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -705,7 +720,8 @@ export namespace Prisma {
     portion_options: 'portion_options',
     User: 'User',
     recipe_ingredients: 'recipe_ingredients',
-    component_category: 'component_category'
+    component_category: 'component_category',
+    SystemConfig: 'SystemConfig'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -724,7 +740,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "components" | "component_portions" | "ingredients" | "meals" | "portion_options" | "user" | "recipe_ingredients" | "component_category"
+      modelProps: "components" | "component_portions" | "ingredients" | "meals" | "portion_options" | "user" | "recipe_ingredients" | "component_category" | "systemConfig"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1320,6 +1336,80 @@ export namespace Prisma {
           }
         }
       }
+      SystemConfig: {
+        payload: Prisma.$SystemConfigPayload<ExtArgs>
+        fields: Prisma.SystemConfigFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SystemConfigFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SystemConfigFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.SystemConfigFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SystemConfigFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>
+          }
+          findMany: {
+            args: Prisma.SystemConfigFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>[]
+          }
+          create: {
+            args: Prisma.SystemConfigCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>
+          }
+          createMany: {
+            args: Prisma.SystemConfigCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SystemConfigCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>[]
+          }
+          delete: {
+            args: Prisma.SystemConfigDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>
+          }
+          update: {
+            args: Prisma.SystemConfigUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.SystemConfigDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SystemConfigUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SystemConfigUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>[]
+          }
+          upsert: {
+            args: Prisma.SystemConfigUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SystemConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.SystemConfigAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSystemConfig>
+          }
+          groupBy: {
+            args: Prisma.SystemConfigGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SystemConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SystemConfigCountArgs<ExtArgs>
+            result: $Utils.Optional<SystemConfigCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1412,6 +1502,7 @@ export namespace Prisma {
     user?: UserOmit
     recipe_ingredients?: recipe_ingredientsOmit
     component_category?: component_categoryOmit
+    systemConfig?: SystemConfigOmit
   }
 
   /* Types for Logging */
@@ -10706,6 +10797,1035 @@ export namespace Prisma {
 
 
   /**
+   * Model SystemConfig
+   */
+
+  export type AggregateSystemConfig = {
+    _count: SystemConfigCountAggregateOutputType | null
+    _avg: SystemConfigAvgAggregateOutputType | null
+    _sum: SystemConfigSumAggregateOutputType | null
+    _min: SystemConfigMinAggregateOutputType | null
+    _max: SystemConfigMaxAggregateOutputType | null
+  }
+
+  export type SystemConfigAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type SystemConfigSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type SystemConfigMinAggregateOutputType = {
+    id: number | null
+    config_key: string | null
+    config_value: string | null
+    description: string | null
+    updated_at: Date | null
+  }
+
+  export type SystemConfigMaxAggregateOutputType = {
+    id: number | null
+    config_key: string | null
+    config_value: string | null
+    description: string | null
+    updated_at: Date | null
+  }
+
+  export type SystemConfigCountAggregateOutputType = {
+    id: number
+    config_key: number
+    config_value: number
+    description: number
+    updated_at: number
+    _all: number
+  }
+
+
+  export type SystemConfigAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type SystemConfigSumAggregateInputType = {
+    id?: true
+  }
+
+  export type SystemConfigMinAggregateInputType = {
+    id?: true
+    config_key?: true
+    config_value?: true
+    description?: true
+    updated_at?: true
+  }
+
+  export type SystemConfigMaxAggregateInputType = {
+    id?: true
+    config_key?: true
+    config_value?: true
+    description?: true
+    updated_at?: true
+  }
+
+  export type SystemConfigCountAggregateInputType = {
+    id?: true
+    config_key?: true
+    config_value?: true
+    description?: true
+    updated_at?: true
+    _all?: true
+  }
+
+  export type SystemConfigAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SystemConfig to aggregate.
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SystemConfigs to fetch.
+     */
+    orderBy?: SystemConfigOrderByWithRelationInput | SystemConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SystemConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SystemConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SystemConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SystemConfigs
+    **/
+    _count?: true | SystemConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SystemConfigAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SystemConfigSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SystemConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SystemConfigMaxAggregateInputType
+  }
+
+  export type GetSystemConfigAggregateType<T extends SystemConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateSystemConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSystemConfig[P]>
+      : GetScalarType<T[P], AggregateSystemConfig[P]>
+  }
+
+
+
+
+  export type SystemConfigGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SystemConfigWhereInput
+    orderBy?: SystemConfigOrderByWithAggregationInput | SystemConfigOrderByWithAggregationInput[]
+    by: SystemConfigScalarFieldEnum[] | SystemConfigScalarFieldEnum
+    having?: SystemConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SystemConfigCountAggregateInputType | true
+    _avg?: SystemConfigAvgAggregateInputType
+    _sum?: SystemConfigSumAggregateInputType
+    _min?: SystemConfigMinAggregateInputType
+    _max?: SystemConfigMaxAggregateInputType
+  }
+
+  export type SystemConfigGroupByOutputType = {
+    id: number
+    config_key: string
+    config_value: string
+    description: string | null
+    updated_at: Date
+    _count: SystemConfigCountAggregateOutputType | null
+    _avg: SystemConfigAvgAggregateOutputType | null
+    _sum: SystemConfigSumAggregateOutputType | null
+    _min: SystemConfigMinAggregateOutputType | null
+    _max: SystemConfigMaxAggregateOutputType | null
+  }
+
+  type GetSystemConfigGroupByPayload<T extends SystemConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SystemConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SystemConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SystemConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], SystemConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SystemConfigSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    config_key?: boolean
+    config_value?: boolean
+    description?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["systemConfig"]>
+
+  export type SystemConfigSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    config_key?: boolean
+    config_value?: boolean
+    description?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["systemConfig"]>
+
+  export type SystemConfigSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    config_key?: boolean
+    config_value?: boolean
+    description?: boolean
+    updated_at?: boolean
+  }, ExtArgs["result"]["systemConfig"]>
+
+  export type SystemConfigSelectScalar = {
+    id?: boolean
+    config_key?: boolean
+    config_value?: boolean
+    description?: boolean
+    updated_at?: boolean
+  }
+
+  export type SystemConfigOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "config_key" | "config_value" | "description" | "updated_at", ExtArgs["result"]["systemConfig"]>
+
+  export type $SystemConfigPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SystemConfig"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      config_key: string
+      config_value: string
+      description: string | null
+      updated_at: Date
+    }, ExtArgs["result"]["systemConfig"]>
+    composites: {}
+  }
+
+  type SystemConfigGetPayload<S extends boolean | null | undefined | SystemConfigDefaultArgs> = $Result.GetResult<Prisma.$SystemConfigPayload, S>
+
+  type SystemConfigCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SystemConfigFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SystemConfigCountAggregateInputType | true
+    }
+
+  export interface SystemConfigDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SystemConfig'], meta: { name: 'SystemConfig' } }
+    /**
+     * Find zero or one SystemConfig that matches the filter.
+     * @param {SystemConfigFindUniqueArgs} args - Arguments to find a SystemConfig
+     * @example
+     * // Get one SystemConfig
+     * const systemConfig = await prisma.systemConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SystemConfigFindUniqueArgs>(args: SelectSubset<T, SystemConfigFindUniqueArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one SystemConfig that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SystemConfigFindUniqueOrThrowArgs} args - Arguments to find a SystemConfig
+     * @example
+     * // Get one SystemConfig
+     * const systemConfig = await prisma.systemConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SystemConfigFindUniqueOrThrowArgs>(args: SelectSubset<T, SystemConfigFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SystemConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigFindFirstArgs} args - Arguments to find a SystemConfig
+     * @example
+     * // Get one SystemConfig
+     * const systemConfig = await prisma.systemConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SystemConfigFindFirstArgs>(args?: SelectSubset<T, SystemConfigFindFirstArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first SystemConfig that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigFindFirstOrThrowArgs} args - Arguments to find a SystemConfig
+     * @example
+     * // Get one SystemConfig
+     * const systemConfig = await prisma.systemConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SystemConfigFindFirstOrThrowArgs>(args?: SelectSubset<T, SystemConfigFindFirstOrThrowArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more SystemConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SystemConfigs
+     * const systemConfigs = await prisma.systemConfig.findMany()
+     * 
+     * // Get first 10 SystemConfigs
+     * const systemConfigs = await prisma.systemConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const systemConfigWithIdOnly = await prisma.systemConfig.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SystemConfigFindManyArgs>(args?: SelectSubset<T, SystemConfigFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a SystemConfig.
+     * @param {SystemConfigCreateArgs} args - Arguments to create a SystemConfig.
+     * @example
+     * // Create one SystemConfig
+     * const SystemConfig = await prisma.systemConfig.create({
+     *   data: {
+     *     // ... data to create a SystemConfig
+     *   }
+     * })
+     * 
+     */
+    create<T extends SystemConfigCreateArgs>(args: SelectSubset<T, SystemConfigCreateArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many SystemConfigs.
+     * @param {SystemConfigCreateManyArgs} args - Arguments to create many SystemConfigs.
+     * @example
+     * // Create many SystemConfigs
+     * const systemConfig = await prisma.systemConfig.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SystemConfigCreateManyArgs>(args?: SelectSubset<T, SystemConfigCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SystemConfigs and returns the data saved in the database.
+     * @param {SystemConfigCreateManyAndReturnArgs} args - Arguments to create many SystemConfigs.
+     * @example
+     * // Create many SystemConfigs
+     * const systemConfig = await prisma.systemConfig.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SystemConfigs and only return the `id`
+     * const systemConfigWithIdOnly = await prisma.systemConfig.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SystemConfigCreateManyAndReturnArgs>(args?: SelectSubset<T, SystemConfigCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a SystemConfig.
+     * @param {SystemConfigDeleteArgs} args - Arguments to delete one SystemConfig.
+     * @example
+     * // Delete one SystemConfig
+     * const SystemConfig = await prisma.systemConfig.delete({
+     *   where: {
+     *     // ... filter to delete one SystemConfig
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SystemConfigDeleteArgs>(args: SelectSubset<T, SystemConfigDeleteArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one SystemConfig.
+     * @param {SystemConfigUpdateArgs} args - Arguments to update one SystemConfig.
+     * @example
+     * // Update one SystemConfig
+     * const systemConfig = await prisma.systemConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SystemConfigUpdateArgs>(args: SelectSubset<T, SystemConfigUpdateArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more SystemConfigs.
+     * @param {SystemConfigDeleteManyArgs} args - Arguments to filter SystemConfigs to delete.
+     * @example
+     * // Delete a few SystemConfigs
+     * const { count } = await prisma.systemConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SystemConfigDeleteManyArgs>(args?: SelectSubset<T, SystemConfigDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SystemConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SystemConfigs
+     * const systemConfig = await prisma.systemConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SystemConfigUpdateManyArgs>(args: SelectSubset<T, SystemConfigUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SystemConfigs and returns the data updated in the database.
+     * @param {SystemConfigUpdateManyAndReturnArgs} args - Arguments to update many SystemConfigs.
+     * @example
+     * // Update many SystemConfigs
+     * const systemConfig = await prisma.systemConfig.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more SystemConfigs and only return the `id`
+     * const systemConfigWithIdOnly = await prisma.systemConfig.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SystemConfigUpdateManyAndReturnArgs>(args: SelectSubset<T, SystemConfigUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one SystemConfig.
+     * @param {SystemConfigUpsertArgs} args - Arguments to update or create a SystemConfig.
+     * @example
+     * // Update or create a SystemConfig
+     * const systemConfig = await prisma.systemConfig.upsert({
+     *   create: {
+     *     // ... data to create a SystemConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SystemConfig we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SystemConfigUpsertArgs>(args: SelectSubset<T, SystemConfigUpsertArgs<ExtArgs>>): Prisma__SystemConfigClient<$Result.GetResult<Prisma.$SystemConfigPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of SystemConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigCountArgs} args - Arguments to filter SystemConfigs to count.
+     * @example
+     * // Count the number of SystemConfigs
+     * const count = await prisma.systemConfig.count({
+     *   where: {
+     *     // ... the filter for the SystemConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends SystemConfigCountArgs>(
+      args?: Subset<T, SystemConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SystemConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SystemConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SystemConfigAggregateArgs>(args: Subset<T, SystemConfigAggregateArgs>): Prisma.PrismaPromise<GetSystemConfigAggregateType<T>>
+
+    /**
+     * Group by SystemConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SystemConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SystemConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SystemConfigGroupByArgs['orderBy'] }
+        : { orderBy?: SystemConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SystemConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSystemConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SystemConfig model
+   */
+  readonly fields: SystemConfigFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SystemConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SystemConfigClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SystemConfig model
+   */
+  interface SystemConfigFieldRefs {
+    readonly id: FieldRef<"SystemConfig", 'Int'>
+    readonly config_key: FieldRef<"SystemConfig", 'String'>
+    readonly config_value: FieldRef<"SystemConfig", 'String'>
+    readonly description: FieldRef<"SystemConfig", 'String'>
+    readonly updated_at: FieldRef<"SystemConfig", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SystemConfig findUnique
+   */
+  export type SystemConfigFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SystemConfig to fetch.
+     */
+    where: SystemConfigWhereUniqueInput
+  }
+
+  /**
+   * SystemConfig findUniqueOrThrow
+   */
+  export type SystemConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SystemConfig to fetch.
+     */
+    where: SystemConfigWhereUniqueInput
+  }
+
+  /**
+   * SystemConfig findFirst
+   */
+  export type SystemConfigFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SystemConfig to fetch.
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SystemConfigs to fetch.
+     */
+    orderBy?: SystemConfigOrderByWithRelationInput | SystemConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SystemConfigs.
+     */
+    cursor?: SystemConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SystemConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SystemConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SystemConfigs.
+     */
+    distinct?: SystemConfigScalarFieldEnum | SystemConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SystemConfig findFirstOrThrow
+   */
+  export type SystemConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SystemConfig to fetch.
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SystemConfigs to fetch.
+     */
+    orderBy?: SystemConfigOrderByWithRelationInput | SystemConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SystemConfigs.
+     */
+    cursor?: SystemConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SystemConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SystemConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SystemConfigs.
+     */
+    distinct?: SystemConfigScalarFieldEnum | SystemConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SystemConfig findMany
+   */
+  export type SystemConfigFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * Filter, which SystemConfigs to fetch.
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SystemConfigs to fetch.
+     */
+    orderBy?: SystemConfigOrderByWithRelationInput | SystemConfigOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SystemConfigs.
+     */
+    cursor?: SystemConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SystemConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SystemConfigs.
+     */
+    skip?: number
+    distinct?: SystemConfigScalarFieldEnum | SystemConfigScalarFieldEnum[]
+  }
+
+  /**
+   * SystemConfig create
+   */
+  export type SystemConfigCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to create a SystemConfig.
+     */
+    data: XOR<SystemConfigCreateInput, SystemConfigUncheckedCreateInput>
+  }
+
+  /**
+   * SystemConfig createMany
+   */
+  export type SystemConfigCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SystemConfigs.
+     */
+    data: SystemConfigCreateManyInput | SystemConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SystemConfig createManyAndReturn
+   */
+  export type SystemConfigCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * The data used to create many SystemConfigs.
+     */
+    data: SystemConfigCreateManyInput | SystemConfigCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * SystemConfig update
+   */
+  export type SystemConfigUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * The data needed to update a SystemConfig.
+     */
+    data: XOR<SystemConfigUpdateInput, SystemConfigUncheckedUpdateInput>
+    /**
+     * Choose, which SystemConfig to update.
+     */
+    where: SystemConfigWhereUniqueInput
+  }
+
+  /**
+   * SystemConfig updateMany
+   */
+  export type SystemConfigUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SystemConfigs.
+     */
+    data: XOR<SystemConfigUpdateManyMutationInput, SystemConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which SystemConfigs to update
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * Limit how many SystemConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SystemConfig updateManyAndReturn
+   */
+  export type SystemConfigUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * The data used to update SystemConfigs.
+     */
+    data: XOR<SystemConfigUpdateManyMutationInput, SystemConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which SystemConfigs to update
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * Limit how many SystemConfigs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * SystemConfig upsert
+   */
+  export type SystemConfigUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * The filter to search for the SystemConfig to update in case it exists.
+     */
+    where: SystemConfigWhereUniqueInput
+    /**
+     * In case the SystemConfig found by the `where` argument doesn't exist, create a new SystemConfig with this data.
+     */
+    create: XOR<SystemConfigCreateInput, SystemConfigUncheckedCreateInput>
+    /**
+     * In case the SystemConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SystemConfigUpdateInput, SystemConfigUncheckedUpdateInput>
+  }
+
+  /**
+   * SystemConfig delete
+   */
+  export type SystemConfigDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+    /**
+     * Filter which SystemConfig to delete.
+     */
+    where: SystemConfigWhereUniqueInput
+  }
+
+  /**
+   * SystemConfig deleteMany
+   */
+  export type SystemConfigDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SystemConfigs to delete
+     */
+    where?: SystemConfigWhereInput
+    /**
+     * Limit how many SystemConfigs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * SystemConfig without action
+   */
+  export type SystemConfigDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SystemConfig
+     */
+    select?: SystemConfigSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the SystemConfig
+     */
+    omit?: SystemConfigOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -10815,6 +11935,17 @@ export namespace Prisma {
   };
 
   export type Component_categoryScalarFieldEnum = (typeof Component_categoryScalarFieldEnum)[keyof typeof Component_categoryScalarFieldEnum]
+
+
+  export const SystemConfigScalarFieldEnum: {
+    id: 'id',
+    config_key: 'config_key',
+    config_value: 'config_value',
+    description: 'description',
+    updated_at: 'updated_at'
+  };
+
+  export type SystemConfigScalarFieldEnum = (typeof SystemConfigScalarFieldEnum)[keyof typeof SystemConfigScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -11447,6 +12578,60 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"component_category"> | string
   }
 
+  export type SystemConfigWhereInput = {
+    AND?: SystemConfigWhereInput | SystemConfigWhereInput[]
+    OR?: SystemConfigWhereInput[]
+    NOT?: SystemConfigWhereInput | SystemConfigWhereInput[]
+    id?: IntFilter<"SystemConfig"> | number
+    config_key?: StringFilter<"SystemConfig"> | string
+    config_value?: StringFilter<"SystemConfig"> | string
+    description?: StringNullableFilter<"SystemConfig"> | string | null
+    updated_at?: DateTimeFilter<"SystemConfig"> | Date | string
+  }
+
+  export type SystemConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    config_key?: SortOrder
+    config_value?: SortOrder
+    description?: SortOrderInput | SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type SystemConfigWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    config_key?: string
+    AND?: SystemConfigWhereInput | SystemConfigWhereInput[]
+    OR?: SystemConfigWhereInput[]
+    NOT?: SystemConfigWhereInput | SystemConfigWhereInput[]
+    config_value?: StringFilter<"SystemConfig"> | string
+    description?: StringNullableFilter<"SystemConfig"> | string | null
+    updated_at?: DateTimeFilter<"SystemConfig"> | Date | string
+  }, "id" | "config_key">
+
+  export type SystemConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    config_key?: SortOrder
+    config_value?: SortOrder
+    description?: SortOrderInput | SortOrder
+    updated_at?: SortOrder
+    _count?: SystemConfigCountOrderByAggregateInput
+    _avg?: SystemConfigAvgOrderByAggregateInput
+    _max?: SystemConfigMaxOrderByAggregateInput
+    _min?: SystemConfigMinOrderByAggregateInput
+    _sum?: SystemConfigSumOrderByAggregateInput
+  }
+
+  export type SystemConfigScalarWhereWithAggregatesInput = {
+    AND?: SystemConfigScalarWhereWithAggregatesInput | SystemConfigScalarWhereWithAggregatesInput[]
+    OR?: SystemConfigScalarWhereWithAggregatesInput[]
+    NOT?: SystemConfigScalarWhereWithAggregatesInput | SystemConfigScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"SystemConfig"> | number
+    config_key?: StringWithAggregatesFilter<"SystemConfig"> | string
+    config_value?: StringWithAggregatesFilter<"SystemConfig"> | string
+    description?: StringNullableWithAggregatesFilter<"SystemConfig"> | string | null
+    updated_at?: DateTimeWithAggregatesFilter<"SystemConfig"> | Date | string
+  }
+
   export type componentsCreateInput = {
     component_name: string
     before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
@@ -11960,6 +13145,59 @@ export namespace Prisma {
   export type component_categoryUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SystemConfigCreateInput = {
+    config_key: string
+    config_value: string
+    description?: string | null
+    updated_at?: Date | string
+  }
+
+  export type SystemConfigUncheckedCreateInput = {
+    id?: number
+    config_key: string
+    config_value: string
+    description?: string | null
+    updated_at?: Date | string
+  }
+
+  export type SystemConfigUpdateInput = {
+    config_key?: StringFieldUpdateOperationsInput | string
+    config_value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SystemConfigUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    config_key?: StringFieldUpdateOperationsInput | string
+    config_value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SystemConfigCreateManyInput = {
+    id?: number
+    config_key: string
+    config_value: string
+    description?: string | null
+    updated_at?: Date | string
+  }
+
+  export type SystemConfigUpdateManyMutationInput = {
+    config_key?: StringFieldUpdateOperationsInput | string
+    config_value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SystemConfigUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    config_key?: StringFieldUpdateOperationsInput | string
+    config_value?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -12592,6 +13830,38 @@ export namespace Prisma {
   }
 
   export type component_categorySumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type SystemConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    config_key?: SortOrder
+    config_value?: SortOrder
+    description?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type SystemConfigAvgOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type SystemConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    config_key?: SortOrder
+    config_value?: SortOrder
+    description?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type SystemConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    config_key?: SortOrder
+    config_value?: SortOrder
+    description?: SortOrder
+    updated_at?: SortOrder
+  }
+
+  export type SystemConfigSumOrderByAggregateInput = {
     id?: SortOrder
   }
 

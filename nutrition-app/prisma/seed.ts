@@ -1,6 +1,5 @@
 const { PrismaClient } = require('../lib/generated/prisma')
 const bcrypt = require('bcryptjs')
-
 const prisma = new PrismaClient()
 
 async function main() {

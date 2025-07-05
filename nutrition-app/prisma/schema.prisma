@@ -102,3 +102,11 @@ model component_category {
   name       String      @unique
   components components[]
 }
+
+model SystemConfig {
+  id           Int      @id @default(autoincrement())
+  config_key   String   @unique
+  config_value String
+  description  String?
+  updated_at   DateTime @updatedAt
+}

@@ -194,6 +194,14 @@ exports.Prisma.Component_categoryScalarFieldEnum = {
   name: 'name'
 };
 
+exports.Prisma.SystemConfigScalarFieldEnum = {
+  id: 'id',
+  config_key: 'config_key',
+  config_value: 'config_value',
+  description: 'description',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -218,7 +226,8 @@ exports.Prisma.ModelName = {
   portion_options: 'portion_options',
   User: 'User',
   recipe_ingredients: 'recipe_ingredients',
-  component_category: 'component_category'
+  component_category: 'component_category',
+  SystemConfig: 'SystemConfig'
 };
 
 /**

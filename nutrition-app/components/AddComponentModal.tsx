@@ -52,6 +52,10 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const ingredientInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [showGptPrompt, setShowGptPrompt] = useState(false);
+  const [showGptResult, setShowGptResult] = useState(false);
+  const [gptMacros, setGptMacros] = useState<any>(null);
+  const [gptIdx, setGptIdx] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchCategories() {
@@ -176,7 +180,8 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             : ing
         ));
       } else {
-        alert("No nutrition data found.");
+        setGptIdx(idx);
+        setShowGptPrompt(true);
       }
     } catch (e) {
       alert("Failed to fetch nutrition data");
@@ -423,6 +428,89 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             </DialogClose>
           </DialogFooter>
         </form>
+        {showGptPrompt && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+            <div className="bg-white p-6 rounded shadow">
+              <div className="mb-4">No nutrition data found. Try ChatGPT?</div>
+              <div className="flex gap-4">
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded"
+                  onClick={async () => {
+                    setShowGptPrompt(false);
+                    if (gptIdx !== null) {
+                      const name = ingredients[gptIdx].name;
+                      const res = await fetch("/api/gpt-nutrition", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ ingredient: name }),
+                      });
+                      const macros = await res.json();
+                      setGptMacros(macros);
+                      setShowGptResult(true);
+                    }
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded"
+                  onClick={() => setShowGptPrompt(false)}
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {showGptResult && gptMacros && (
+          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-30">
+            <div className="bg-white p-6 rounded shadow">
+              <div className="mb-4">
+                ChatGPT suggests:<br />
+                Calories: {gptMacros.calories}<br />
+                Protein: {gptMacros.protein}<br />
+                Fat: {gptMacros.fat}<br />
+                Carbs: {gptMacros.carbs}<br />
+                Use these values?
+              </div>
+              <div className="flex gap-4">
+                <button
+                  className="px-4 py-2 bg-green-600 text-white rounded"
+                  onClick={() => {
+                    if (gptIdx !== null) {
+                      setIngredients((prev) =>
+                        prev.map((ing, i) =>
+                          i === gptIdx
+                            ? {
+                                ...ing,
+                                calories: gptMacros.calories?.toString() ?? "",
+                                protein: gptMacros.protein?.toString() ?? "",
+                                fat: gptMacros.fat?.toString() ?? "",
+                                carbohydrates: gptMacros.carbs?.toString() ?? "",
+                                caloriesPer100g: gptMacros.calories?.toString() ?? "",
+                                proteinPer100g: gptMacros.protein?.toString() ?? "",
+                                fatPer100g: gptMacros.fat?.toString() ?? "",
+                                carbohydratesPer100g: gptMacros.carbs?.toString() ?? "",
+                              }
+                            : ing
+                        )
+                      );
+                    }
+                    setShowGptResult(false);
+                  }}
+                >
+                  Accept
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-300 rounded"
+                  onClick={() => setShowGptResult(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
