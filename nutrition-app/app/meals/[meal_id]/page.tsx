@@ -53,8 +53,9 @@ function NutritionInfo({ ingredient, rawQuantity }: { ingredient: any, rawQuanti
   );
 }
 
-export default async function MealDetailsPage({ params }: { params: { meal_id: string } }) {
-  const mealId = Number(params.meal_id);
+export default async function MealDetailsPage({ params }: { params: Promise<{ meal_id: string }> }) {
+  const { meal_id } = await params;
+  const mealId = Number(meal_id);
   const meals = await getMeals();
   const meal = meals.find((m) => m.meal_id === mealId);
   
