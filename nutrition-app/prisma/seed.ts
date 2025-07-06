@@ -30,6 +30,32 @@ async function main() {
     });
   }
 
+  // Seed system configurations (using environment variables)
+  await prisma.systemConfig.upsert({
+    where: { config_key: 'OPENAI_API_KEY' },
+    update: { 
+      config_value: process.env.OPENAI_API_KEY || 'YOUR_OPENAI_API_KEY_HERE', 
+      description: 'OpenAI API Key' 
+    },
+    create: {
+      config_key: 'OPENAI_API_KEY',
+      config_value: process.env.OPENAI_API_KEY || 'YOUR_OPENAI_API_KEY_HERE',
+      description: 'OpenAI API Key',
+    },
+  });
+  console.log('OPENAI_API_KEY inserted/updated in SystemConfig table');
+
+  await prisma.systemConfig.upsert({
+    where: { config_key: 'NUTRITION_API_URL' },
+    update: { config_value: process.env.NUTRITION_API_URL || 'http://localhost:8080/api/nutrition', description: 'Nutrition API Service URL' },
+    create: {
+      config_key: 'NUTRITION_API_URL',
+      config_value: process.env.NUTRITION_API_URL || 'http://localhost:8080/api/nutrition',
+      description: 'Nutrition API Service URL',
+    },
+  });
+  console.log('NUTRITION_API_URL inserted/updated in SystemConfig table');
+
   console.log({ admin })
 }
 
