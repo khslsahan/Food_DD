@@ -267,21 +267,19 @@ export function UploaderComponentEditor({
   };
 
   const handleQuantityChange = (idx: number, value: string) => {
-    const ing = component.ingredients[idx];
-    const qty = Number(value) || 0;
-    const factor = qty / 100;
-    const updatedIngredients = component.ingredients.map((ingr: IngredientInput, i: number) =>
-      i === idx
-        ? {
-            ...ingr,
-            quantity: value,
-            calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
-            fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
-            protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
-            carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
-          }
-        : ingr
-    );
+    const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) => {
+      if (i !== idx) return ing;
+      const qty = Number(value) || 0;
+      const factor = qty / 100;
+      return {
+        ...ing,
+        quantity: value,
+        calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+        fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+        protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+        carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+      };
+    });
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
   };
 
@@ -343,7 +341,13 @@ export function UploaderComponentEditor({
               idx={idx}
               loading={loadingIdx === idx}
               showRemove={component.ingredients.length > 1}
-              onChange={handleIngredientChange}
+              onChange={(idx, field, value) => {
+                if (field === "quantity") {
+                  handleQuantityChange(idx, value);
+                } else {
+                  handleIngredientChange(idx, field, value);
+                }
+              }}
               onRemove={removeIngredient}
               fetchNutrition={fetchNutrition}
               fetchSuggestions={fetchIngredientSuggestions}
