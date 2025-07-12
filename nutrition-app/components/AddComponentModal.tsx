@@ -15,19 +15,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
-
-interface IngredientInput {
-  name: string;
-  quantity: string;
-  calories: string; // calculated value
-  fat: string; // calculated value
-  protein: string; // calculated value
-  carbohydrates: string; // calculated value
-  caloriesPer100g?: string;
-  fatPer100g?: string;
-  proteinPer100g?: string;
-  carbohydratesPer100g?: string;
-}
+import { IngredientRow, IngredientInput } from "./IngredientRow";
 
 interface AddComponentModalProps {
   mealId: number;
@@ -142,49 +130,145 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
     }
   };
 
-  // Edamam API fetch (frontend demo only)
+  // Nutrition API fetch (with fallback and error handling)
   const fetchNutrition = async (idx: number) => {
     const ingredient = ingredients[idx];
     if (!ingredient.name) return;
     setLoadingIdx(idx);
     try {
-      const ingr = `${ingredient.quantity || 100}g ${ingredient.name}`;
-      const res = await fetch("/api/edamam-proxy", {
+      // 1. Try main nutrition API
+      let res = await fetch("/api/nutrition-lookup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingr }),
+        body: JSON.stringify({
+          ingredientName: ingredient.name,
+          quantity: ingredient.quantity || 100,
+          unit: "g",
+        }),
       });
-      const data = await res.json();
-      let nutrients = null;
-      if (data.totalNutrients) {
-        nutrients = data.totalNutrients;
-      } else if (
-        data.ingredients &&
-        data.ingredients[0] &&
-        data.ingredients[0].parsed &&
-        data.ingredients[0].parsed[0] &&
-        data.ingredients[0].parsed[0].nutrients
-      ) {
-        nutrients = data.ingredients[0].parsed[0].nutrients;
+      if (res.status === 429) {
+        toast({
+          title: "Nutrition API Rate Limit",
+          description: "You have reached the nutrition API rate limit. Please try again later or update your API token.",
+          variant: "destructive"
+        });
+        return;
       }
-      if (nutrients) {
+      let data = await res.json();
+      if (res.status === 404 || (data.nutrition && data.nutrition.status === 404)) {
+        // 2. Try Edamam fallback
+        let edamamRes = await fetch("/api/edamam-proxy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ingredient: ingredient.name,
+            quantity: ingredient.quantity,
+            unit: "g",
+          }),
+        });
+        let edamamData = await edamamRes.json();
+        if (
+          edamamRes.status === 429 ||
+          (edamamData.status === "error" && edamamData.message && edamamData.message.toLowerCase().includes("usage limits"))
+        ) {
+          toast({
+            title: "Edamam API Rate Limit",
+            description: "You have reached the Edamam API rate limit. Please try again later or update your Edamam API token.",
+            variant: "destructive"
+          });
+          return;
+        }
+        if (edamamRes.ok && edamamData.macros) {
+          // Update with Edamam macros
+          const macros = edamamData.macros;
+          const qty = Number(ingredient.quantity) || 100;
+          const factor = qty / 100;
+          setIngredients((prev) => prev.map((ing, i) =>
+            i === idx
+              ? {
+                  ...ing,
+                  calories: macros.calories ? (Number(macros.calories) * factor).toFixed(2) : "",
+                  fat: macros.fat ? (Number(macros.fat) * factor).toFixed(2) : "",
+                  protein: macros.protein ? (Number(macros.protein) * factor).toFixed(2) : "",
+                  carbohydrates: macros.carbohydrates ? (Number(macros.carbohydrates) * factor).toFixed(2) : "",
+                  caloriesPer100g: macros.calories?.toString() ?? "",
+                  fatPer100g: macros.fat?.toString() ?? "",
+                  proteinPer100g: macros.protein?.toString() ?? "",
+                  carbohydratesPer100g: macros.carbohydrates?.toString() ?? "",
+                }
+              : ing
+          ));
+          return;
+        } else {
+          // 3. Try ChatGPT fallback
+          let gptRes = await fetch("/api/gpt-nutrition", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ingredient: ingredient.name }),
+          });
+          let gptMacros = await gptRes.json();
+          if (gptRes.ok && gptMacros) {
+            const qty = Number(ingredient.quantity) || 100;
+            const factor = qty / 100;
+            setIngredients((prev) => prev.map((ing, i) =>
+              i === idx
+                ? {
+                    ...ing,
+                    calories: gptMacros.calories ? (Number(gptMacros.calories) * factor).toFixed(2) : "",
+                    fat: gptMacros.fat ? (Number(gptMacros.fat) * factor).toFixed(2) : "",
+                    protein: gptMacros.protein ? (Number(gptMacros.protein) * factor).toFixed(2) : "",
+                    carbohydrates: gptMacros.carbs ? (Number(gptMacros.carbs) * factor).toFixed(2) : "",
+                    caloriesPer100g: gptMacros.calories?.toString() ?? "",
+                    fatPer100g: gptMacros.fat?.toString() ?? "",
+                    proteinPer100g: gptMacros.protein?.toString() ?? "",
+                    carbohydratesPer100g: gptMacros.carbs?.toString() ?? "",
+                  }
+                : ing
+            ));
+            return;
+          } else {
+            toast({
+              title: "Nutrition Not Found",
+              description: "Could not find nutrition data for this ingredient in any source.",
+              variant: "destructive"
+            });
+            return;
+          }
+        }
+      }
+      // If main API returns macros, update as normal
+      if (res.ok && data.nutrition && data.nutrition.macros) {
+        const macros = data.nutrition.macros;
+        const qty = Number(ingredient.quantity) || 100;
+        const factor = qty / 100;
         setIngredients((prev) => prev.map((ing, i) =>
           i === idx
             ? {
                 ...ing,
-                calories: Math.round(nutrients.ENERC_KCAL?.quantity || 0).toString(),
-                fat: Math.round(nutrients.FAT?.quantity || 0).toString(),
-                protein: Math.round(nutrients.PROCNT?.quantity || 0).toString(),
-                carbohydrates: Math.round(nutrients.CHOCDF?.quantity || 0).toString(),
+                calories: macros.calories ? (Number(macros.calories) * factor).toFixed(2) : "",
+                fat: macros.fat ? (Number(macros.fat) * factor).toFixed(2) : "",
+                protein: macros.protein ? (Number(macros.protein) * factor).toFixed(2) : "",
+                carbohydrates: macros.carbohydrates ? (Number(macros.carbohydrates) * factor).toFixed(2) : "",
+                caloriesPer100g: macros.calories?.toString() ?? "",
+                fatPer100g: macros.fat?.toString() ?? "",
+                proteinPer100g: macros.protein?.toString() ?? "",
+                carbohydratesPer100g: macros.carbohydrates?.toString() ?? "",
               }
             : ing
         ));
       } else {
-        setGptIdx(idx);
-        setShowGptPrompt(true);
+        toast({
+          title: "Nutrition Lookup Error",
+          description: data.error || "Unknown error occurred during nutrition lookup.",
+          variant: "destructive"
+        });
       }
     } catch (e) {
-      alert("Failed to fetch nutrition data");
+      toast({
+        title: "Nutrition Lookup Error",
+        description: e instanceof Error ? e.message : "Unknown error occurred during nutrition lookup.",
+        variant: "destructive"
+      });
     } finally {
       setLoadingIdx(null);
     }
@@ -305,86 +389,21 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             <Label>Ingredients</Label>
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
-                <div key={idx} className="flex flex-col gap-2 border p-2 rounded-md bg-gray-50">
-                  <div className="flex gap-2 items-center relative">
-                    <Input
-                      placeholder="Ingredient Name"
-                      value={ingredient.name}
-                      onChange={(e) => {
-                        handleIngredientChange(idx, "name", e.target.value);
-                        fetchIngredientSuggestions(idx, e.target.value);
-                      }}
-                      onFocus={() => ingredientSuggestions.length > 0 && setShowSuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                      required
-                      ref={el => { ingredientInputRefs.current[idx] = el; }}
-                    />
-                    {showSuggestions && ingredientSuggestions.length > 0 && (
-                      <div className="absolute z-10 bg-white border rounded shadow w-full top-12 left-0 max-h-40 overflow-y-auto">
-                        {ingredientSuggestions.map((suggestion, sidx) => (
-                          <div
-                            key={suggestion.ingredient_id}
-                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                            onMouseDown={() => handleSuggestionClick(idx, suggestion)}
-                          >
-                            {suggestion.ingredient_name}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <Input
-                      placeholder="Quantity (g)"
-                      type="number"
-                      value={ingredient.quantity}
-                      onChange={(e) => handleQuantityChange(idx, e.target.value)}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!ingredient.name || loadingIdx === idx}
-                      onClick={() => fetchNutrition(idx)}
-                    >
-                      {loadingIdx === idx ? "Loading..." : "Get Nutrition"}
-                    </Button>
-                    {ingredients.length > 1 && (
-                      <Button type="button" variant="destructive" size="icon" onClick={() => removeIngredient(idx)}>
-                        -
-                      </Button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <Input
-                      placeholder="Calories (per 100g)"
-                      type="number"
-                      value={ingredient.calories ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "calories", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Fat (g)"
-                      type="number"
-                      value={ingredient.fat ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "fat", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Protein (g)"
-                      type="number"
-                      value={ingredient.protein ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "protein", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Carbohydrates (g)"
-                      type="number"
-                      value={ingredient.carbohydrates ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "carbohydrates", e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
+                <IngredientRow
+                  key={idx}
+                  ingredient={ingredient}
+                  idx={idx}
+                  loading={loadingIdx === idx}
+                  showRemove={ingredients.length > 1}
+                  onChange={handleIngredientChange}
+                  onRemove={removeIngredient}
+                  fetchNutrition={fetchNutrition}
+                  fetchSuggestions={fetchIngredientSuggestions}
+                  suggestions={ingredientSuggestions}
+                  showSuggestions={showSuggestions}
+                  onSuggestionClick={handleSuggestionClick}
+                  inputRef={el => { ingredientInputRefs.current[idx] = el; }}
+                />
               ))}
               <Button type="button" variant="secondary" onClick={addIngredient}>
                 + Add Ingredient

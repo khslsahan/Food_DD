@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { Apple, ChefHat, CookingPot, Home, Leaf, LogOut, Menu, Salad, Settings, User, X } from "lucide-react"
+import { Apple, ChefHat, CookingPot, Home, Leaf, LogOut, Menu, Salad, Settings, User, X, Upload } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -56,6 +56,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
+    { href: "/upload", label: "Upload Recipes", icon: Upload },
     { href: "/meals", label: "Meals", icon: Salad },
     { href: "/components", label: "Components", icon: ChefHat },
     { href: "/portion-options", label: "Portion Options", icon: CookingPot },
