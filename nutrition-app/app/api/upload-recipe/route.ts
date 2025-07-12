@@ -4,6 +4,7 @@ import { join } from "path";
 import { existsSync } from "fs";
 import { spawn } from "child_process";
 import prisma from "@/lib/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 // Types for the extracted recipe data
 interface ExtractedIngredient {
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
     await writeFile(filePath, buffer);
 
     // Extract recipe data using Python script
-    const extractionResult = await extractRecipeFromFile(filePath);
+    const extractionResult = await extractRecipesFromFile(filePath);
     
     if (!extractionResult) {
       return NextResponse.json({ error: "Failed to extract recipe data" }, { status: 500 });
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       fileName,
-      recipe: extractionResult.recipe,
+      recipes: extractionResult.recipes,
       documentContent: extractionResult.documentContent
     });
 
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function extractRecipeFromFile(filePath: string): Promise<{recipe: ExtractedRecipe, documentContent: string} | null> {
+async function extractRecipesFromFile(filePath: string): Promise<{recipes: ExtractedRecipe[], documentContent: string} | null> {
   return new Promise((resolve, reject) => {
     const pythonScript = join(process.cwd(), "scripts", "extract_recipe.py");
     
@@ -112,9 +113,9 @@ async function extractRecipeFromFile(filePath: string): Promise<{recipe: Extract
 
       try {
         const result = JSON.parse(stdout);
-        if (result.success && result.recipe) {
+        if (result.success && result.recipes) {
           resolve({
-            recipe: result.recipe,
+            recipes: result.recipes,
             documentContent: result.documentContent || ""
           });
         } else {
@@ -137,7 +138,7 @@ async function extractRecipeFromFile(filePath: string): Promise<{recipe: Extract
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { recipe, fileName } = body;
+    const { recipe, fileName, recipeIndex } = body;
 
     if (!recipe || !fileName) {
       return NextResponse.json({ error: "Missing recipe data or filename" }, { status: 400 });
@@ -149,11 +150,21 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Recipe saved successfully",
-      mealId: savedRecipe.mealId
+      mealId: savedRecipe.mealId,
+      recipeIndex: recipeIndex
     });
 
   } catch (error) {
     console.error("Save error:", error);
+    
+    // Handle duplicate meal name error
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
+      return NextResponse.json({ 
+        error: "A meal with this name already exists. Please choose a different name.",
+        code: "DUPLICATE_MEAL_NAME"
+      }, { status: 409 });
+    }
+    
     return NextResponse.json({ error: "Failed to save recipe" }, { status: 500 });
   }
 }

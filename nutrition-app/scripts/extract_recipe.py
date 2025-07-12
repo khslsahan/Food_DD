@@ -2,6 +2,7 @@
 import sys
 import json
 import os
+import re
 from pathlib import Path
 from docx import Document
 import logging
@@ -66,6 +67,52 @@ def extract_document_content(docx_path):
         logger.error(f"Error extracting document content: {e}")
         return "Error extracting document content"
 
+def detect_recipe_boundaries(docx_path):
+    """Detect recipe boundaries in the document by looking for recipe titles."""
+    try:
+        doc = Document(docx_path)
+        recipe_starts = []
+        
+        for i, para in enumerate(doc.paragraphs):
+            text = para.text.strip()
+            # Look for recipe title patterns
+            if (text and 
+                (text.isupper() or 
+                 any(keyword in text.lower() for keyword in ['recipe', 'meal', 'dish', 'preparation']) or
+                 re.match(r'^[A-Z][A-Z\s]+$', text)) and
+                len(text) > 3 and len(text) < 100):
+                recipe_starts.append(i)
+        
+        return recipe_starts
+    except Exception as e:
+        logger.error(f"Error detecting recipe boundaries: {e}")
+        return []
+
+def extract_recipe_sections(docx_path):
+    """Extract different recipe sections from the document."""
+    try:
+        doc = Document(docx_path)
+        recipe_boundaries = detect_recipe_boundaries(docx_path)
+        
+        if not recipe_boundaries:
+            # If no clear boundaries, treat the whole document as one recipe
+            return [{'start': 0, 'end': len(doc.paragraphs), 'name': Path(docx_path).stem}]
+        
+        sections = []
+        for i, start_idx in enumerate(recipe_boundaries):
+            end_idx = recipe_boundaries[i + 1] if i + 1 < len(recipe_boundaries) else len(doc.paragraphs)
+            recipe_name = doc.paragraphs[start_idx].text.strip()
+            sections.append({
+                'start': start_idx,
+                'end': end_idx,
+                'name': recipe_name
+            })
+        
+        return sections
+    except Exception as e:
+        logger.error(f"Error extracting recipe sections: {e}")
+        return []
+
 def table_to_markdown(table):
     """Convert a table to markdown format."""
     if not table['rows']:
@@ -121,34 +168,23 @@ def get_ingredient_name(ingredient):
     """Extract ingredient name from ingredient data."""
     return ingredient.get('name', '').strip()
 
-def extract_recipe_from_docx(docx_path):
-    """Extract recipe data from a Word document."""
+def extract_recipe_from_section(doc, section, tables_in_section):
+    """Extract recipe data from a specific section of the document."""
     try:
-        tables = extract_tables_with_headers(docx_path)
-        document_content = extract_document_content(docx_path)
-        
-        if not tables:
-            return None, document_content
-        
-        # Build markdown sections for AI processing
-        markdown_sections = []
-        component_counter = 1
-        
-        for table in tables[:-1]:  # Skip the last table (usually portion options)
-            component_name = table['header'] or f"Component {component_counter}"
-            component_counter += 1
-            markdown_table = table_to_markdown(table)
-            markdown_sections.append(f"Component: {component_name}\n{markdown_table}")
-        
-        # For now, return a structured format based on table analysis
-        # In a real implementation, you would send this to Gemini API
         recipe = {
-            "name": Path(docx_path).stem,
-            "description": f"Extracted from {Path(docx_path).name}",
+            "name": section['name'],
+            "description": f"Extracted from {section['name']}",
             "components": []
         }
         
-        for i, table in enumerate(tables[:-1]):
+        # Find tables that belong to this section
+        section_tables = []
+        for table in tables_in_section:
+            # Check if table is within this section's paragraph range
+            # This is a simplified approach - in practice you might need more sophisticated logic
+            section_tables.append(table)
+        
+        for i, table in enumerate(section_tables):
             component_name = table['header'] or f"Component {i+1}"
             component = {
                 "name": component_name,
@@ -201,11 +237,177 @@ def extract_recipe_from_docx(docx_path):
             
             recipe["components"].append(component)
         
-        return recipe, document_content
+        return recipe
+        
+    except Exception as e:
+        logger.error(f"Error extracting recipe from section: {e}")
+        return None
+
+def extract_multiple_recipes_from_docx(docx_path):
+    """Extract multiple recipes from a Word document."""
+    try:
+        doc = Document(docx_path)
+        tables = extract_tables_with_headers(docx_path)
+        document_content = extract_document_content(docx_path)
+        
+        # Try to detect recipe sections
+        recipe_sections = extract_recipe_sections(docx_path)
+        
+        recipes = []
+        
+        if len(recipe_sections) > 1:
+            # Multiple recipes detected
+            for section in recipe_sections:
+                recipe = extract_recipe_from_section(doc, section, tables)
+                if recipe and recipe['components']:
+                    recipes.append(recipe)
+        else:
+            # Single recipe or no clear boundaries - use original logic
+            recipe = extract_recipe_from_docx_single(docx_path)
+            if recipe:
+                recipes.append(recipe)
+        
+        # If no recipes found, create a default one
+        if not recipes:
+            recipe = {
+                "name": Path(docx_path).stem,
+                "description": f"Extracted from {Path(docx_path).name}",
+                "components": []
+            }
+            
+            for i, table in enumerate(tables[:-1]):  # Skip the last table (usually portion options)
+                component_name = table['header'] or f"Component {i+1}"
+                component = {
+                    "name": component_name,
+                    "ingredients": []
+                }
+                
+                if table['rows']:
+                    # Assume first row is header
+                    headers = table['rows'][0]
+                    for row in table['rows'][1:]:
+                        if len(row) >= 2:  # At least name and quantity
+                            ingredient_name = row[0].strip()
+                            if ingredient_name and not is_summary_row({"name": ingredient_name}):
+                                quantity = parse_quantity(row[1] if len(row) > 1 else "0")
+                                unit = row[2] if len(row) > 2 else "g"
+                                
+                                # Try to extract nutrition values from various columns
+                                calories = 0
+                                fat = 0
+                                protein = 0
+                                carbohydrates = 0
+                                
+                                # Look for nutrition data in remaining columns
+                                for col_idx in range(3, min(len(row), 7)):  # Check columns 3-6
+                                    cell_value = row[col_idx] if col_idx < len(row) else ""
+                                    cell_lower = cell_value.lower()
+                                    
+                                    # Try to identify nutrition type and extract value
+                                    if any(keyword in cell_lower for keyword in ['cal', 'kcal', 'calories']):
+                                        calories = parse_nutrition_value(cell_value)
+                                    elif any(keyword in cell_lower for keyword in ['fat', 'lipids']):
+                                        fat = parse_nutrition_value(cell_value)
+                                    elif any(keyword in cell_lower for keyword in ['protein', 'prot']):
+                                        protein = parse_nutrition_value(cell_value)
+                                    elif any(keyword in cell_lower for keyword in ['carb', 'carbs', 'carbohydrates']):
+                                        carbohydrates = parse_nutrition_value(cell_value)
+                                    elif col_idx == 3:  # Default to calories if it's the 4th column
+                                        calories = parse_nutrition_value(cell_value)
+                                
+                                ingredient = {
+                                    "name": ingredient_name,
+                                    "quantity": quantity,
+                                    "unit": unit,
+                                    "calories": calories,
+                                    "fat": fat,
+                                    "protein": protein,
+                                    "carbohydrates": carbohydrates
+                                }
+                                component["ingredients"].append(ingredient)
+                
+                recipe["components"].append(component)
+            
+            recipes.append(recipe)
+        
+        return recipes, document_content
+        
+    except Exception as e:
+        logger.error(f"Error extracting multiple recipes: {e}")
+        return [], "Error extracting document content"
+
+def extract_recipe_from_docx_single(docx_path):
+    """Extract single recipe data from a Word document (original function)."""
+    try:
+        tables = extract_tables_with_headers(docx_path)
+        
+        if not tables:
+            return None
+        
+        recipe = {
+            "name": Path(docx_path).stem,
+            "description": f"Extracted from {Path(docx_path).name}",
+            "components": []
+        }
+        
+        for i, table in enumerate(tables[:-1]):  # Skip the last table (usually portion options)
+            component_name = table['header'] or f"Component {i+1}"
+            component = {
+                "name": component_name,
+                "ingredients": []
+            }
+            
+            if table['rows']:
+                # Assume first row is header
+                headers = table['rows'][0]
+                for row in table['rows'][1:]:
+                    if len(row) >= 2:  # At least name and quantity
+                        ingredient_name = row[0].strip()
+                        if ingredient_name and not is_summary_row({"name": ingredient_name}):
+                            quantity = parse_quantity(row[1] if len(row) > 1 else "0")
+                            unit = row[2] if len(row) > 2 else "g"
+                            
+                            # Try to extract nutrition values from various columns
+                            calories = 0
+                            fat = 0
+                            protein = 0
+                            carbohydrates = 0
+                            
+                            # Look for nutrition data in remaining columns
+                            for col_idx in range(3, min(len(row), 7)):  # Check columns 3-6
+                                cell_value = row[col_idx] if col_idx < len(row) else ""
+                                cell_lower = cell_value.lower()
+                                
+                                # Try to identify nutrition type and extract value
+                                if any(keyword in cell_lower for keyword in ['cal', 'kcal', 'calories']):
+                                    calories = parse_nutrition_value(cell_value)
+                                elif any(keyword in cell_lower for keyword in ['fat', 'lipids']):
+                                    fat = parse_nutrition_value(cell_value)
+                                elif any(keyword in cell_lower for keyword in ['protein', 'prot']):
+                                    protein = parse_nutrition_value(cell_value)
+                                elif any(keyword in cell_lower for keyword in ['carb', 'carbs', 'carbohydrates']):
+                                    carbohydrates = parse_nutrition_value(cell_value)
+                                elif col_idx == 3:  # Default to calories if it's the 4th column
+                                    calories = parse_nutrition_value(cell_value)
+                            
+                            ingredient = {
+                                "name": ingredient_name,
+                                "quantity": quantity,
+                                "unit": unit,
+                                "calories": calories,
+                                "fat": fat,
+                                "protein": protein,
+                                "carbohydrates": carbohydrates
+                            }
+                            component["ingredients"].append(ingredient)
+            
+            recipe["components"].append(component)
+        
+        return recipe
         
     except Exception as e:
         logger.error(f"Error extracting recipe: {e}")
-        return None, "Error extracting document content"
+        return None
 
 def main():
     """Main function to be called from Node.js."""
@@ -220,11 +422,11 @@ def main():
         sys.exit(1)
     
     try:
-        recipe, document_content = extract_recipe_from_docx(docx_path)
-        if recipe:
+        recipes, document_content = extract_multiple_recipes_from_docx(docx_path)
+        if recipes:
             print(json.dumps({
                 "success": True, 
-                "recipe": recipe,
+                "recipes": recipes,
                 "documentContent": document_content
             }))
         else:
