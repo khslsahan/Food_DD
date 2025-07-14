@@ -14,7 +14,7 @@ data class Meal(
     @Column("is_balanced") val isBalanced: Boolean = false,
     @Column("is_gourmet") val isGourmet: Boolean = false,
     @Column("is_weight_loss") val isWeightLoss: Boolean = false,
-    val package: String? = null,
+    @Column("package") val packageName: String? = null,
     val objective: String? = null,
     @Column("item_code") val itemCode: String? = null,
     @Column("created_at") val createdAt: OffsetDateTime? = null,
