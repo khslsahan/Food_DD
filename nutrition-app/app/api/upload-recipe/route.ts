@@ -23,6 +23,10 @@ interface ExtractedComponent {
   name: string;
   base_quantity?: number;
   ingredients: ExtractedIngredient[];
+  before_cook_weight_g?: number;
+  after_cook_weight_g?: number;
+  category_id?: number;
+  portions?: { label: string; total_weight_g: number }[];
 }
 
 interface ExtractedRecipe {
@@ -196,10 +200,24 @@ async function saveRecipeToDatabase(recipe: ExtractedRecipe) {
       data: {
         meal_id: meal.meal_id,
         component_name: component.name,
-        before_cook_weight_g: component.base_quantity || 0,
-        after_cook_weight_g: component.base_quantity || 0
+        before_cook_weight_g: component.before_cook_weight_g ?? component.base_quantity ?? 0,
+        after_cook_weight_g: component.after_cook_weight_g ?? component.base_quantity ?? 0,
+        category_id: component.category_id ?? null,
       }
     });
+
+    // Save portion sizes if present
+    if (component.portions && Array.isArray(component.portions)) {
+      for (const portion of component.portions) {
+        await prisma.component_portions.create({
+          data: {
+            component_id: dbComponent.component_id,
+            label: portion.label,
+            total_weight_g: Number(portion.total_weight_g) || 0,
+          }
+        });
+      }
+    }
 
     // Create ingredients and recipe_ingredients
     for (const ingredient of component.ingredients) {
