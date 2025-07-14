@@ -15,6 +15,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
+import { IngredientRow } from "./IngredientRow";
 
 interface IngredientInput {
   name: string;
@@ -207,7 +208,7 @@ export function EditComponentModal({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[98vh] min-h-[80vh] overflow-y-auto p-8">
         <DialogHeader>
           <DialogTitle>Edit Component</DialogTitle>
         </DialogHeader>
@@ -256,67 +257,16 @@ export function EditComponentModal({
             <Label>Ingredients</Label>
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
-                <div key={idx} className="flex flex-col gap-2 border p-2 rounded-md bg-gray-50">
-                  <div className="flex gap-2 items-center">
-                    <Input
-                      placeholder="Ingredient Name"
-                      value={ingredient.name}
-                      onChange={(e) => handleIngredientChange(idx, "name", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Quantity (g)"
-                      type="number"
-                      value={ingredient.quantity}
-                      onChange={(e) => handleIngredientChange(idx, "quantity", e.target.value)}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!ingredient.name || loadingIdx === idx}
-                      onClick={() => fetchNutrition(idx)}
-                    >
-                      {loadingIdx === idx ? "Loading..." : "Get Nutrition"}
-                    </Button>
-                    {ingredients.length > 1 && (
-                      <Button type="button" variant="destructive" size="icon" onClick={() => removeIngredient(idx)}>
-                        -
-                      </Button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <Input
-                      placeholder="Calories (per 100g)"
-                      type="number"
-                      value={ingredient.calories ?? 0}
-                      onChange={(e) => handleIngredientChange(idx, "calories", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Fat (g)"
-                      type="number"
-                      value={ingredient.fat ?? 0}
-                      onChange={(e) => handleIngredientChange(idx, "fat", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Protein (g)"
-                      type="number"
-                      value={ingredient.protein ?? 0}
-                      onChange={(e) => handleIngredientChange(idx, "protein", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Carbohydrates (g)"
-                      type="number"
-                      value={ingredient.carbohydrates ?? 0}
-                      onChange={(e) => handleIngredientChange(idx, "carbohydrates", e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
+                <IngredientRow
+                  key={idx}
+                  ingredient={ingredient}
+                  idx={idx}
+                  loading={loadingIdx === idx}
+                  showRemove={ingredients.length > 1}
+                  onChange={handleIngredientChange}
+                  onRemove={removeIngredient}
+                  fetchNutrition={fetchNutrition}
+                />
               ))}
               <Button type="button" variant="secondary" onClick={addIngredient}>
                 + Add Ingredient
