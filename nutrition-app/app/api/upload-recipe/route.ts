@@ -203,11 +203,11 @@ async function saveRecipeToDatabase(recipe: ExtractedRecipe) {
         dbIngredient = await prisma.ingredients.create({
           data: {
             ingredient_name: ingredient.name,
-            default_unit: ingredient.unit,
-            calories_per_100g: ingredient.calories || 0,
-            fat_g: ingredient.fat || 0,
-            protein_g: ingredient.protein || 0,
-            carbohydrates_g: ingredient.carbohydrates || 0
+            default_unit: ingredient.unit || "g",
+            calories_per_100g: Number(ingredient.calories) || 0,
+            fat_g: Number(ingredient.fat) || 0,
+            protein_g: Number(ingredient.protein) || 0,
+            carbohydrates_g: Number(ingredient.carbohydrates) || 0
           }
         });
       }
