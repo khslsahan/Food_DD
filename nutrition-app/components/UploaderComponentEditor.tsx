@@ -53,10 +53,57 @@ export function UploaderComponentEditor({
     onChange(componentIndex, { ...component, [field]: value });
   };
 
-  const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
-    const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
-      i === idx ? { ...ing, [field]: value } : ing
-    );
+  const handleIngredientChange = (idx: number, fieldOrObject: keyof IngredientInput | Partial<IngredientInput>, value?: string) => {
+    const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) => {
+      if (i !== idx) return ing;
+      if (typeof fieldOrObject === "object") {
+        // If per-100g values are present, always recalculate macros for the current or new quantity
+        const hasPer100g =
+          "caloriesPer100g" in fieldOrObject ||
+          "fatPer100g" in fieldOrObject ||
+          "proteinPer100g" in fieldOrObject ||
+          "carbohydratesPer100g" in fieldOrObject;
+        if (hasPer100g) {
+          const qty = Number((fieldOrObject as any).quantity ?? ing.quantity) || 0;
+          const factor = qty / 100;
+          return {
+            ...ing,
+            ...fieldOrObject,
+            calories: (fieldOrObject as any).caloriesPer100g && qty > 0 ? (Number((fieldOrObject as any).caloriesPer100g) * factor).toFixed(2) : (fieldOrObject as any).caloriesPer100g || ing.caloriesPer100g || "",
+            fat: (fieldOrObject as any).fatPer100g && qty > 0 ? (Number((fieldOrObject as any).fatPer100g) * factor).toFixed(2) : (fieldOrObject as any).fatPer100g || ing.fatPer100g || "",
+            protein: (fieldOrObject as any).proteinPer100g && qty > 0 ? (Number((fieldOrObject as any).proteinPer100g) * factor).toFixed(2) : (fieldOrObject as any).proteinPer100g || ing.proteinPer100g || "",
+            carbohydrates: (fieldOrObject as any).carbohydratesPer100g && qty > 0 ? (Number((fieldOrObject as any).carbohydratesPer100g) * factor).toFixed(2) : (fieldOrObject as any).carbohydratesPer100g || ing.carbohydratesPer100g || "",
+          };
+        }
+        // If quantity is being updated in the object, recalculate nutrition
+        if (Object.prototype.hasOwnProperty.call(fieldOrObject, "quantity")) {
+          const qty = Number((fieldOrObject as any).quantity) || 0;
+          const factor = qty / 100;
+          return {
+            ...ing,
+            ...fieldOrObject,
+            calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+            fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+            protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+            carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+          };
+        }
+        return { ...ing, ...fieldOrObject };
+      } else if (fieldOrObject === "quantity") {
+        const qty = Number(value) || 0;
+        const factor = qty / 100;
+        return {
+          ...ing,
+          quantity: value,
+          calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+          fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+          protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+          carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+        };
+      } else {
+        return { ...ing, [fieldOrObject]: value };
+      }
+    });
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
   };
 
@@ -75,7 +122,7 @@ export function UploaderComponentEditor({
 
   // Only allow a single portion
   const handleSinglePortionChange = (field: "label" | "total_weight_g", value: string) => {
-    const updatedPortion = { ...((component.portions && component.portions[0]) || { label: "1P", total_weight_g: "" }), [field]: value };
+    const updatedPortion = { ...((component.portions && component.portions[0]) || { label: "2P", total_weight_g: "" }), [field]: value };
     onChange(componentIndex, { ...component, portions: [updatedPortion] });
   };
 
@@ -341,19 +388,9 @@ export function UploaderComponentEditor({
               idx={idx}
               loading={loadingIdx === idx}
               showRemove={component.ingredients.length > 1}
-              onChange={(idx, field, value) => {
-                if (field === "quantity") {
-                  handleQuantityChange(idx, value);
-                } else {
-                  handleIngredientChange(idx, field, value);
-                }
-              }}
+              onChange={handleIngredientChange}
               onRemove={removeIngredient}
               fetchNutrition={fetchNutrition}
-              fetchSuggestions={fetchIngredientSuggestions}
-              suggestions={ingredientSuggestions}
-              showSuggestions={showSuggestions}
-              onSuggestionClick={handleSuggestionClick}
               inputRef={el => { ingredientInputRefs.current[idx] = el; }}
             />
           ))}
@@ -366,7 +403,7 @@ export function UploaderComponentEditor({
         <Label>Portion Size</Label>
         <div className="flex gap-2 items-center">
           <select
-            value={(component.portions && component.portions[0]?.label) || '1P'}
+            value={(component.portions && component.portions[0]?.label) || '2P'}
             onChange={e => handleSinglePortionChange("label", e.target.value)}
             required
             className="border rounded px-2 py-1"

@@ -28,6 +28,12 @@ interface ExtractedComponent {
 interface ExtractedRecipe {
   name: string;
   description?: string;
+  packaging?: string;
+  objective?: string;
+  itemCode?: string;
+  isBalancedMeal?: boolean;
+  isGourmetMeal?: boolean;
+  isWeightLossMeal?: boolean;
   components: ExtractedComponent[];
   notes?: string[];
 }
@@ -175,9 +181,12 @@ async function saveRecipeToDatabase(recipe: ExtractedRecipe) {
     data: {
       meal_name: recipe.name,
       description: recipe.description || "",
-      is_balanced: false,
-      is_gourmet: false,
-      is_weight_loss: false
+      package: recipe.packaging || null,
+      objective: recipe.objective || null,
+      item_code: recipe.itemCode || null,
+      is_balanced: recipe.isBalancedMeal || false,
+      is_gourmet: recipe.isGourmetMeal || false,
+      is_weight_loss: recipe.isWeightLossMeal || false
     }
   });
 

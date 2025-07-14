@@ -23,7 +23,7 @@ interface IngredientRowProps {
   idx: number;
   loading: boolean;
   showRemove: boolean;
-  onChange: (idx: number, field: keyof IngredientInput, value: string) => void;
+  onChange: (idx: number, fieldOrObject: keyof IngredientInput | Partial<IngredientInput>, value?: string) => void;
   onRemove: (idx: number) => void;
   fetchNutrition: (idx: number) => void;
   inputRef?: (el: HTMLInputElement | null) => void;
@@ -57,15 +57,18 @@ export function IngredientRow({
   };
 
   const handleSuggestionClick = (suggestion: any) => {
-    onChange(idx, "name", suggestion.ingredient_name);
-    onChange(idx, "calories", suggestion.calories_per_100g?.toString() ?? "");
-    onChange(idx, "fat", suggestion.fat_g?.toString() ?? "");
-    onChange(idx, "protein", suggestion.protein_g?.toString() ?? "");
-    onChange(idx, "carbohydrates", suggestion.carbohydrates_g?.toString() ?? "");
-    onChange(idx, "caloriesPer100g", suggestion.calories_per_100g?.toString() ?? "");
-    onChange(idx, "fatPer100g", suggestion.fat_g?.toString() ?? "");
-    onChange(idx, "proteinPer100g", suggestion.protein_g?.toString() ?? "");
-    onChange(idx, "carbohydratesPer100g", suggestion.carbohydrates_g?.toString() ?? "");
+    onChange(idx, {
+      name: suggestion.ingredient_name,
+      calories: suggestion.calories_per_100g?.toString() ?? "",
+      fat: suggestion.fat_g?.toString() ?? "",
+      protein: suggestion.protein_g?.toString() ?? "",
+      carbohydrates: suggestion.carbohydrates_g?.toString() ?? "",
+      caloriesPer100g: suggestion.calories_per_100g?.toString() ?? "",
+      fatPer100g: suggestion.fat_g?.toString() ?? "",
+      proteinPer100g: suggestion.protein_g?.toString() ?? "",
+      carbohydratesPer100g: suggestion.carbohydrates_g?.toString() ?? "",
+      quantity: ingredient.quantity || "100"
+    });
     setShowSuggestions(false);
     setIngredientSuggestions([]);
   };

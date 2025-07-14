@@ -36,6 +36,12 @@ interface ExtractedComponent {
 interface ExtractedRecipe {
   name: string;
   description?: string;
+  packaging?: string;
+  objective?: string;
+  itemCode?: string;
+  isBalancedMeal?: boolean;
+  isGourmetMeal?: boolean;
+  isWeightLossMeal?: boolean;
   components: ExtractedComponent[];
   notes?: string[];
 }
@@ -552,6 +558,76 @@ export function RecipeUploader() {
                         onChange={(e) => updateRecipeField(selectedRecipeIndex, "description", e.target.value)}
                         placeholder="Optional description..."
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor={`recipe-packaging-${selectedRecipeIndex}`}>Packaging</Label>
+                      <Input
+                        id={`recipe-packaging-${selectedRecipeIndex}`}
+                        value={editingRecipes[selectedRecipeIndex].packaging || ""}
+                        onChange={(e) => updateRecipeField(selectedRecipeIndex, "packaging", e.target.value)}
+                        placeholder="Enter packaging details..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor={`recipe-objective-${selectedRecipeIndex}`}>Objective</Label>
+                      <Input
+                        id={`recipe-objective-${selectedRecipeIndex}`}
+                        value={editingRecipes[selectedRecipeIndex].objective || ""}
+                        onChange={(e) => updateRecipeField(selectedRecipeIndex, "objective", e.target.value)}
+                        placeholder="Objective details for this meal..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor={`recipe-item-code-${selectedRecipeIndex}`}>Item Code</Label>
+                      <Input
+                        id={`recipe-item-code-${selectedRecipeIndex}`}
+                        value={editingRecipes[selectedRecipeIndex].itemCode || ""}
+                        onChange={(e) => updateRecipeField(selectedRecipeIndex, "itemCode", e.target.value)}
+                        placeholder="Item code for this meal..."
+                      />
+                    </div>
+                    
+                    {/* Meal Type Checkboxes */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium">Meal Types</Label>
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`balanced-meal-${selectedRecipeIndex}`}
+                            checked={editingRecipes[selectedRecipeIndex].isBalancedMeal || false}
+                            onChange={(e) => updateRecipeField(selectedRecipeIndex, "isBalancedMeal", e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          <Label htmlFor={`balanced-meal-${selectedRecipeIndex}`} className="text-sm">
+                            Balanced Meal
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`gourmet-meal-${selectedRecipeIndex}`}
+                            checked={editingRecipes[selectedRecipeIndex].isGourmetMeal || false}
+                            onChange={(e) => updateRecipeField(selectedRecipeIndex, "isGourmetMeal", e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          <Label htmlFor={`gourmet-meal-${selectedRecipeIndex}`} className="text-sm">
+                            Gourmet Meal
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`weight-loss-meal-${selectedRecipeIndex}`}
+                            checked={editingRecipes[selectedRecipeIndex].isWeightLossMeal || false}
+                            onChange={(e) => updateRecipeField(selectedRecipeIndex, "isWeightLossMeal", e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300"
+                          />
+                          <Label htmlFor={`weight-loss-meal-${selectedRecipeIndex}`} className="text-sm">
+                            Weight Loss Meal
+                          </Label>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
