@@ -34,11 +34,9 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   ]);
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
-  const [portions, setPortions] = useState([{ label: "1P", total_weight_g: "" }]);
+  const [portions, setPortions] = useState([{ label: "2P", total_weight_g: "" }]);
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | "">("");
-  const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const ingredientInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showGptPrompt, setShowGptPrompt] = useState(false);
   const [showGptResult, setShowGptResult] = useState(false);
@@ -78,7 +76,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   };
 
   const addPortion = () => {
-    setPortions((prev) => [...prev, { label: "", total_weight_g: "" }]);
+    setPortions((prev) => [...prev, { label: "2P", total_weight_g: "" }]);
   };
 
   const removePortion = (idx: number) => {
@@ -120,7 +118,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       setBeforeCookWeight("");
       setAfterCookWeight("");
       setIngredients([{ name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" }]);
-      setPortions([{ label: "1P", total_weight_g: "" }]);
+      setPortions([{ label: "2P", total_weight_g: "" }]);
       router.refresh();
       toast({ title: "Component saved!", description: "The component was added successfully." });
     } catch (err) {
@@ -274,46 +272,6 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
     }
   };
 
-  // Fetch ingredient suggestions as user types
-  const fetchIngredientSuggestions = async (idx: number, value: string) => {
-    if (!value) {
-      setIngredientSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(value)}`);
-    if (res.ok) {
-      const data = await res.json();
-      setIngredientSuggestions(data);
-      setShowSuggestions(true);
-    }
-  };
-
-  // When user selects a suggestion, fill in nutrition fields (per 100g)
-  const handleSuggestionClick = (idx: number, suggestion: any) => {
-    setIngredients((prev) => prev.map((ing, i) =>
-      i === idx
-        ? {
-            ...ing,
-            name: suggestion.ingredient_name,
-            calories: suggestion.calories_per_100g?.toString() ?? "",
-            fat: suggestion.fat_g?.toString() ?? "",
-            protein: suggestion.protein_g?.toString() ?? "",
-            carbohydrates: suggestion.carbohydrates_g?.toString() ?? "",
-            caloriesPer100g: suggestion.calories_per_100g?.toString() ?? "",
-            fatPer100g: suggestion.fat_g?.toString() ?? "",
-            proteinPer100g: suggestion.protein_g?.toString() ?? "",
-            carbohydratesPer100g: suggestion.carbohydrates_g?.toString() ?? "",
-          }
-        : ing
-    ));
-    setShowSuggestions(false);
-    setIngredientSuggestions([]);
-    setTimeout(() => {
-      ingredientInputRefs.current[idx + 1]?.focus();
-    }, 0);
-  };
-
   // Recalculate nutrition values when quantity changes
   const handleQuantityChange = (idx: number, value: string) => {
     setIngredients((prev) => {
@@ -340,7 +298,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       <DialogTrigger asChild>
         <Button variant="default">Add Component</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[98vh] min-h-[80vh] overflow-y-auto p-8">
         <DialogHeader>
           <DialogTitle>Add Component</DialogTitle>
         </DialogHeader>
@@ -404,10 +362,6 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
                   }}
                   onRemove={removeIngredient}
                   fetchNutrition={fetchNutrition}
-                  fetchSuggestions={fetchIngredientSuggestions}
-                  suggestions={ingredientSuggestions}
-                  showSuggestions={showSuggestions}
-                  onSuggestionClick={handleSuggestionClick}
                   inputRef={el => { ingredientInputRefs.current[idx] = el; }}
                 />
               ))}
