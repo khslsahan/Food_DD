@@ -1,4 +1,5 @@
 import { RecipeUploader } from "@/components/RecipeUploader";
+import { Suspense } from "react";
 
 export default function UploadPage() {
   return (
@@ -10,7 +11,9 @@ export default function UploadPage() {
             Upload recipe documents and automatically extract meals, components, and ingredients.
           </p>
         </div>
-        <RecipeUploader />
+        <Suspense fallback={<div>Loading...</div>}>
+          <RecipeUploader />
+        </Suspense>
       </div>
     </div>
   );
