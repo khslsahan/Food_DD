@@ -15,16 +15,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
-import { IngredientRow } from "./IngredientRow";
-
-interface IngredientInput {
-  name: string;
-  quantity: string;
-  calories: string;
-  fat: string;
-  protein: string;
-  carbohydrates: string;
-}
+import { IngredientRow, IngredientInput } from "./IngredientRow";
 
 interface PortionInput {
   label: string;
@@ -90,9 +81,66 @@ export function EditComponentModal({
     setSelectedCategory(initialCategoryId || "");
   }, [initialCategoryId, open]);
 
-  const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
+  const handleIngredientChange = (
+    idx: number,
+    fieldOrObject: keyof IngredientInput | Partial<IngredientInput>,
+    value?: string
+  ) => {
     setIngredients((prev) =>
-      prev.map((ing, i) => (i === idx ? { ...ing, [field]: value } : ing))
+      prev.map((ing, i) => {
+        if (i !== idx) return ing;
+        if (typeof fieldOrObject === "object") {
+          // If per-100g values are present, always recalculate macros for the current or new quantity
+          const hasPer100g =
+            "caloriesPer100g" in fieldOrObject ||
+            "fatPer100g" in fieldOrObject ||
+            "proteinPer100g" in fieldOrObject ||
+            "carbohydratesPer100g" in fieldOrObject;
+          const safeQuantity = String((fieldOrObject as any).quantity ?? ing.quantity ?? "100");
+          if (hasPer100g) {
+            const qty = Number(safeQuantity) || 0;
+            const factor = qty / 100;
+            return {
+              ...ing,
+              ...fieldOrObject,
+              quantity: safeQuantity,
+              calories: (fieldOrObject as any).caloriesPer100g && qty > 0 ? (Number((fieldOrObject as any).caloriesPer100g) * factor).toFixed(2) : (fieldOrObject as any).caloriesPer100g || ing.caloriesPer100g || "",
+              fat: (fieldOrObject as any).fatPer100g && qty > 0 ? (Number((fieldOrObject as any).fatPer100g) * factor).toFixed(2) : (fieldOrObject as any).fatPer100g || ing.fatPer100g || "",
+              protein: (fieldOrObject as any).proteinPer100g && qty > 0 ? (Number((fieldOrObject as any).proteinPer100g) * factor).toFixed(2) : (fieldOrObject as any).proteinPer100g || ing.proteinPer100g || "",
+              carbohydrates: (fieldOrObject as any).carbohydratesPer100g && qty > 0 ? (Number((fieldOrObject as any).carbohydratesPer100g) * factor).toFixed(2) : (fieldOrObject as any).carbohydratesPer100g || ing.carbohydratesPer100g || "",
+            };
+          }
+          // If quantity is being updated in the object, recalculate nutrition
+          if (Object.prototype.hasOwnProperty.call(fieldOrObject, "quantity")) {
+            const qty = Number(safeQuantity) || 0;
+            const factor = qty / 100;
+            return {
+              ...ing,
+              ...fieldOrObject,
+              quantity: safeQuantity,
+              calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+              fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+              protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+              carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+            };
+          }
+          return { ...ing, ...fieldOrObject, quantity: safeQuantity };
+        } else if (fieldOrObject === "quantity") {
+          const safeQuantity = String(value ?? ing.quantity ?? "100");
+          const qty = Number(safeQuantity) || 0;
+          const factor = qty / 100;
+          return {
+            ...ing,
+            quantity: safeQuantity,
+            calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+            fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+            protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+            carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+          };
+        } else {
+          return { ...ing, [fieldOrObject]: value };
+        }
+      })
     );
   };
 
