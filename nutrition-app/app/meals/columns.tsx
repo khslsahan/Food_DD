@@ -48,14 +48,24 @@ export const columns: ColumnDef<Meal>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue("meal_name")}</div>,
   },
   {
-    accessorKey: "serving_size",
-    header: "Serving Size",
-    cell: ({ row }) => <div>{row.getValue("serving_size")}</div>,
-  },
-  {
     accessorKey: "description",
     header: "Description",
     cell: ({ row }) => <div className="max-w-[300px] truncate">{row.getValue("description")}</div>,
+  },
+  {
+    accessorKey: "package",
+    header: "Package",
+    cell: ({ row }) => <div className="max-w-[200px] truncate">{row.getValue("package") || "-"}</div>,
+  },
+  {
+    accessorKey: "objective",
+    header: "Objective",
+    cell: ({ row }) => <div className="max-w-[200px] truncate">{row.getValue("objective") || "-"}</div>,
+  },
+  {
+    accessorKey: "item_code",
+    header: "Item Code",
+    cell: ({ row }) => <div className="max-w-[150px] truncate">{row.getValue("item_code") || "-"}</div>,
   },
   {
     accessorKey: "updated_at",

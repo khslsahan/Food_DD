@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { Header } from "@/components/layout/header"
 import { Checkbox } from "@/components/ui/checkbox"
-import type { meals } from "@prisma/client"
+import type { meals as MealType } from "@/lib/generated/prisma"
 
 const formSchema = z.object({
   meal_name: z.string().min(2, "Meal name must be at least 2 characters").max(100),
@@ -21,9 +21,12 @@ const formSchema = z.object({
   is_balanced: z.boolean().default(false),
   is_gourmet: z.boolean().default(false),
   is_weight_loss: z.boolean().default(false),
+  package: z.string().default(""),
+  objective: z.string().default(""),
+  item_code: z.string().default(""),
 })
 
-export default function EditMealForm({ meal }: { meal: meals }) {
+export default function EditMealForm({ meal }: { meal: MealType }) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(false)
@@ -37,6 +40,9 @@ export default function EditMealForm({ meal }: { meal: meals }) {
       is_balanced: meal.is_balanced,
       is_gourmet: meal.is_gourmet,
       is_weight_loss: meal.is_weight_loss,
+      package: meal.package || "",
+      objective: meal.objective || "",
+      item_code: meal.item_code || "",
     },
   })
 
@@ -110,6 +116,51 @@ export default function EditMealForm({ meal }: { meal: meals }) {
                       <FormControl>
                         <Textarea placeholder="Describe the meal" className="min-h-[100px]" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="package"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Package</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter package information" {...field} />
+                      </FormControl>
+                      <FormDescription>Package details for this meal.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="objective"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Objective</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter objective information" {...field} />
+                      </FormControl>
+                      <FormDescription>Objective details for this meal.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="item_code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Item Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter item code" {...field} />
+                      </FormControl>
+                      <FormDescription>Item code for this meal.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

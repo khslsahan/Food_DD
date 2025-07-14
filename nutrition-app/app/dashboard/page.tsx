@@ -62,10 +62,10 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-sm font-medium leading-none">{meal.meal_name}</p>
-                      <p className="text-sm text-muted-foreground">{meal.serving_size}</p>
+                      <p className="text-sm text-muted-foreground">{meal.description || "No description"}</p>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {new Date(meal.updated_at).toLocaleDateString()}
+                      {meal.updated_at ? new Date(meal.updated_at).toLocaleDateString() : "Unknown"}
                     </div>
                   </div>
                 ))}
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
                       <p className="text-sm text-muted-foreground">{ingredient.calories_per_100g} kcal/100g</p>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {new Date(ingredient.updated_at).toLocaleDateString()}
+                      {ingredient.updated_at ? new Date(ingredient.updated_at).toLocaleDateString() : "Unknown"}
                     </div>
                   </div>
                 ))}

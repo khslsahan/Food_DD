@@ -5301,6 +5301,9 @@ export namespace Prisma {
     is_balanced: boolean | null
     is_gourmet: boolean | null
     is_weight_loss: boolean | null
+    package: string | null
+    objective: string | null
+    item_code: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -5312,6 +5315,9 @@ export namespace Prisma {
     is_balanced: boolean | null
     is_gourmet: boolean | null
     is_weight_loss: boolean | null
+    package: string | null
+    objective: string | null
+    item_code: string | null
     created_at: Date | null
     updated_at: Date | null
   }
@@ -5323,6 +5329,9 @@ export namespace Prisma {
     is_balanced: number
     is_gourmet: number
     is_weight_loss: number
+    package: number
+    objective: number
+    item_code: number
     created_at: number
     updated_at: number
     _all: number
@@ -5344,6 +5353,9 @@ export namespace Prisma {
     is_balanced?: true
     is_gourmet?: true
     is_weight_loss?: true
+    package?: true
+    objective?: true
+    item_code?: true
     created_at?: true
     updated_at?: true
   }
@@ -5355,6 +5367,9 @@ export namespace Prisma {
     is_balanced?: true
     is_gourmet?: true
     is_weight_loss?: true
+    package?: true
+    objective?: true
+    item_code?: true
     created_at?: true
     updated_at?: true
   }
@@ -5366,6 +5381,9 @@ export namespace Prisma {
     is_balanced?: true
     is_gourmet?: true
     is_weight_loss?: true
+    package?: true
+    objective?: true
+    item_code?: true
     created_at?: true
     updated_at?: true
     _all?: true
@@ -5464,6 +5482,9 @@ export namespace Prisma {
     is_balanced: boolean
     is_gourmet: boolean
     is_weight_loss: boolean
+    package: string | null
+    objective: string | null
+    item_code: string | null
     created_at: Date | null
     updated_at: Date | null
     _count: MealsCountAggregateOutputType | null
@@ -5494,6 +5515,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: boolean
+    objective?: boolean
+    item_code?: boolean
     created_at?: boolean
     updated_at?: boolean
     components?: boolean | meals$componentsArgs<ExtArgs>
@@ -5508,6 +5532,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: boolean
+    objective?: boolean
+    item_code?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["meals"]>
@@ -5519,6 +5546,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: boolean
+    objective?: boolean
+    item_code?: boolean
     created_at?: boolean
     updated_at?: boolean
   }, ExtArgs["result"]["meals"]>
@@ -5530,11 +5560,14 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: boolean
+    objective?: boolean
+    item_code?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type mealsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"meal_id" | "meal_name" | "description" | "is_balanced" | "is_gourmet" | "is_weight_loss" | "created_at" | "updated_at", ExtArgs["result"]["meals"]>
+  export type mealsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"meal_id" | "meal_name" | "description" | "is_balanced" | "is_gourmet" | "is_weight_loss" | "package" | "objective" | "item_code" | "created_at" | "updated_at", ExtArgs["result"]["meals"]>
   export type mealsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     components?: boolean | meals$componentsArgs<ExtArgs>
     portion_options?: boolean | meals$portion_optionsArgs<ExtArgs>
@@ -5556,6 +5589,9 @@ export namespace Prisma {
       is_balanced: boolean
       is_gourmet: boolean
       is_weight_loss: boolean
+      package: string | null
+      objective: string | null
+      item_code: string | null
       created_at: Date | null
       updated_at: Date | null
     }, ExtArgs["result"]["meals"]>
@@ -5989,6 +6025,9 @@ export namespace Prisma {
     readonly is_balanced: FieldRef<"meals", 'Boolean'>
     readonly is_gourmet: FieldRef<"meals", 'Boolean'>
     readonly is_weight_loss: FieldRef<"meals", 'Boolean'>
+    readonly package: FieldRef<"meals", 'String'>
+    readonly objective: FieldRef<"meals", 'String'>
+    readonly item_code: FieldRef<"meals", 'String'>
     readonly created_at: FieldRef<"meals", 'DateTime'>
     readonly updated_at: FieldRef<"meals", 'DateTime'>
   }
@@ -11887,6 +11926,9 @@ export namespace Prisma {
     is_balanced: 'is_balanced',
     is_gourmet: 'is_gourmet',
     is_weight_loss: 'is_weight_loss',
+    package: 'package',
+    objective: 'objective',
+    item_code: 'item_code',
     created_at: 'created_at',
     updated_at: 'updated_at'
   };
@@ -12288,6 +12330,9 @@ export namespace Prisma {
     is_balanced?: BoolFilter<"meals"> | boolean
     is_gourmet?: BoolFilter<"meals"> | boolean
     is_weight_loss?: BoolFilter<"meals"> | boolean
+    package?: StringNullableFilter<"meals"> | string | null
+    objective?: StringNullableFilter<"meals"> | string | null
+    item_code?: StringNullableFilter<"meals"> | string | null
     created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     components?: ComponentsListRelationFilter
@@ -12301,6 +12346,9 @@ export namespace Prisma {
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
+    package?: SortOrderInput | SortOrder
+    objective?: SortOrderInput | SortOrder
+    item_code?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
     components?: componentsOrderByRelationAggregateInput
@@ -12317,6 +12365,9 @@ export namespace Prisma {
     is_balanced?: BoolFilter<"meals"> | boolean
     is_gourmet?: BoolFilter<"meals"> | boolean
     is_weight_loss?: BoolFilter<"meals"> | boolean
+    package?: StringNullableFilter<"meals"> | string | null
+    objective?: StringNullableFilter<"meals"> | string | null
+    item_code?: StringNullableFilter<"meals"> | string | null
     created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     components?: ComponentsListRelationFilter
@@ -12330,6 +12381,9 @@ export namespace Prisma {
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
+    package?: SortOrderInput | SortOrder
+    objective?: SortOrderInput | SortOrder
+    item_code?: SortOrderInput | SortOrder
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
     _count?: mealsCountOrderByAggregateInput
@@ -12349,6 +12403,9 @@ export namespace Prisma {
     is_balanced?: BoolWithAggregatesFilter<"meals"> | boolean
     is_gourmet?: BoolWithAggregatesFilter<"meals"> | boolean
     is_weight_loss?: BoolWithAggregatesFilter<"meals"> | boolean
+    package?: StringNullableWithAggregatesFilter<"meals"> | string | null
+    objective?: StringNullableWithAggregatesFilter<"meals"> | string | null
+    item_code?: StringNullableWithAggregatesFilter<"meals"> | string | null
     created_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
     updated_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
   }
@@ -12862,6 +12919,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsCreateNestedManyWithoutMealsInput
@@ -12875,6 +12935,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsUncheckedCreateNestedManyWithoutMealsInput
@@ -12887,6 +12950,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUpdateManyWithoutMealsNestedInput
@@ -12900,6 +12966,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUncheckedUpdateManyWithoutMealsNestedInput
@@ -12913,6 +12982,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
   }
@@ -12923,6 +12995,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -12934,6 +13009,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -13598,6 +13676,9 @@ export namespace Prisma {
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
+    package?: SortOrder
+    objective?: SortOrder
+    item_code?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -13613,6 +13694,9 @@ export namespace Prisma {
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
+    package?: SortOrder
+    objective?: SortOrder
+    item_code?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -13624,6 +13708,9 @@ export namespace Prisma {
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
+    package?: SortOrder
+    objective?: SortOrder
+    item_code?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
   }
@@ -14520,6 +14607,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
     portion_options?: portion_optionsCreateNestedManyWithoutMealsInput
@@ -14532,6 +14622,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
     portion_options?: portion_optionsUncheckedCreateNestedManyWithoutMealsInput
@@ -14624,6 +14717,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portion_options?: portion_optionsUpdateManyWithoutMealsNestedInput
@@ -14636,6 +14732,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portion_options?: portion_optionsUncheckedUpdateManyWithoutMealsNestedInput
@@ -14943,6 +15042,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsCreateNestedManyWithoutMealsInput
@@ -14955,6 +15057,9 @@ export namespace Prisma {
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
+    package?: string | null
+    objective?: string | null
+    item_code?: string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
     components?: componentsUncheckedCreateNestedManyWithoutMealsInput
@@ -14982,6 +15087,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUpdateManyWithoutMealsNestedInput
@@ -14994,6 +15102,9 @@ export namespace Prisma {
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     components?: componentsUncheckedUpdateManyWithoutMealsNestedInput

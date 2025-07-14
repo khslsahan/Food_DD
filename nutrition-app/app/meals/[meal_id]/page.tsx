@@ -88,6 +88,33 @@ export default async function MealDetailsPage({ params }: { params: Promise<{ me
           {meal.is_weight_loss ? '🏃‍♂️ Weight Loss' : '🏃‍♂️ Not Weight Loss'}
         </span>
       </div>
+
+      {/* Additional meal information */}
+      {(meal.package || meal.objective || meal.item_code) && (
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold mb-3">Additional Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {meal.package && (
+              <div>
+                <span className="font-medium text-gray-700">Package:</span>
+                <p className="text-gray-900">{meal.package}</p>
+              </div>
+            )}
+            {meal.objective && (
+              <div>
+                <span className="font-medium text-gray-700">Objective:</span>
+                <p className="text-gray-900">{meal.objective}</p>
+              </div>
+            )}
+            {meal.item_code && (
+              <div>
+                <span className="font-medium text-gray-700">Item Code:</span>
+                <p className="text-gray-900">{meal.item_code}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       
       <h2 className="text-xl font-bold mb-4">Components</h2>
       <div className="mb-4">
