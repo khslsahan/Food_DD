@@ -526,7 +526,7 @@ export function RecipeUploader() {
                   <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
                     {editingRecipes.map((recipe, idx) => (
                       <button
-                        key={idx}
+                        key={`recipe-tab-${idx}-${recipe.name}`}
                         onClick={() => setSelectedRecipeIndex(idx)}
                         className={`
                           flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200
@@ -570,9 +570,9 @@ export function RecipeUploader() {
                 {editingRecipes.length > 6 && (
                   <div className="flex justify-center mt-3">
                     <div className="flex gap-1">
-                      {editingRecipes.map((_, idx) => (
+                      {editingRecipes.map((recipe, idx) => (
                         <button
-                          key={idx}
+                          key={`recipe-dot-${idx}-${recipe.name}`}
                           onClick={() => setSelectedRecipeIndex(idx)}
                           className={`
                             w-2 h-2 rounded-full transition-all duration-200

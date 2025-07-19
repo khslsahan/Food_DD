@@ -268,7 +268,7 @@ export function EditComponentModal({
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
                 <IngredientRow
-                  key={idx}
+                  key={`edit-ingredient-${idx}-${ingredient.name}-${ingredient.quantity}`}
                   ingredient={ingredient}
                   idx={idx}
                   loading={false} // Loading is now handled by GetNutritionButton
@@ -291,7 +291,7 @@ export function EditComponentModal({
             <Label>Portion Sizes</Label>
             <div className="space-y-2">
               {portions.map((portion, idx) => (
-                <div key={idx} className="flex gap-2 items-center">
+                <div key={`edit-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex gap-2 items-center">
                   <select
                     value={portion.label || '2P'}
                     onChange={e => handlePortionChange(idx, "label", e.target.value)}

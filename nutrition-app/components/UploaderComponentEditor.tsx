@@ -259,7 +259,7 @@ export function UploaderComponentEditor({
         <div className="space-y-2 max-h-[60vh] overflow-y-auto">
           {component.ingredients.map((ingredient: IngredientInput, idx: number) => (
             <IngredientRow
-              key={idx}
+              key={`component-${componentIndex}-ingredient-${idx}-${ingredient.name}-${ingredient.quantity}`}
               ingredient={ingredient}
               idx={idx}
               loading={loadingIdx === idx}

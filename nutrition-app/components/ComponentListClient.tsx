@@ -231,7 +231,7 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
               <h4 className="font-medium text-gray-800 mb-2 sm:mb-3">Portion Sizes:</h4>
               <div className="space-y-2">
                 {(component.portions || component.component_portions || []).map((portion, idx) => (
-                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-blue-50 rounded-lg">
+                  <div key={`${component.component_id}-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-blue-50 rounded-lg">
                     <span className="font-medium text-blue-800">{portion.label}</span>
                     <span className="text-blue-600">{portion.total_weight_g}g</span>
                   </div>
