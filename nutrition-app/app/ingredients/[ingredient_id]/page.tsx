@@ -4,8 +4,9 @@ import { Header } from "@/components/layout/header";
 import BackButton from "@/components/layout/BackButton";
 import { IngredientUsageAlert } from "@/components/IngredientUsageAlert";
 
-export default async function IngredientViewPage({ params }: { params: { ingredient_id: string } }) {
-  const ingredientId = Number(params.ingredient_id);
+export default async function IngredientViewPage({ params }: { params: Promise<{ ingredient_id: string }> }) {
+  const { ingredient_id } = await params;
+  const ingredientId = Number(ingredient_id);
   const ingredients = await getIngredients();
   const ingredient = ingredients.find(i => i.ingredient_id === ingredientId);
   if (!ingredient) return <div>Ingredient not found.</div>;

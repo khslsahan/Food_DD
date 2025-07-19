@@ -2,9 +2,8 @@ import { NextResponse } from "next/server"
 import { updateMeal, deleteMeal } from "@/lib/data"
 import { requireAuth } from "@/lib/auth"
 
-export async function PUT(request: Request, { params }: { params: { meal_id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ meal_id: string }> }) {
   try {
-    // Try to require auth, but catch redirect error
     let user = null;
     try {
       user = await requireAuth();
@@ -16,7 +15,8 @@ export async function PUT(request: Request, { params }: { params: { meal_id: str
       throw error;
     }
 
-    const mealId = Number(params.meal_id)
+    const { meal_id } = await params;
+    const mealId = Number(meal_id)
     const body = await request.json()
 
     const updatedMeal = await updateMeal(mealId, body)
@@ -28,7 +28,7 @@ export async function PUT(request: Request, { params }: { params: { meal_id: str
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { meal_id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ meal_id: string }> }) {
   try {
     let user = null;
     try {
@@ -39,7 +39,8 @@ export async function DELETE(request: Request, { params }: { params: { meal_id: 
       }
       throw error;
     }
-    const mealId = Number(params.meal_id);
+    const { meal_id } = await params;
+    const mealId = Number(meal_id);
     await deleteMeal(mealId);
     return NextResponse.json({ success: true });
   } catch (error) {

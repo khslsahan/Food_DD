@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function PUT(request, { params }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ component_id: string }> }) {
   try {
-    const componentId = Number(params.component_id);
+    const { component_id } = await params;
+    const componentId = Number(component_id);
     const body = await request.json();
     const { meal_id, component_name, before_cook_weight_g, after_cook_weight_g, ingredients, portions, category_id } = body;
     if (!meal_id || !component_name || !before_cook_weight_g || !after_cook_weight_g || !Array.isArray(ingredients) || ingredients.length === 0) {
@@ -17,14 +18,23 @@ export async function PUT(request, { params }) {
         where: { ingredient_name: ing.name },
       });
       if (!dbIngredient) {
+        // Normalize nutrition values to per 100g (same logic as AddComponentModal)
+        const quantity = Number(ing.quantity) || 100;
+        const factor = 100 / quantity;
+        
+        const normalizedCalories = (Number(ing.calories) * factor) || 0;
+        const normalizedFat = (Number(ing.fat) * factor) || 0;
+        const normalizedProtein = (Number(ing.protein) * factor) || 0;
+        const normalizedCarbohydrates = (Number(ing.carbohydrates) * factor) || 0;
+
         dbIngredient = await prisma.ingredients.create({
           data: {
             ingredient_name: ing.name,
             default_unit: "g",
-            calories_per_100g: Number(ing.calories) || 0,
-            fat_g: Number(ing.fat) || 0,
-            protein_g: Number(ing.protein) || 0,
-            carbohydrates_g: Number(ing.carbohydrates) || 0,
+            calories_per_100g: normalizedCalories,
+            fat_g: normalizedFat,
+            protein_g: normalizedProtein,
+            carbohydrates_g: normalizedCarbohydrates,
           },
         });
       }
@@ -49,6 +59,7 @@ export async function PUT(request, { params }) {
           create: ingredientIds.map((ri) => ({
             ingredient_id: ri.ingredient_id,
             raw_quantity_g: ri.raw_quantity_g,
+            cooked_quantity_g: ri.raw_quantity_g, // Set cooked_quantity_g to same as raw_quantity_g for consistency
           })),
         },
         component_portions: {
@@ -73,9 +84,10 @@ export async function PUT(request, { params }) {
   }
 }
 
-export async function DELETE(request, { params }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ component_id: string }> }) {
   try {
-    const componentId = Number(params.component_id);
+    const { component_id } = await params;
+    const componentId = Number(component_id);
     await prisma.components.delete({
       where: { component_id: componentId },
     });

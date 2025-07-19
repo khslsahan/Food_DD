@@ -210,7 +210,7 @@ export function EditComponentModal({
   };
 
   // Unified nutrition fetch handler
-  const handleNutritionUpdate = (idx: number, updatedIngredient: IngredientInput) => {
+  const handleNutritionUpdate = (idx: number, updatedIngredient: any) => {
     setIngredients((prev) => prev.map((ing, i) =>
       i === idx ? updatedIngredient : ing
     ));

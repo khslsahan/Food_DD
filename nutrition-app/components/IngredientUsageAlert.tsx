@@ -145,7 +145,7 @@ export function IngredientUsageAlert({
       <AlertTitle className="text-orange-800">🚨 Ingredient Usage Alert</AlertTitle>
       <AlertDescription className="text-orange-700">
         <div className="space-y-3">
-          <p>
+          <div>
             <strong>"{ingredientName}"</strong> is currently used in{" "}
             <Badge variant="secondary" className="text-orange-700">
               {usageInfo.usageCount} recipe(s)
@@ -154,7 +154,7 @@ export function IngredientUsageAlert({
             <Badge variant="secondary" className="text-orange-700">
               {usageInfo.usageDetails.length} meal(s)
             </Badge>
-          </p>
+          </div>
           
           <Collapsible open={isOpen} onOpenChange={setIsOpen}>
             <CollapsibleTrigger asChild>

@@ -3,9 +3,10 @@
 import React, { useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Zap, Loader2 } from "lucide-react";
+import { Zap, Loader2, Save } from "lucide-react";
 import { GetNutritionButton } from "./ui/get-nutrition-button";
 import { IngredientInput as UnifiedIngredientInput } from "@/lib/nutrition-utils";
+import { useToast } from "@/hooks/use-toast";
 
 export interface IngredientInput {
   name: string;
@@ -47,6 +48,8 @@ export function IngredientRow({
 }: IngredientRowProps) {
   const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [savingMacros, setSavingMacros] = useState(false);
+  const { toast } = useToast();
 
   const fetchIngredientSuggestions = async (value: string) => {
     const trimmedValue = value.trim();
@@ -95,6 +98,88 @@ export function IngredientRow({
         proteinPer100g: updatedIngredient.proteinPer100g || "",
         carbohydratesPer100g: updatedIngredient.carbohydratesPer100g || "",
       });
+    }
+  };
+
+  const handleSaveMacros = async () => {
+    if (!ingredient.name || !ingredient.calories || !ingredient.fat || !ingredient.protein || !ingredient.carbohydrates) {
+      toast({
+        title: "Missing Data",
+        description: "Please ensure all nutrition fields are filled before saving.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSavingMacros(true);
+    try {
+      // Check if ingredient already exists
+      const searchResponse = await fetch(`/api/ingredients?search=${encodeURIComponent(ingredient.name)}`);
+      let existingIngredient = null;
+      
+      if (searchResponse.ok) {
+        const ingredients = await searchResponse.json();
+        existingIngredient = ingredients.find((ing: any) => 
+          ing.ingredient_name.toLowerCase().trim() === ingredient.name.toLowerCase().trim()
+        );
+      }
+
+      if (existingIngredient) {
+        // Update existing ingredient
+        const updateResponse = await fetch(`/api/ingredients/${existingIngredient.ingredient_id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ingredient_name: ingredient.name,
+            default_unit: "g",
+            calories_per_100g: Number(ingredient.caloriesPer100g || ingredient.calories),
+            fat_g: Number(ingredient.fatPer100g || ingredient.fat),
+            protein_g: Number(ingredient.proteinPer100g || ingredient.protein),
+            carbohydrates_g: Number(ingredient.carbohydratesPer100g || ingredient.carbohydrates),
+          }),
+        });
+
+        if (!updateResponse.ok) {
+          throw new Error("Failed to update ingredient");
+        }
+
+        toast({
+          title: "Macros Updated",
+          description: `Nutritional information for ${ingredient.name} has been updated in the database.`,
+        });
+      } else {
+        // Create new ingredient
+        const createResponse = await fetch("/api/ingredients", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ingredient_name: ingredient.name,
+            default_unit: "g",
+            calories_per_100g: Number(ingredient.caloriesPer100g || ingredient.calories),
+            fat_g: Number(ingredient.fatPer100g || ingredient.fat),
+            protein_g: Number(ingredient.proteinPer100g || ingredient.protein),
+            carbohydrates_g: Number(ingredient.carbohydratesPer100g || ingredient.carbohydrates),
+          }),
+        });
+
+        if (!createResponse.ok) {
+          throw new Error("Failed to create ingredient");
+        }
+
+        toast({
+          title: "Macros Saved",
+          description: `Nutritional information for ${ingredient.name} has been saved to the database.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving macros:", error);
+      toast({
+        title: "Save Failed",
+        description: error instanceof Error ? error.message : "Failed to save macros to database.",
+        variant: "destructive"
+      });
+    } finally {
+      setSavingMacros(false);
     }
   };
 
@@ -154,6 +239,17 @@ export function IngredientRow({
             Get Nutrition
           </Button>
         )}
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          disabled={!ingredient.name || !ingredient.calories || savingMacros}
+          onClick={handleSaveMacros}
+          title="Save macros to database"
+        >
+          {savingMacros ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+          Save Macros
+        </Button>
         {showRemove && (
           <Button type="button" variant="destructive" size="icon" onClick={() => onRemove(idx)}>
             -

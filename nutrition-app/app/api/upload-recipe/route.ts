@@ -157,17 +157,25 @@ export async function PUT(request: NextRequest) {
     // Save the verified recipe to database
     const savedRecipe = await saveRecipeToDatabase(recipe);
 
+    // Check if this was an update or new creation
+    const existingMeal = await prisma.meals.findUnique({
+      where: { meal_name: recipe.name }
+    });
+
+    const isUpdate = existingMeal && existingMeal.meal_id === savedRecipe.mealId;
+
     return NextResponse.json({
       success: true,
-      message: "Recipe saved successfully",
+      message: isUpdate ? "Recipe updated successfully" : "Recipe saved successfully",
       mealId: savedRecipe.mealId,
-      recipeIndex: recipeIndex
+      recipeIndex: recipeIndex,
+      isUpdate: isUpdate
     });
 
   } catch (error) {
     console.error("Save error:", error);
     
-    // Handle duplicate meal name error
+    // Handle duplicate meal name error (this should no longer happen with our fix)
     if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ 
         error: "A meal with this name already exists. Please choose a different name.",
@@ -180,19 +188,62 @@ export async function PUT(request: NextRequest) {
 }
 
 async function saveRecipeToDatabase(recipe: ExtractedRecipe) {
-  // Create meal
-  const meal = await prisma.meals.create({
-    data: {
-      meal_name: recipe.name,
-      description: recipe.description || "",
-      package: recipe.packaging || null,
-      objective: recipe.objective || null,
-      item_code: recipe.itemCode || null,
-      is_balanced: recipe.isBalancedMeal || false,
-      is_gourmet: recipe.isGourmetMeal || false,
-      is_weight_loss: recipe.isWeightLossMeal || false
-    }
+  // Check if meal already exists
+  let meal = await prisma.meals.findUnique({
+    where: { meal_name: recipe.name }
   });
+
+  if (meal) {
+    // Meal already exists, update it instead of creating new one
+    meal = await prisma.meals.update({
+      where: { meal_id: meal.meal_id },
+      data: {
+        description: recipe.description || "",
+        package: recipe.packaging || null,
+        objective: recipe.objective || null,
+        item_code: recipe.itemCode || null,
+        is_balanced: recipe.isBalancedMeal || false,
+        is_gourmet: recipe.isGourmetMeal || false,
+        is_weight_loss: recipe.isWeightLossMeal || false
+      }
+    });
+
+    // Delete existing components and their related data
+    const existingComponents = await prisma.components.findMany({
+      where: { meal_id: meal.meal_id }
+    });
+
+    for (const component of existingComponents) {
+      // Delete recipe_ingredients
+      await prisma.recipe_ingredients.deleteMany({
+        where: { component_id: component.component_id }
+      });
+
+      // Delete component_portions
+      await prisma.component_portions.deleteMany({
+        where: { component_id: component.component_id }
+      });
+    }
+
+    // Delete components
+    await prisma.components.deleteMany({
+      where: { meal_id: meal.meal_id }
+    });
+  } else {
+    // Create new meal
+    meal = await prisma.meals.create({
+      data: {
+        meal_name: recipe.name,
+        description: recipe.description || "",
+        package: recipe.packaging || null,
+        objective: recipe.objective || null,
+        item_code: recipe.itemCode || null,
+        is_balanced: recipe.isBalancedMeal || false,
+        is_gourmet: recipe.isGourmetMeal || false,
+        is_weight_loss: recipe.isWeightLossMeal || false
+      }
+    });
+  }
 
   // Create components and ingredients
   for (const component of recipe.components) {
@@ -227,14 +278,23 @@ async function saveRecipeToDatabase(recipe: ExtractedRecipe) {
       });
 
       if (!dbIngredient) {
+        // Normalize nutrition values to per 100g (same logic as AddComponentModal)
+        const quantity = ingredient.raw_quantity || ingredient.quantity || 100;
+        const factor = 100 / quantity;
+        
+        const normalizedCalories = (Number(ingredient.calories) * factor) || 0;
+        const normalizedFat = (Number(ingredient.fat) * factor) || 0;
+        const normalizedProtein = (Number(ingredient.protein) * factor) || 0;
+        const normalizedCarbohydrates = (Number(ingredient.carbohydrates) * factor) || 0;
+
         dbIngredient = await prisma.ingredients.create({
           data: {
             ingredient_name: ingredient.name,
             default_unit: ingredient.unit || "g",
-            calories_per_100g: Number(ingredient.calories) || 0,
-            fat_g: Number(ingredient.fat) || 0,
-            protein_g: Number(ingredient.protein) || 0,
-            carbohydrates_g: Number(ingredient.carbohydrates) || 0
+            calories_per_100g: normalizedCalories,
+            fat_g: normalizedFat,
+            protein_g: normalizedProtein,
+            carbohydrates_g: normalizedCarbohydrates
           }
         });
       }
