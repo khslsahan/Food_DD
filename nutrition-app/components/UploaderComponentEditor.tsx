@@ -203,18 +203,18 @@ export function UploaderComponentEditor({
   };
 
   return (
-    <div className="border-dashed border rounded-lg p-4 mb-4 bg-white">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex gap-2 items-center">
+    <div className="border-dashed border rounded-lg p-3 sm:p-4 mb-4 bg-white">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full">
           <Input
             value={component.name}
             onChange={e => handleFieldChange("name", e.target.value)}
             placeholder="Component Name"
             required
-            className="font-semibold"
+            className="font-semibold flex-1"
           />
           <select
-            className="w-48 border rounded px-3 py-2"
+            className="w-full sm:w-48 border rounded px-3 py-2"
             value={component.category_id || ""}
             onChange={e => handleFieldChange("category_id", Number(e.target.value))}
             required
@@ -228,19 +228,21 @@ export function UploaderComponentEditor({
             variant="ghost"
             size="sm"
             onClick={() => onRemove(componentIndex)}
-            className="text-red-500 hover:text-red-700"
+            className="text-red-500 hover:text-red-700 self-start sm:self-auto"
           >
             <XCircle className="h-4 w-4" />
           </Button>
         </div>
       </div>
-      <div className="flex gap-4 mb-2">
+      
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-3">
         <Input
           type="number"
           value={component.before_cook_weight_g || ""}
           onChange={e => handleFieldChange("before_cook_weight_g", e.target.value)}
           placeholder="Before Cook Weight (g)"
           required
+          className="flex-1"
         />
         <Input
           type="number"
@@ -248,10 +250,12 @@ export function UploaderComponentEditor({
           onChange={e => handleFieldChange("after_cook_weight_g", e.target.value)}
           placeholder="After Cook Weight (g)"
           required
+          className="flex-1"
         />
       </div>
-      <div className="mb-2">
-        <Label>Ingredients</Label>
+      
+      <div className="mb-3">
+        <Label className="text-sm font-medium">Ingredients</Label>
         <div className="space-y-2 max-h-[60vh] overflow-y-auto">
           {component.ingredients.map((ingredient: IngredientInput, idx: number) => (
             <IngredientRow
@@ -268,19 +272,20 @@ export function UploaderComponentEditor({
               inputRef={el => { ingredientInputRefs.current[idx] = el; }}
             />
           ))}
-          <Button type="button" variant="secondary" onClick={addIngredient}>
+          <Button type="button" variant="secondary" onClick={addIngredient} className="w-full sm:w-auto">
             + Add Ingredient
           </Button>
         </div>
       </div>
+      
       <div className="mb-2">
-        <Label>Portion Size</Label>
-        <div className="flex gap-2 items-center">
+        <Label className="text-sm font-medium">Portion Size</Label>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 items-start sm:items-center">
           <select
             value={(component.portions && component.portions[0]?.label) || '2P'}
             onChange={e => handleSinglePortionChange("label", e.target.value)}
             required
-            className="border rounded px-2 py-1"
+            className="border rounded px-2 py-1 w-full sm:w-auto"
           >
             <option value="1P">1P</option>
             <option value="2P">2P</option>
@@ -292,6 +297,7 @@ export function UploaderComponentEditor({
             value={(component.portions && component.portions[0]?.total_weight_g) || ""}
             onChange={e => handleSinglePortionChange("total_weight_g", e.target.value)}
             required
+            className="flex-1"
           />
         </div>
       </div>

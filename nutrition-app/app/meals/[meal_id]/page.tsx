@@ -73,51 +73,51 @@ export default async function MealDetailsPage({ params }: { params: Promise<{ me
   );
 
   return (
-    <div className="flex flex-col min-h-screen p-6">
+    <div className="flex flex-col min-h-screen p-2 sm:p-4 md:p-6">
       <div className="mb-2"><BackButton href="/meals" /></div>
       <Header title={meal.meal_name} description={meal.description || ""} />
       {/* Info tags row, always show all three with positive/negative meaning */}
-      <div className="flex items-center gap-3 mb-6 mt-8">
-        <span className={`inline-flex items-center px-2 py-1 rounded text-sm font-semibold ${meal.is_balanced ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-4 sm:mb-6 mt-6 sm:mt-8">
+        <span className={`inline-flex items-center px-2 py-1 rounded text-xs sm:text-sm font-semibold ${meal.is_balanced ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
           {meal.is_balanced ? '✔ Balanced' : '✖ Not Balanced'}
         </span>
-        <span className={`inline-flex items-center px-2 py-1 rounded text-sm font-semibold ${meal.is_gourmet ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
+        <span className={`inline-flex items-center px-2 py-1 rounded text-xs sm:text-sm font-semibold ${meal.is_gourmet ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>
           {meal.is_gourmet ? '🍽 Gourmet' : '🍽 Not Gourmet'}
         </span>
-        <span className={`inline-flex items-center px-2 py-1 rounded text-sm font-semibold ${meal.is_weight_loss ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
+        <span className={`inline-flex items-center px-2 py-1 rounded text-xs sm:text-sm font-semibold ${meal.is_weight_loss ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500'}`}>
           {meal.is_weight_loss ? '🏃‍♂️ Weight Loss' : '🏃‍♂️ Not Weight Loss'}
         </span>
       </div>
 
       {/* Additional meal information */}
       {(meal.package || meal.objective || meal.item_code) && (
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-semibold mb-3">Additional Information</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+          <h3 className="text-base sm:text-lg font-semibold mb-3">Additional Information</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {meal.package && (
               <div>
-                <span className="font-medium text-gray-700">Package:</span>
-                <p className="text-gray-900">{meal.package}</p>
+                <span className="font-medium text-gray-700 text-sm">Package:</span>
+                <p className="text-gray-900 text-sm sm:text-base break-words">{meal.package}</p>
               </div>
             )}
             {meal.objective && (
               <div>
-                <span className="font-medium text-gray-700">Objective:</span>
-                <p className="text-gray-900">{meal.objective}</p>
+                <span className="font-medium text-gray-700 text-sm">Objective:</span>
+                <p className="text-gray-900 text-sm sm:text-base break-words">{meal.objective}</p>
               </div>
             )}
             {meal.item_code && (
               <div>
-                <span className="font-medium text-gray-700">Item Code:</span>
-                <p className="text-gray-900">{meal.item_code}</p>
+                <span className="font-medium text-gray-700 text-sm">Item Code:</span>
+                <p className="text-gray-900 text-sm sm:text-base break-words">{meal.item_code}</p>
               </div>
             )}
           </div>
         </div>
       )}
       
-      <h2 className="text-xl font-bold mb-4">Components</h2>
-      <div className="mb-4">
+      <h2 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">Components</h2>
+      <div className="mb-3 sm:mb-4">
         <AddComponentModalClientWrapper mealId={mealId} />
       </div>
       

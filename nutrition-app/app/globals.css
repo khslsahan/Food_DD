@@ -56,6 +56,25 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Mobile-specific improvements */
+  @media (max-width: 640px) {
+    /* Improve touch targets */
+    button, [role="button"], input[type="button"], input[type="submit"], input[type="reset"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Improve input fields on mobile */
+    input, textarea, select {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Better scrolling on mobile */
+    .overflow-y-auto, .overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
+    }
+  }
 }
 
 /* Custom scrollbar styles for recipe tabs */
@@ -98,4 +117,69 @@
 
 .recipe-tab:active {
   transform: translateY(0);
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  /* Improve form spacing on mobile */
+  .space-y-4 > * + * {
+    margin-top: 1rem;
+  }
+  
+  .space-y-6 > * + * {
+    margin-top: 1.5rem;
+  }
+  
+  /* Better card padding on mobile */
+  .p-4 {
+    padding: 0.75rem;
+  }
+  
+  .p-6 {
+    padding: 1rem;
+  }
+  
+  /* Improve button spacing on mobile */
+  .gap-2 {
+    gap: 0.5rem;
+  }
+  
+  .gap-4 {
+    gap: 0.75rem;
+  }
+  
+  /* Better text sizing on mobile */
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  
+  .text-base {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  
+  .text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+  
+  /* Improve input field sizing */
+  input, textarea, select {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  /* Better mobile navigation */
+  .recipe-tabs-container {
+    padding-bottom: 0.5rem;
+  }
+  
+  /* Improve mobile form layouts */
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

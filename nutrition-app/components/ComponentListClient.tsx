@@ -16,6 +16,49 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+
+interface Ingredient {
+  ingredient_id: number;
+  ingredient_name: string;
+  calories_per_100g: number;
+  fat_g: number;
+  protein_g: number;
+  carbohydrates_g: number;
+}
+
+interface RecipeIngredient {
+  recipe_ingredient_id: number;
+  ingredient_id: number;
+  quantity: number;
+  raw_quantity_g: number;
+}
+
+interface ComponentPortion {
+  label: string;
+  total_weight_g: number;
+}
+
+interface Component {
+  component_id: number;
+  component_name: string;
+  before_cook_weight_g: number;
+  after_cook_weight_g: number;
+  category?: {
+    id: number;
+    name: string;
+  };
+  category_id?: number;
+  recipeIngredients: RecipeIngredient[];
+  component_portions?: ComponentPortion[];
+  portions?: ComponentPortion[];
+}
+
+interface ComponentListClientProps {
+  components: Component[];
+  ingredientMap: Map<number, Ingredient>;
+  mealId: number;
+}
 
 function ViewIcon() {
   return (
@@ -29,7 +72,7 @@ function EditIcon() {
   );
 }
 
-function NutritionInfo({ ingredient, rawQuantity }) {
+function NutritionInfo({ ingredient, rawQuantity }: { ingredient: Ingredient; rawQuantity: number }) {
   const factor = rawQuantity / 100;
   const calc = {
     calories: (ingredient.calories_per_100g * factor).toFixed(2),
@@ -62,20 +105,20 @@ function NutritionInfo({ ingredient, rawQuantity }) {
   );
 }
 
-export default function ComponentListClient({ components, ingredientMap, mealId }) {
+export default function ComponentListClient({ components, ingredientMap, mealId }: ComponentListClientProps) {
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editComponentData, setEditComponentData] = useState(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(null);
+  const [editComponentData, setEditComponentData] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<number | null>(null);
   const router = useRouter();
 
-  const handleEditClick = (component) => {
+  const handleEditClick = (component: Component) => {
     setEditComponentData({
       componentId: component.component_id,
       mealId: mealId,
       initialName: component.component_name,
       initialBeforeCookWeight: String(component.before_cook_weight_g),
       initialAfterCookWeight: String(component.after_cook_weight_g),
-      initialIngredients: component.recipeIngredients.map(ri => {
+      initialIngredients: component.recipeIngredients.map((ri: RecipeIngredient) => {
         const ingredient = ingredientMap.get(ri.ingredient_id);
         const quantity = Number(ri.raw_quantity_g) || 0;
         const factor = quantity / 100;
@@ -89,7 +132,7 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
           carbohydrates: String((ingredient?.carbohydrates_g ?? 0) * factor),
         };
       }),
-      initialPortions: (component.component_portions || []).map(p => ({
+      initialPortions: (component.component_portions || []).map((p: ComponentPortion) => ({
         label: p.label,
         total_weight_g: String(p.total_weight_g),
       })),
@@ -98,7 +141,7 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
     setEditModalOpen(true);
   };
 
-  const handleDelete = async (componentId, componentName) => {
+  const handleDelete = async (componentId: number, componentName: string) => {
     try {
       const res = await fetch(`/api/components/${componentId}`, { method: "DELETE" });
       if (res.ok) {
@@ -116,100 +159,137 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
   return (
     <>
       {components.map((component) => (
-        <div key={component.component_id} className="mb-8 border rounded-lg p-6 bg-white shadow-sm">
-          <div className="flex items-center mb-2">
-            <div className="font-semibold text-xl text-blue-700">{component.component_name}</div>
+        <div key={component.component_id} className="mb-6 sm:mb-8 border rounded-lg p-3 sm:p-6 bg-white shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-3 sm:mb-2 gap-2">
+            <div className="font-semibold text-lg sm:text-xl text-blue-700 break-words">{component.component_name}</div>
             {component.category && (
-              <span className="ml-4 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold w-fit">
                 {component.category.name}
               </span>
             )}
             <button
-              className="ml-2 hover:text-green-600"
+              className="hover:text-green-600 self-start sm:self-auto"
               title="Edit Component"
               onClick={() => handleEditClick(component)}
             >
               <EditIcon />
             </button>
-            <AlertDialog open={deleteDialogOpen === component.component_id} onOpenChange={open => setDeleteDialogOpen(open ? component.component_id : null)}>
-              <AlertDialogTrigger asChild>
-                <button className="ml-2 text-red-600 hover:text-red-800" title="Delete Component" onClick={e => { e.preventDefault(); setDeleteDialogOpen(component.component_id); }}>
-                  🗑️
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Component?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete <b>{component.component_name}</b>? This will also delete all related data. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleDelete(component.component_id, component.component_name)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
           </div>
-          <div className="mb-4 text-sm text-gray-600">
-            Before Cook Weight: {component.before_cook_weight_g ? Number(component.before_cook_weight_g) : ""}g<br />
-            After Cook Weight: {component.after_cook_weight_g ? Number(component.after_cook_weight_g) : ""}g
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 text-sm">
+            <div>
+              <span className="font-medium text-gray-600">Before Cook:</span>
+              <span className="ml-2">{component.before_cook_weight_g}g</span>
+            </div>
+            <div>
+              <span className="font-medium text-gray-600">After Cook:</span>
+              <span className="ml-2">{component.after_cook_weight_g}g</span>
+            </div>
           </div>
-          {component.component_portions && component.component_portions.length > 0 && (
-            <div className="mb-2 text-sm text-gray-700">
-              <strong>Portion Sizes:</strong>
-              <ul>
-                {component.component_portions.map((portion) => (
-                  <li key={portion.label}>
-                    {portion.label}: {Number(portion.total_weight_g)}g
-                  </li>
+          
+          <div className="mb-3 sm:mb-4">
+            <h4 className="font-medium text-gray-800 mb-2 sm:mb-3">Ingredients:</h4>
+            <div className="space-y-2 sm:space-y-3">
+              {component.recipeIngredients.map((recipeIngredient) => {
+                const ingredient = ingredientMap.get(recipeIngredient.ingredient_id);
+                return (
+                  <div key={recipeIngredient.recipe_ingredient_id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 break-words">
+                        {ingredient?.ingredient_name || 'Unknown Ingredient'}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {recipeIngredient.quantity}g
+                      </div>
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-4 text-sm">
+                      <div className="flex gap-2 sm:gap-4">
+                        <span className="text-gray-600">Cal:</span>
+                        <span className="font-medium">{ingredient?.calories_per_100g || 0}</span>
+                      </div>
+                      <div className="flex gap-2 sm:gap-4">
+                        <span className="text-gray-600">Fat:</span>
+                        <span className="font-medium">{ingredient?.fat_g || 0}g</span>
+                      </div>
+                      <div className="flex gap-2 sm:gap-4">
+                        <span className="text-gray-600">Prot:</span>
+                        <span className="font-medium">{ingredient?.protein_g || 0}g</span>
+                      </div>
+                      <div className="flex gap-2 sm:gap-4">
+                        <span className="text-gray-600">Carb:</span>
+                        <span className="font-medium">{ingredient?.carbohydrates_g || 0}g</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          
+          {(component.portions || component.component_portions) && ((component.portions?.length || 0) > 0 || (component.component_portions?.length || 0) > 0) && (
+            <div>
+              <h4 className="font-medium text-gray-800 mb-2 sm:mb-3">Portion Sizes:</h4>
+              <div className="space-y-2">
+                {(component.portions || component.component_portions || []).map((portion, idx) => (
+                  <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-blue-50 rounded-lg">
+                    <span className="font-medium text-blue-800">{portion.label}</span>
+                    <span className="text-blue-600">{portion.total_weight_g}g</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Ingredients:</h3>
-            {component.recipeIngredients && component.recipeIngredients.length === 0 ? (
-              <div className="text-gray-500 italic ml-2">No ingredients found.</div>
-            ) : (
-              <ul className="space-y-4">
-                {component.recipeIngredients && component.recipeIngredients.map((ri) => {
-                  const ingredient = ingredientMap.get(ri.ingredient_id);
-                  return (
-                    <li key={ri.ingredient_id}>
-                      <div className="flex items-center justify-between bg-gray-50 rounded-lg shadow-sm border-l-4 border-blue-400 px-6 py-4">
-                        <div className="flex items-center min-w-0">
-                          <span className="font-semibold text-lg truncate">
-                            {ingredient?.ingredient_name || `Ingredient ID: ${ri.ingredient_id}`}
-                          </span>
-                        </div>
-                        {ingredient && (
-                          <div className="flex items-center space-x-2">
-                            <Link href={`/ingredients/${ingredient.ingredient_id}`} className="hover:text-blue-600" title="View Ingredient">
-                              <ViewIcon />
-                            </Link>
-                            <Link href={`/ingredients/${ingredient.ingredient_id}/edit`} className="hover:text-green-600" title="Edit Ingredient">
-                              <EditIcon />
-                            </Link>
-                          </div>
-                        )}
-                      </div>
-                      {ingredient && (
-                        <NutritionInfo ingredient={ingredient} rawQuantity={ri.raw_quantity_g} />
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+          
+          <div className="mt-3 sm:mt-4 flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleEditClick(component)}
+              className="flex-1 sm:flex-none"
+            >
+              Edit Component
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteDialogOpen(component.component_id)}
+              className="flex-1 sm:flex-none"
+            >
+              Delete
+            </Button>
           </div>
         </div>
       ))}
-      {editComponentData && (
+
+      <AlertDialog open={deleteDialogOpen !== null} onOpenChange={() => setDeleteDialogOpen(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the component.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => deleteDialogOpen && handleDelete(deleteDialogOpen, "Component")}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {editModalOpen && editComponentData && (
         <EditComponentModal
           open={editModalOpen}
           setOpen={setEditModalOpen}
-          {...editComponentData}
+          componentId={editComponentData.componentId}
+          mealId={editComponentData.mealId}
+          initialName={editComponentData.initialName}
+          initialBeforeCookWeight={editComponentData.initialBeforeCookWeight}
+          initialAfterCookWeight={editComponentData.initialAfterCookWeight}
+          initialIngredients={editComponentData.initialIngredients}
+          initialPortions={editComponentData.initialPortions}
+          initialCategoryId={editComponentData.initialCategoryId}
         />
       )}
     </>

@@ -184,85 +184,111 @@ export function IngredientRow({
   };
 
   return (
-    <div className="flex flex-col gap-2 border p-2 rounded-md bg-gray-50">
-      <div className="flex gap-2 items-center relative">
-        <Input
-          placeholder="Ingredient Name"
-          value={ingredient.name}
-          onChange={e => {
-            onChange(idx, "name", e.target.value);
-            fetchIngredientSuggestions(e.target.value);
-          }}
-          onFocus={() => ingredientSuggestions.length > 0 && setShowSuggestions(true)}
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-          required
-          ref={inputRef}
-        />
-        {showSuggestions && ingredientSuggestions.length > 0 && (
-          <div className="absolute z-10 bg-white border rounded shadow w-full top-12 left-0 max-h-40 overflow-y-auto">
-            {ingredientSuggestions.map((suggestion, sidx) => (
-              <div
-                key={suggestion.ingredient_id}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                onMouseDown={() => handleSuggestionClick(suggestion)}
-              >
-                {suggestion.ingredient_name}
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="flex flex-col gap-3 border p-3 rounded-md bg-gray-50">
+      {/* Main ingredient row - responsive layout */}
+      <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center relative">
+        {/* Ingredient name input with suggestions */}
+        <div className="relative flex-1 w-full sm:w-auto">
+          <Input
+            placeholder="Ingredient Name"
+            value={ingredient.name}
+            onChange={e => {
+              onChange(idx, "name", e.target.value);
+              fetchIngredientSuggestions(e.target.value);
+            }}
+            onFocus={() => ingredientSuggestions.length > 0 && setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            required
+            ref={inputRef}
+            className="w-full"
+          />
+          {showSuggestions && ingredientSuggestions.length > 0 && (
+            <div className="absolute z-10 bg-white border rounded shadow w-full top-12 left-0 max-h-40 overflow-y-auto">
+              {ingredientSuggestions.map((suggestion, sidx) => (
+                <div
+                  key={suggestion.ingredient_id}
+                  className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                  onMouseDown={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.ingredient_name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Quantity input */}
         <Input
           placeholder="Quantity (g)"
           type="number"
           value={ingredient.quantity}
           onChange={e => onChange(idx, "quantity", e.target.value)}
           required
+          className="w-full sm:w-24"
         />
-        {useUnifiedButton ? (
-          <GetNutritionButton
-            ingredient={{
-              ...ingredient,
-              unit: "g" // Ensure unit is always "g" for consistency
-            } as UnifiedIngredientInput}
-            onNutritionUpdate={handleNutritionUpdate}
-            disabled={loading}
-          />
-        ) : (
+        
+        {/* Action buttons - responsive layout */}
+        <div className="flex gap-2 w-full sm:w-auto">
+          {useUnifiedButton ? (
+            <GetNutritionButton
+              ingredient={{
+                ...ingredient,
+                unit: "g" // Ensure unit is always "g" for consistency
+              } as UnifiedIngredientInput}
+              onNutritionUpdate={handleNutritionUpdate}
+              disabled={loading}
+              className="flex-1 sm:flex-none"
+            />
+          ) : (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={!ingredient.name || loading}
+              onClick={() => fetchNutrition(idx)}
+              className="flex-1 sm:flex-none"
+            >
+              {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+              <span className="hidden sm:inline ml-1">Get Nutrition</span>
+            </Button>
+          )}
+          
           <Button
             type="button"
-            variant="outline"
+            variant="secondary"
             size="sm"
-            disabled={!ingredient.name || loading}
-            onClick={() => fetchNutrition(idx)}
+            disabled={!ingredient.name || !ingredient.calories || savingMacros}
+            onClick={handleSaveMacros}
+            title="Save macros to database"
+            className="flex-1 sm:flex-none"
           >
-            {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
-            Get Nutrition
+            {savingMacros ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
+            <span className="hidden sm:inline ml-1">Save Macros</span>
           </Button>
-        )}
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={!ingredient.name || !ingredient.calories || savingMacros}
-          onClick={handleSaveMacros}
-          title="Save macros to database"
-        >
-          {savingMacros ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-          Save Macros
-        </Button>
-        {showRemove && (
-          <Button type="button" variant="destructive" size="icon" onClick={() => onRemove(idx)}>
-            -
-          </Button>
-        )}
+          
+          {showRemove && (
+            <Button 
+              type="button" 
+              variant="destructive" 
+              size="icon" 
+              onClick={() => onRemove(idx)}
+              className="flex-shrink-0"
+            >
+              -
+            </Button>
+          )}
+        </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      
+      {/* Nutrition inputs - responsive grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
         <Input
           placeholder="Calories (per 100g)"
           type="number"
           value={ingredient.calories ?? ""}
           onChange={e => onChange(idx, "calories", e.target.value)}
           required
+          className="text-sm"
         />
         <Input
           placeholder="Fat (g)"
@@ -270,6 +296,7 @@ export function IngredientRow({
           value={ingredient.fat ?? ""}
           onChange={e => onChange(idx, "fat", e.target.value)}
           required
+          className="text-sm"
         />
         <Input
           placeholder="Protein (g)"
@@ -277,6 +304,7 @@ export function IngredientRow({
           value={ingredient.protein ?? ""}
           onChange={e => onChange(idx, "protein", e.target.value)}
           required
+          className="text-sm"
         />
         <Input
           placeholder="Carbohydrates (g)"
@@ -284,6 +312,7 @@ export function IngredientRow({
           value={ingredient.carbohydrates ?? ""}
           onChange={e => onChange(idx, "carbohydrates", e.target.value)}
           required
+          className="text-sm"
         />
       </div>
     </div>

@@ -12,7 +12,14 @@ export default function LayoutShell({ children }: { children: React.ReactNode })
   return (
     <div className="flex min-h-screen">
       {!hideSidebar && <Sidebar />}
-      <main className={hideSidebar ? "flex-1" : "flex-1 ml-64"}>
+      <main className={`
+        flex-1 
+        ${hideSidebar ? "" : "md:ml-64"} 
+        transition-all duration-300 ease-in-out
+        p-2 sm:p-4 md:p-6
+        min-h-screen
+        w-full
+      `}>
         {children}
       </main>
     </div>
