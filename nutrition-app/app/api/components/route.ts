@@ -16,14 +16,23 @@ export async function POST(request: Request) {
         where: { ingredient_name: ing.name },
       });
       if (!dbIngredient) {
+        // Normalize nutrition values to per 100g (same logic as AddComponentModal)
+        const quantity = Number(ing.quantity) || 100;
+        const factor = 100 / quantity;
+        
+        const normalizedCalories = (Number(ing.calories) * factor) || 0;
+        const normalizedFat = (Number(ing.fat) * factor) || 0;
+        const normalizedProtein = (Number(ing.protein) * factor) || 0;
+        const normalizedCarbohydrates = (Number(ing.carbohydrates) * factor) || 0;
+
         dbIngredient = await prisma.ingredients.create({
           data: {
             ingredient_name: ing.name,
             default_unit: "g",
-            calories_per_100g: Number(ing.calories) || 0,
-            fat_g: Number(ing.fat) || 0,
-            protein_g: Number(ing.protein) || 0,
-            carbohydrates_g: Number(ing.carbohydrates) || 0,
+            calories_per_100g: normalizedCalories,
+            fat_g: normalizedFat,
+            protein_g: normalizedProtein,
+            carbohydrates_g: normalizedCarbohydrates,
           },
         });
       }
@@ -45,6 +54,7 @@ export async function POST(request: Request) {
           create: ingredientIds.map((ri) => ({
             ingredient_id: ri.ingredient_id,
             raw_quantity_g: ri.raw_quantity_g,
+            cooked_quantity_g: ri.raw_quantity_g, // Set cooked_quantity_g to same as raw_quantity_g for consistency
           })),
         },
         component_portions: portions && Array.isArray(portions)

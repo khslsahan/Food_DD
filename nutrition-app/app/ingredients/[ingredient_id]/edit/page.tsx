@@ -3,9 +3,10 @@ import { Header } from "@/components/layout/header";
 import EditIngredientClient from "./EditIngredientClient";
 import BackButton from "@/components/layout/BackButton";
 
-export default async function IngredientEditPage(props: { params: { ingredient_id: string } }) {
+export default async function IngredientEditPage(props: { params: Promise<{ ingredient_id: string }> }) {
   const { params } = props;
-  const ingredientId = Number(params.ingredient_id);
+  const { ingredient_id } = await params;
+  const ingredientId = Number(ingredient_id);
   const ingredients = await getIngredients();
   const ingredient = ingredients.find(i => i.ingredient_id === ingredientId);
   if (!ingredient) return <div>Ingredient not found.</div>;

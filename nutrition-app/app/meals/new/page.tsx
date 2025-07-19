@@ -21,6 +21,9 @@ const formSchema = z.object({
   is_balanced: z.boolean().default(false),
   is_gourmet: z.boolean().default(false),
   is_weight_loss: z.boolean().default(false),
+  package: z.string().default(""),
+  objective: z.string().default(""),
+  item_code: z.string().default(""),
 })
 
 export default function NewMealPage() {
@@ -36,6 +39,9 @@ export default function NewMealPage() {
       is_balanced: false,
       is_gourmet: false,
       is_weight_loss: false,
+      package: "",
+      objective: "",
+      item_code: "",
     },
   })
 
@@ -111,6 +117,51 @@ export default function NewMealPage() {
                       <FormControl>
                         <Textarea placeholder="Describe the meal" className="min-h-[100px]" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="package"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Package</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter package information" {...field} />
+                      </FormControl>
+                      <FormDescription>Package details for this meal.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="objective"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Objective</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter objective information" {...field} />
+                      </FormControl>
+                      <FormDescription>Objective details for this meal.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="item_code"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Item Code</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter item code" {...field} />
+                      </FormControl>
+                      <FormDescription>Item code for this meal.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

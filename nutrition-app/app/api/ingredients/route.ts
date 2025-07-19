@@ -12,6 +12,7 @@ export async function GET(request: Request) {
     const ingredients = await getIngredients(search)
     return NextResponse.json(ingredients)
   } catch (error) {
+    console.error("Ingredients API error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

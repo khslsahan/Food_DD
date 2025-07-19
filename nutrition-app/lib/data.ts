@@ -53,8 +53,9 @@ export async function getPortionOptions(mealId?: number) {
 
 // CRUD operations for Ingredients
 export async function getIngredients(search?: string) {
-  const where = search
-    ? { ingredient_name: { contains: search, mode: 'insensitive' } }
+  const trimmedSearch = search?.trim();
+  const where = trimmedSearch
+    ? { ingredient_name: { contains: trimmedSearch, mode: 'insensitive' as const } }
     : undefined;
   const ingredients = await prisma.ingredients.findMany({
     where,
@@ -86,7 +87,7 @@ export async function getRecipeIngredients(componentId?: number) {
   }))
 }
 
-export async function createMeal({ meal_name, description, is_balanced, is_gourmet, is_weight_loss }: { meal_name: string, description?: string, is_balanced?: boolean, is_gourmet?: boolean, is_weight_loss?: boolean }) {
+export async function createMeal({ meal_name, description, is_balanced, is_gourmet, is_weight_loss, package: packageField, objective, item_code }: { meal_name: string, description?: string, is_balanced?: boolean, is_gourmet?: boolean, is_weight_loss?: boolean, package?: string, objective?: string, item_code?: string }) {
   return prisma.meals.create({
     data: {
       meal_name,
@@ -94,6 +95,9 @@ export async function createMeal({ meal_name, description, is_balanced, is_gourm
       is_balanced: is_balanced || false,
       is_gourmet: is_gourmet || false,
       is_weight_loss: is_weight_loss || false,
+      package: packageField || null,
+      objective: objective || null,
+      item_code: item_code || null,
     },
   });
 }

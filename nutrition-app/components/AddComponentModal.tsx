@@ -15,19 +15,9 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
-
-interface IngredientInput {
-  name: string;
-  quantity: string;
-  calories: string; // calculated value
-  fat: string; // calculated value
-  protein: string; // calculated value
-  carbohydrates: string; // calculated value
-  caloriesPer100g?: string;
-  fatPer100g?: string;
-  proteinPer100g?: string;
-  carbohydratesPer100g?: string;
-}
+import { IngredientRow, IngredientInput } from "./IngredientRow";
+import { GetNutritionButton } from "./ui/get-nutrition-button";
+import { updateIngredientWithNutrition } from "@/lib/nutrition-utils";
 
 interface AddComponentModalProps {
   mealId: number;
@@ -46,11 +36,9 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   ]);
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
-  const [portions, setPortions] = useState([{ label: "1P", total_weight_g: "" }]);
+  const [portions, setPortions] = useState([{ label: "2P", total_weight_g: "" }]);
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | "">("");
-  const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const ingredientInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showGptPrompt, setShowGptPrompt] = useState(false);
   const [showGptResult, setShowGptResult] = useState(false);
@@ -68,9 +56,67 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
     fetchCategories();
   }, []);
 
-  const handleIngredientChange = (idx: number, field: keyof IngredientInput, value: string) => {
+  // Replace the old handleIngredientChange with the new one that supports both signatures
+  const handleIngredientChange = (
+    idx: number,
+    fieldOrObject: keyof IngredientInput | Partial<IngredientInput>,
+    value?: string
+  ) => {
     setIngredients((prev) =>
-      prev.map((ing, i) => (i === idx ? { ...ing, [field]: value } : ing))
+      prev.map((ing, i) => {
+        if (i !== idx) return ing;
+        if (typeof fieldOrObject === "object") {
+          // If per-100g values are present, always recalculate macros for the current or new quantity
+          const hasPer100g =
+            "caloriesPer100g" in fieldOrObject ||
+            "fatPer100g" in fieldOrObject ||
+            "proteinPer100g" in fieldOrObject ||
+            "carbohydratesPer100g" in fieldOrObject;
+          const safeQuantity = String((fieldOrObject as any).quantity ?? ing.quantity ?? "100");
+          if (hasPer100g) {
+            const qty = Number(safeQuantity) || 0;
+            const factor = qty / 100;
+            return {
+              ...ing,
+              ...fieldOrObject,
+              quantity: safeQuantity,
+              calories: (fieldOrObject as any).caloriesPer100g && qty > 0 ? (Number((fieldOrObject as any).caloriesPer100g) * factor).toFixed(2) : (fieldOrObject as any).caloriesPer100g || ing.caloriesPer100g || "",
+              fat: (fieldOrObject as any).fatPer100g && qty > 0 ? (Number((fieldOrObject as any).fatPer100g) * factor).toFixed(2) : (fieldOrObject as any).fatPer100g || ing.fatPer100g || "",
+              protein: (fieldOrObject as any).proteinPer100g && qty > 0 ? (Number((fieldOrObject as any).proteinPer100g) * factor).toFixed(2) : (fieldOrObject as any).proteinPer100g || ing.proteinPer100g || "",
+              carbohydrates: (fieldOrObject as any).carbohydratesPer100g && qty > 0 ? (Number((fieldOrObject as any).carbohydratesPer100g) * factor).toFixed(2) : (fieldOrObject as any).carbohydratesPer100g || ing.carbohydratesPer100g || "",
+            };
+          }
+          // If quantity is being updated in the object, recalculate nutrition
+          if (Object.prototype.hasOwnProperty.call(fieldOrObject, "quantity")) {
+            const qty = Number(safeQuantity) || 0;
+            const factor = qty / 100;
+            return {
+              ...ing,
+              ...fieldOrObject,
+              quantity: safeQuantity,
+              calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+              fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+              protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+              carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+            };
+          }
+          return { ...ing, ...fieldOrObject, quantity: safeQuantity };
+        } else if (fieldOrObject === "quantity") {
+          const safeQuantity = String(value ?? ing.quantity ?? "100");
+          const qty = Number(safeQuantity) || 0;
+          const factor = qty / 100;
+          return {
+            ...ing,
+            quantity: safeQuantity,
+            calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
+            fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
+            protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
+            carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
+          };
+        } else {
+          return { ...ing, [fieldOrObject]: value };
+        }
+      })
     );
   };
 
@@ -90,7 +136,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   };
 
   const addPortion = () => {
-    setPortions((prev) => [...prev, { label: "", total_weight_g: "" }]);
+    setPortions((prev) => [...prev, { label: "2P", total_weight_g: "" }]);
   };
 
   const removePortion = (idx: number) => {
@@ -132,7 +178,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       setBeforeCookWeight("");
       setAfterCookWeight("");
       setIngredients([{ name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" }]);
-      setPortions([{ label: "1P", total_weight_g: "" }]);
+      setPortions([{ label: "2P", total_weight_g: "" }]);
       router.refresh();
       toast({ title: "Component saved!", description: "The component was added successfully." });
     } catch (err) {
@@ -142,112 +188,17 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
     }
   };
 
-  // Edamam API fetch (frontend demo only)
-  const fetchNutrition = async (idx: number) => {
-    const ingredient = ingredients[idx];
-    if (!ingredient.name) return;
-    setLoadingIdx(idx);
-    try {
-      const ingr = `${ingredient.quantity || 100}g ${ingredient.name}`;
-      const res = await fetch("/api/edamam-proxy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingr }),
-      });
-      const data = await res.json();
-      let nutrients = null;
-      if (data.totalNutrients) {
-        nutrients = data.totalNutrients;
-      } else if (
-        data.ingredients &&
-        data.ingredients[0] &&
-        data.ingredients[0].parsed &&
-        data.ingredients[0].parsed[0] &&
-        data.ingredients[0].parsed[0].nutrients
-      ) {
-        nutrients = data.ingredients[0].parsed[0].nutrients;
-      }
-      if (nutrients) {
-        setIngredients((prev) => prev.map((ing, i) =>
-          i === idx
-            ? {
-                ...ing,
-                calories: Math.round(nutrients.ENERC_KCAL?.quantity || 0).toString(),
-                fat: Math.round(nutrients.FAT?.quantity || 0).toString(),
-                protein: Math.round(nutrients.PROCNT?.quantity || 0).toString(),
-                carbohydrates: Math.round(nutrients.CHOCDF?.quantity || 0).toString(),
-              }
-            : ing
-        ));
-      } else {
-        setGptIdx(idx);
-        setShowGptPrompt(true);
-      }
-    } catch (e) {
-      alert("Failed to fetch nutrition data");
-    } finally {
-      setLoadingIdx(null);
-    }
-  };
-
-  // Fetch ingredient suggestions as user types
-  const fetchIngredientSuggestions = async (idx: number, value: string) => {
-    if (!value) {
-      setIngredientSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(value)}`);
-    if (res.ok) {
-      const data = await res.json();
-      setIngredientSuggestions(data);
-      setShowSuggestions(true);
-    }
-  };
-
-  // When user selects a suggestion, fill in nutrition fields (per 100g)
-  const handleSuggestionClick = (idx: number, suggestion: any) => {
-    setIngredients((prev) => prev.map((ing, i) =>
-      i === idx
-        ? {
-            ...ing,
-            name: suggestion.ingredient_name,
-            calories: suggestion.calories_per_100g?.toString() ?? "",
-            fat: suggestion.fat_g?.toString() ?? "",
-            protein: suggestion.protein_g?.toString() ?? "",
-            carbohydrates: suggestion.carbohydrates_g?.toString() ?? "",
-            caloriesPer100g: suggestion.calories_per_100g?.toString() ?? "",
-            fatPer100g: suggestion.fat_g?.toString() ?? "",
-            proteinPer100g: suggestion.protein_g?.toString() ?? "",
-            carbohydratesPer100g: suggestion.carbohydrates_g?.toString() ?? "",
-          }
-        : ing
-    ));
-    setShowSuggestions(false);
-    setIngredientSuggestions([]);
-    setTimeout(() => {
-      ingredientInputRefs.current[idx + 1]?.focus();
-    }, 0);
-  };
-
-  // Recalculate nutrition values when quantity changes
-  const handleQuantityChange = (idx: number, value: string) => {
+  // Unified nutrition fetch handler
+  const handleNutritionUpdate = (idx: number, updatedIngredient: any) => {
     setIngredients((prev) => {
-      const ing = prev[idx];
-      const qty = Number(value) || 0;
-      const factor = qty / 100;
-      return prev.map((ingr, i) =>
-        i === idx
-          ? {
-              ...ingr,
-              quantity: value,
-              calories: ing.caloriesPer100g && qty > 0 ? (Number(ing.caloriesPer100g) * factor).toFixed(2) : ing.caloriesPer100g || "",
-              fat: ing.fatPer100g && qty > 0 ? (Number(ing.fatPer100g) * factor).toFixed(2) : ing.fatPer100g || "",
-              protein: ing.proteinPer100g && qty > 0 ? (Number(ing.proteinPer100g) * factor).toFixed(2) : ing.proteinPer100g || "",
-              carbohydrates: ing.carbohydratesPer100g && qty > 0 ? (Number(ing.carbohydratesPer100g) * factor).toFixed(2) : ing.carbohydratesPer100g || "",
-            }
-          : ingr
+      const newIngredients = prev.map((ing, i) =>
+        i === idx ? {
+          ...updatedIngredient,
+          quantity: updatedIngredient.quantity?.toString() || "100"
+        } : ing
       );
+      
+      return newIngredients;
     });
   };
 
@@ -256,7 +207,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       <DialogTrigger asChild>
         <Button variant="default">Add Component</Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[95vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[98vh] min-h-[80vh] overflow-y-auto p-8">
         <DialogHeader>
           <DialogTitle>Add Component</DialogTitle>
         </DialogHeader>
@@ -305,86 +256,20 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             <Label>Ingredients</Label>
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
-                <div key={idx} className="flex flex-col gap-2 border p-2 rounded-md bg-gray-50">
-                  <div className="flex gap-2 items-center relative">
-                    <Input
-                      placeholder="Ingredient Name"
-                      value={ingredient.name}
-                      onChange={(e) => {
-                        handleIngredientChange(idx, "name", e.target.value);
-                        fetchIngredientSuggestions(idx, e.target.value);
-                      }}
-                      onFocus={() => ingredientSuggestions.length > 0 && setShowSuggestions(true)}
-                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-                      required
-                      ref={el => { ingredientInputRefs.current[idx] = el; }}
-                    />
-                    {showSuggestions && ingredientSuggestions.length > 0 && (
-                      <div className="absolute z-10 bg-white border rounded shadow w-full top-12 left-0 max-h-40 overflow-y-auto">
-                        {ingredientSuggestions.map((suggestion, sidx) => (
-                          <div
-                            key={suggestion.ingredient_id}
-                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                            onMouseDown={() => handleSuggestionClick(idx, suggestion)}
-                          >
-                            {suggestion.ingredient_name}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <Input
-                      placeholder="Quantity (g)"
-                      type="number"
-                      value={ingredient.quantity}
-                      onChange={(e) => handleQuantityChange(idx, e.target.value)}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={!ingredient.name || loadingIdx === idx}
-                      onClick={() => fetchNutrition(idx)}
-                    >
-                      {loadingIdx === idx ? "Loading..." : "Get Nutrition"}
-                    </Button>
-                    {ingredients.length > 1 && (
-                      <Button type="button" variant="destructive" size="icon" onClick={() => removeIngredient(idx)}>
-                        -
-                      </Button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <Input
-                      placeholder="Calories (per 100g)"
-                      type="number"
-                      value={ingredient.calories ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "calories", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Fat (g)"
-                      type="number"
-                      value={ingredient.fat ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "fat", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Protein (g)"
-                      type="number"
-                      value={ingredient.protein ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "protein", e.target.value)}
-                      required
-                    />
-                    <Input
-                      placeholder="Carbohydrates (g)"
-                      type="number"
-                      value={ingredient.carbohydrates ?? ""}
-                      onChange={(e) => handleIngredientChange(idx, "carbohydrates", e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
+                <IngredientRow
+                  key={idx}
+                  ingredient={ingredient}
+                  idx={idx}
+                  loading={false} // Loading is now handled by GetNutritionButton
+                  showRemove={ingredients.length > 1}
+                  onChange={handleIngredientChange}
+                  onRemove={removeIngredient}
+                  fetchNutrition={(idx) => {
+                    // This will be handled by GetNutritionButton component
+                  }}
+                  useUnifiedButton={true}
+                  onNutritionUpdate={(updatedIngredient) => handleNutritionUpdate(idx, updatedIngredient)}
+                />
               ))}
               <Button type="button" variant="secondary" onClick={addIngredient}>
                 + Add Ingredient

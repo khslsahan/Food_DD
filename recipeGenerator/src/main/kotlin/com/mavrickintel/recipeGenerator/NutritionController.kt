@@ -1,5 +1,6 @@
 package com.mavrickintel.recipeGenerator
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Mono
@@ -43,12 +44,20 @@ data class NutritionResponse(
     val fat_g: Int,
     val carbohydrates_g: Int,
     val protein_g: Int,
+    @JsonProperty("package") val packageName: String? = null,
+    val objective: String? = null,
+    val item_code: String? = null,
     val ingredients: List<IngredientDetails>,
     val components: List<ComponentMacroSummary>
 )
 
 @RestController
 class NutritionController(private val nutritionService: NutritionService) {
+
+    @GetMapping("/api/meals")
+    fun getAllMeals(): reactor.core.publisher.Flux<Meal> {
+        return nutritionService.getAllMeals()
+    }
 
     @GetMapping("/api/nutrition")
     fun getNutritionGet(): Mono<NutritionResponse> {

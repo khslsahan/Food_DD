@@ -75,14 +75,20 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
       initialName: component.component_name,
       initialBeforeCookWeight: String(component.before_cook_weight_g),
       initialAfterCookWeight: String(component.after_cook_weight_g),
-      initialIngredients: component.recipeIngredients.map(ri => ({
-        name: ingredientMap.get(ri.ingredient_id)?.ingredient_name || '',
-        quantity: String(ri.raw_quantity_g ?? '0'),
-        calories: String(ingredientMap.get(ri.ingredient_id)?.calories_per_100g ?? '0'),
-        fat: String(ingredientMap.get(ri.ingredient_id)?.fat_g ?? '0'),
-        protein: String(ingredientMap.get(ri.ingredient_id)?.protein_g ?? '0'),
-        carbohydrates: String(ingredientMap.get(ri.ingredient_id)?.carbohydrates_g ?? '0'),
-      })),
+      initialIngredients: component.recipeIngredients.map(ri => {
+        const ingredient = ingredientMap.get(ri.ingredient_id);
+        const quantity = Number(ri.raw_quantity_g) || 0;
+        const factor = quantity / 100;
+        
+        return {
+          name: ingredient?.ingredient_name || '',
+          quantity: String(ri.raw_quantity_g ?? '0'),
+          calories: String((ingredient?.calories_per_100g ?? 0) * factor),
+          fat: String((ingredient?.fat_g ?? 0) * factor),
+          protein: String((ingredient?.protein_g ?? 0) * factor),
+          carbohydrates: String((ingredient?.carbohydrates_g ?? 0) * factor),
+        };
+      }),
       initialPortions: (component.component_portions || []).map(p => ({
         label: p.label,
         total_weight_g: String(p.total_weight_g),

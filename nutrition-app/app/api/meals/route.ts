@@ -29,6 +29,9 @@ export async function POST(request: Request) {
       is_balanced: body.is_balanced,
       is_gourmet: body.is_gourmet,
       is_weight_loss: body.is_weight_loss,
+      package: body.package,
+      objective: body.objective,
+      item_code: body.item_code,
     })
 
     return NextResponse.json({ meal_id: newMeal.meal_id }, { status: 201 })

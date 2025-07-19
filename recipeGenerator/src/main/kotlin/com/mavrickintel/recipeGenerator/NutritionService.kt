@@ -17,6 +17,10 @@ class NutritionService(
     private val portionOptionRepository: PortionOptionRepository,
     private val componentPortionRepository: ComponentPortionRepository
 ) {
+    fun getAllMeals(): reactor.core.publisher.Flux<Meal> {
+        return mealRepository.findAll()
+    }
+
     fun getNutrition(foodItem: String, portion: Int): Mono<NutritionResponse> {
         println("Getting nutrition for food item: $foodItem, portion: $portion")
         return mealRepository.findByMealName(foodItem)
@@ -147,6 +151,9 @@ class NutritionService(
                                                     fat_g = totalFat,
                                                     carbohydrates_g = totalCarbs,
                                                     protein_g = totalProtein,
+                                                    packageName = meal.packageName,
+                                                    objective = meal.objective,
+                                                    item_code = meal.itemCode,
                                                     ingredients = allIngredientDetails,
                                                     components = componentMacros
                                                 )
