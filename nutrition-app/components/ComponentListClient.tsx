@@ -81,11 +81,11 @@ function NutritionInfo({ ingredient, rawQuantity }: { ingredient: Ingredient; ra
     carbs: (ingredient.carbohydrates_g * factor).toFixed(2),
   };
   return (
-    <div className="ml-8 mt-2 text-sm text-gray-700 bg-gray-100 rounded p-3">
+    <div className="ml-4 sm:ml-8 mt-2 text-xs sm:text-sm text-gray-700 bg-gray-100 rounded p-2 sm:p-3">
       <div>Raw: {rawQuantity}g</div>
       <div className="mb-1">
         <span className="font-semibold">Per 100g:</span> 
-        <span className="font-mono">
+        <span className="font-mono text-xs sm:text-sm">
           Calories: {ingredient.calories_per_100g ?? 0}, 
           Fat: {ingredient.fat_g ?? 0}g, 
           Protein: {ingredient.protein_g ?? 0}g, 
@@ -94,7 +94,7 @@ function NutritionInfo({ ingredient, rawQuantity }: { ingredient: Ingredient; ra
       </div>
       <div>
         <span className="font-semibold">For {rawQuantity}g:</span> 
-        <span className="font-mono">
+        <span className="font-mono text-xs sm:text-sm">
           Calories: {calc.calories}, 
           Fat: {calc.fat}g, 
           Protein: {calc.protein}g, 
@@ -160,103 +160,93 @@ export default function ComponentListClient({ components, ingredientMap, mealId 
     <>
       {components.map((component) => (
         <div key={component.component_id} className="mb-6 sm:mb-8 border rounded-lg p-3 sm:p-6 bg-white shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center mb-3 sm:mb-2 gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center mb-2 gap-2 sm:gap-0">
             <div className="font-semibold text-lg sm:text-xl text-blue-700 break-words">{component.component_name}</div>
             {component.category && (
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold w-fit">
+              <span className="sm:ml-4 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold w-fit">
                 {component.category.name}
               </span>
             )}
-            <button
-              className="hover:text-green-600 self-start sm:self-auto"
-              title="Edit Component"
-              onClick={() => handleEditClick(component)}
-            >
-              <EditIcon />
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4 text-sm">
-            <div>
-              <span className="font-medium text-gray-600">Before Cook:</span>
-              <span className="ml-2">{component.before_cook_weight_g}g</span>
-            </div>
-            <div>
-              <span className="font-medium text-gray-600">After Cook:</span>
-              <span className="ml-2">{component.after_cook_weight_g}g</span>
-            </div>
-          </div>
-          
-          <div className="mb-3 sm:mb-4">
-            <h4 className="font-medium text-gray-800 mb-2 sm:mb-3">Ingredients:</h4>
-            <div className="space-y-2 sm:space-y-3">
-              {component.recipeIngredients.map((recipeIngredient) => {
-                const ingredient = ingredientMap.get(recipeIngredient.ingredient_id);
-                return (
-                  <div key={recipeIngredient.recipe_ingredient_id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 p-2 sm:p-3 bg-gray-50 rounded-lg">
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 break-words">
-                        {ingredient?.ingredient_name || 'Unknown Ingredient'}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        {recipeIngredient.quantity}g
-                      </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-4 text-sm">
-                      <div className="flex gap-2 sm:gap-4">
-                        <span className="text-gray-600">Cal:</span>
-                        <span className="font-medium">{ingredient?.calories_per_100g || 0}</span>
-                      </div>
-                      <div className="flex gap-2 sm:gap-4">
-                        <span className="text-gray-600">Fat:</span>
-                        <span className="font-medium">{ingredient?.fat_g || 0}g</span>
-                      </div>
-                      <div className="flex gap-2 sm:gap-4">
-                        <span className="text-gray-600">Prot:</span>
-                        <span className="font-medium">{ingredient?.protein_g || 0}g</span>
-                      </div>
-                      <div className="flex gap-2 sm:gap-4">
-                        <span className="text-gray-600">Carb:</span>
-                        <span className="font-medium">{ingredient?.carbohydrates_g || 0}g</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="flex gap-2 sm:gap-0">
+              <button
+                className="hover:text-green-600"
+                title="Edit Component"
+                onClick={() => handleEditClick(component)}
+              >
+                <EditIcon />
+              </button>
+              <AlertDialog open={deleteDialogOpen === component.component_id} onOpenChange={open => setDeleteDialogOpen(open ? component.component_id : null)}>
+                <AlertDialogTrigger asChild>
+                  <button className="text-red-600 hover:text-red-800" title="Delete Component" onClick={e => { e.preventDefault(); setDeleteDialogOpen(component.component_id); }}>
+                    🗑️
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Component?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete <b>{component.component_name}</b>? This will also delete all related data. This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDelete(component.component_id, component.component_name)} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
-          
+          <div className="mb-3 sm:mb-4 text-xs sm:text-sm text-gray-600">
+            Before Cook Weight: {component.before_cook_weight_g ? Number(component.before_cook_weight_g) : ""}g<br />
+            After Cook Weight: {component.after_cook_weight_g ? Number(component.after_cook_weight_g) : ""}g
+          </div>
           {(component.portions || component.component_portions) && ((component.portions?.length || 0) > 0 || (component.component_portions?.length || 0) > 0) && (
-            <div>
-              <h4 className="font-medium text-gray-800 mb-2 sm:mb-3">Portion Sizes:</h4>
-              <div className="space-y-2">
+            <div className="mb-2 text-xs sm:text-sm text-gray-700">
+              <strong>Portion Sizes:</strong>
+              <ul>
                 {(component.portions || component.component_portions || []).map((portion, idx) => (
-                  <div key={`${component.component_id}-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 p-2 sm:p-3 bg-blue-50 rounded-lg">
-                    <span className="font-medium text-blue-800">{portion.label}</span>
-                    <span className="text-blue-600">{portion.total_weight_g}g</span>
-                  </div>
+                  <li key={`${component.component_id}-portion-${idx}-${portion.label}-${portion.total_weight_g}`}>
+                    {portion.label}: {Number(portion.total_weight_g)}g
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
-          
-          <div className="mt-3 sm:mt-4 flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleEditClick(component)}
-              className="flex-1 sm:flex-none"
-            >
-              Edit Component
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setDeleteDialogOpen(component.component_id)}
-              className="flex-1 sm:flex-none"
-            >
-              Delete
-            </Button>
+          <div className="space-y-3 sm:space-y-4">
+            <h3 className="font-semibold text-base sm:text-lg">Ingredients:</h3>
+            {component.recipeIngredients && component.recipeIngredients.length === 0 ? (
+              <div className="text-gray-500 italic ml-2">No ingredients found.</div>
+            ) : (
+              <ul className="space-y-3 sm:space-y-4">
+                {component.recipeIngredients && component.recipeIngredients.map((ri) => {
+                  const ingredient = ingredientMap.get(ri.ingredient_id);
+                  return (
+                    <li key={ri.ingredient_id}>
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 rounded-lg shadow-sm border-l-4 border-blue-400 p-3 sm:px-6 sm:py-4 gap-2 sm:gap-0">
+                        <div className="flex items-center min-w-0">
+                          <span className="font-semibold text-base sm:text-lg truncate">
+                            {ingredient?.ingredient_name || `Ingredient ID: ${ri.ingredient_id}`}
+                          </span>
+                        </div>
+                        {ingredient && (
+                          <div className="flex items-center space-x-2">
+                            <Link href={`/ingredients/${ingredient.ingredient_id}`} className="hover:text-blue-600" title="View Ingredient">
+                              <ViewIcon />
+                            </Link>
+                            <Link href={`/ingredients/${ingredient.ingredient_id}/edit`} className="hover:text-green-600" title="Edit Ingredient">
+                              <EditIcon />
+                            </Link>
+                          </div>
+                        )}
+                      </div>
+                      {ingredient && (
+                        <NutritionInfo ingredient={ingredient} rawQuantity={ri.raw_quantity_g} />
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       ))}

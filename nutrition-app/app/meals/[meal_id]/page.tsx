@@ -73,7 +73,7 @@ export default async function MealDetailsPage({ params }: { params: Promise<{ me
   );
 
   return (
-    <div className="flex flex-col min-h-screen p-2 sm:p-4 md:p-6">
+    <div className="flex flex-col min-h-screen p-3 sm:p-4 md:p-6">
       <div className="mb-2"><BackButton href="/meals" /></div>
       <Header title={meal.meal_name} description={meal.description || ""} />
       {/* Info tags row, always show all three with positive/negative meaning */}
@@ -96,19 +96,19 @@ export default async function MealDetailsPage({ params }: { params: Promise<{ me
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {meal.package && (
               <div>
-                <span className="font-medium text-gray-700 text-sm">Package:</span>
+                <span className="font-medium text-gray-700 text-sm sm:text-base">Package:</span>
                 <p className="text-gray-900 text-sm sm:text-base break-words">{meal.package}</p>
               </div>
             )}
             {meal.objective && (
               <div>
-                <span className="font-medium text-gray-700 text-sm">Objective:</span>
+                <span className="font-medium text-gray-700 text-sm sm:text-base">Objective:</span>
                 <p className="text-gray-900 text-sm sm:text-base break-words">{meal.objective}</p>
               </div>
             )}
             {meal.item_code && (
               <div>
-                <span className="font-medium text-gray-700 text-sm">Item Code:</span>
+                <span className="font-medium text-gray-700 text-sm sm:text-base">Item Code:</span>
                 <p className="text-gray-900 text-sm sm:text-base break-words">{meal.item_code}</p>
               </div>
             )}
