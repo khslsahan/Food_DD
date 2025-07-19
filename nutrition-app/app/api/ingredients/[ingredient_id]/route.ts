@@ -1,9 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function PATCH(req: NextRequest, { params }: { params: { ingredient_id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ ingredient_id: string }> }) {
   try {
-    const id = Number(params.ingredient_id);
+    const { ingredient_id } = await params;
+    const id = Number(ingredient_id);
+    
+    if (isNaN(id)) {
+      return NextResponse.json({ error: "Invalid ingredient ID" }, { status: 400 });
+    }
+
+    // Check if ingredient exists
+    const ingredient = await prisma.ingredients.findUnique({
+      where: { ingredient_id: id },
+      include: {
+        recipe_ingredients: {
+          include: {
+            components: {
+              include: {
+                meals: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!ingredient) {
+      return NextResponse.json({ error: "Ingredient not found" }, { status: 404 });
+    }
+
+    // Check if ingredient is used in any recipes - if so, prevent deletion
+    if (ingredient.recipe_ingredients.length > 0) {
+      // Get unique meals that use this ingredient
+      const uniqueMeals = [...new Set(ingredient.recipe_ingredients.map(ri => ri.components.meals.meal_name))];
+      
+      return NextResponse.json({ 
+        error: `Cannot delete ingredient "${ingredient.ingredient_name}" because it is used in ${ingredient.recipe_ingredients.length} recipe(s) across ${uniqueMeals.length} meal(s): ${uniqueMeals.join(', ')}. Please remove this ingredient from all recipes before deleting it.`
+      }, { status: 400 });
+    }
+
+    // Only delete if ingredient is not used in any recipes
+    await prisma.ingredients.delete({
+      where: { ingredient_id: id }
+    });
+
+    return NextResponse.json({ 
+      message: `Ingredient "${ingredient.ingredient_name}" deleted successfully` 
+    });
+
+  } catch (error) {
+    console.error('DELETE ingredient failed:', error);
+    return NextResponse.json({ 
+      error: "Failed to delete ingredient. Please try again." 
+    }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ ingredient_id: string }> }) {
+  try {
+    const { ingredient_id } = await params;
+    const id = Number(ingredient_id);
     const data = await req.json();
     const updated = await prisma.ingredients.update({
       where: { ingredient_id: id },
@@ -23,9 +80,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { ingredient
   }
 }
 
-export async function POST(req: NextRequest, { params }: { params: { ingredient_id: string } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ ingredient_id: string }> }) {
   // For form submissions from the edit page
-  const id = Number(params.ingredient_id);
+  const { ingredient_id } = await params;
+  const id = Number(ingredient_id);
   const form = await req.formData();
   const formObj = Object.fromEntries(form.entries());
   console.log('Updating ingredient:', id, formObj);

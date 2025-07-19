@@ -139,7 +139,26 @@ export async function handleNutritionFetch(
     const edamamData = await edamamResponse.json();
     
     if (edamamResponse.ok && edamamData.macros) {
-      return { success: true, nutrition: { macros: edamamData.macros }, source: "edamam" };
+      // For Edamam responses, the macros are already calculated for the specific quantity
+      // We need to calculate per100gData for proper storage
+      const qty = Number(quantity) || 100;
+      const factor = qty / 100;
+      
+      const per100gData = {
+        calories: factor > 0 ? Math.round((edamamData.macros.calories || 0) / factor) : 0,
+        fat: factor > 0 ? Math.round(((edamamData.macros.fat || 0) / factor) * 10) / 10 : 0,
+        protein: factor > 0 ? Math.round(((edamamData.macros.protein || 0) / factor) * 10) / 10 : 0,
+        carbohydrates: factor > 0 ? Math.round(((edamamData.macros.carbohydrates || 0) / factor) * 10) / 10 : 0
+      };
+      
+      return { 
+        success: true, 
+        nutrition: { 
+          macros: edamamData.macros,
+          per100gData: per100gData
+        }, 
+        source: "edamam" 
+      };
     }
 
     // 3. If Edamam fails, try ChatGPT fallback
@@ -152,15 +171,29 @@ export async function handleNutritionFetch(
     const gptData = await gptResponse.json();
     
     if (gptResponse.ok && gptData) {
+      // For GPT responses, we need to calculate per100gData since GPT returns per-100g values
+      const per100gData = {
+        calories: gptData.calories || 0,
+        fat: gptData.fat || 0,
+        protein: gptData.protein || 0,
+        carbohydrates: gptData.carbs || 0
+      };
+      
+      // Calculate macros for the specific quantity
+      const qty = Number(quantity) || 100;
+      const factor = qty / 100;
+      const macros = {
+        calories: Math.round((per100gData.calories || 0) * factor),
+        fat: Math.round((per100gData.fat || 0) * factor * 10) / 10,
+        protein: Math.round((per100gData.protein || 0) * factor * 10) / 10,
+        carbohydrates: Math.round((per100gData.carbohydrates || 0) * factor * 10) / 10
+      };
+      
       return { 
         success: true, 
         nutrition: { 
-          macros: {
-            calories: gptData.calories,
-            fat: gptData.fat,
-            protein: gptData.protein,
-            carbohydrates: gptData.carbs
-          }
+          macros: macros,
+          per100gData: per100gData
         }, 
         source: "gpt" 
       };
