@@ -11,31 +11,23 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def extract_tables_with_headers(docx_path):
-    """Extract tables and their associated headers from a Word document."""
+def extract_tables_with_headers_and_positions(docx_path):
+    """Extract tables and their associated headers with position information from a Word document."""
     try:
         doc = Document(docx_path)
         tables = []
-        paragraphs = list(doc.paragraphs)
-        para_idx = 0
         
-        for table in doc.tables:
-            header = None
-            # Look for header in preceding paragraphs
-            for i in range(para_idx-1, -1, -1):
-                text = paragraphs[i].text.strip()
-                if text:
-                    header = text
-                    para_idx = i + 1
-                    break
-            
+        # Get all tables first
+        for table_idx, table in enumerate(doc.tables):
             rows = []
             for row in table.rows:
                 cells = [cell.text.strip() for cell in row.cells]
                 rows.append(cells)
             
-            tables.append({'header': header, 'rows': rows})
-            para_idx += 1
+            tables.append({
+                'rows': rows,
+                'table_index': table_idx
+            })
         
         return tables
     except Exception as e:
@@ -89,29 +81,73 @@ def detect_recipe_boundaries(docx_path):
         return []
 
 def extract_recipe_sections(docx_path):
-    """Extract different recipe sections from the document."""
+    """Extract different recipe sections from the document with enhanced boundary detection."""
     try:
         doc = Document(docx_path)
-        recipe_boundaries = detect_recipe_boundaries(docx_path)
+        recipe_starts = []
         
-        if not recipe_boundaries:
-            # If no clear boundaries, treat the whole document as one recipe
-            return [{'start': 0, 'end': len(doc.paragraphs), 'name': Path(docx_path).stem}]
+        for i, para in enumerate(doc.paragraphs):
+            text = para.text.strip()
+            # Enhanced recipe title detection
+            if (text and 
+                (text.isupper() or 
+                 any(keyword in text.lower() for keyword in ['recipe', 'meal', 'dish', 'preparation', 'soup', 'salad', 'main', 'appetizer', 'dessert']) or
+                 re.match(r'^[A-Z][A-Z\s]+$', text) or
+                 re.match(r'^[A-Z][a-zA-Z\s]+Recipe', text) or
+                 re.match(r'^[A-Z][a-zA-Z\s]+Soup', text) or
+                 re.match(r'^[A-Z][a-zA-Z\s]+Salad', text)) and
+                len(text) > 3 and len(text) < 100 and
+                not any(keyword in text.lower() for keyword in ['ingredient', 'component', 'total', 'portion', 'serving'])):
+                recipe_starts.append(i)
+        
+        # If no clear boundaries found, try alternative detection
+        if not recipe_starts:
+            # Look for patterns like "Recipe 1:", "Recipe 2:", etc.
+            for i, para in enumerate(doc.paragraphs):
+                text = para.text.strip()
+                if re.match(r'^Recipe\s+\d+', text, re.IGNORECASE):
+                    recipe_starts.append(i)
         
         sections = []
-        for i, start_idx in enumerate(recipe_boundaries):
-            end_idx = recipe_boundaries[i + 1] if i + 1 < len(recipe_boundaries) else len(doc.paragraphs)
+        for i, start_idx in enumerate(recipe_starts):
+            end_idx = recipe_starts[i + 1] if i + 1 < len(recipe_starts) else len(doc.paragraphs)
             recipe_name = doc.paragraphs[start_idx].text.strip()
             sections.append({
                 'start': start_idx,
                 'end': end_idx,
-                'name': recipe_name
+                'name': recipe_name,
+                'index': i
             })
         
         return sections
     except Exception as e:
         logger.error(f"Error extracting recipe sections: {e}")
         return []
+
+def assign_tables_to_recipes(tables, recipe_sections):
+    """Assign tables to recipes based on their content and position."""
+    # This is a simplified approach - in practice you might need more sophisticated logic
+    # For now, we'll distribute tables evenly among recipes
+    
+    if not recipe_sections:
+        return {0: tables}  # All tables go to first recipe
+    
+    tables_per_recipe = len(tables) // len(recipe_sections)
+    remainder = len(tables) % len(recipe_sections)
+    
+    recipe_tables = {}
+    table_idx = 0
+    
+    for i, section in enumerate(recipe_sections):
+        # Calculate how many tables this recipe should get
+        num_tables = tables_per_recipe
+        if i < remainder:
+            num_tables += 1
+        
+        recipe_tables[i] = tables[table_idx:table_idx + num_tables]
+        table_idx += num_tables
+    
+    return recipe_tables
 
 def table_to_markdown(table):
     """Convert a table to markdown format."""
@@ -168,7 +204,7 @@ def get_ingredient_name(ingredient):
     """Extract ingredient name from ingredient data."""
     return ingredient.get('name', '').strip()
 
-def extract_recipe_from_section(doc, section, tables_in_section):
+def extract_recipe_from_section(doc, section, tables_for_recipe):
     """Extract recipe data from a specific section of the document."""
     try:
         recipe = {
@@ -177,15 +213,8 @@ def extract_recipe_from_section(doc, section, tables_in_section):
             "components": []
         }
         
-        # Find tables that belong to this section
-        section_tables = []
-        for table in tables_in_section:
-            # Check if table is within this section's paragraph range
-            # This is a simplified approach - in practice you might need more sophisticated logic
-            section_tables.append(table)
-        
-        for i, table in enumerate(section_tables):
-            component_name = table['header'] or f"Component {i+1}"
+        for i, table in enumerate(tables_for_recipe):
+            component_name = f"Component {i+1}"
             component = {
                 "name": component_name,
                 "ingredients": []
@@ -244,31 +273,47 @@ def extract_recipe_from_section(doc, section, tables_in_section):
         return None
 
 def extract_multiple_recipes_from_docx(docx_path):
-    """Extract multiple recipes from a Word document."""
+    """Extract multiple recipes from a Word document with proper table association."""
     try:
         doc = Document(docx_path)
-        tables = extract_tables_with_headers(docx_path)
+        tables = extract_tables_with_headers_and_positions(docx_path)
         document_content = extract_document_content(docx_path)
+        
+        logger.info(f"Found {len(tables)} tables in document")
         
         # Try to detect recipe sections
         recipe_sections = extract_recipe_sections(docx_path)
+        logger.info(f"Detected {len(recipe_sections)} recipe sections")
+        for i, section in enumerate(recipe_sections):
+            logger.info(f"Section {i}: '{section['name']}' (para {section['start']}-{section['end']})")
         
         recipes = []
         
         if len(recipe_sections) > 1:
-            # Multiple recipes detected
-            for section in recipe_sections:
-                recipe = extract_recipe_from_section(doc, section, tables)
+            # Multiple recipes detected - assign tables to recipes
+            recipe_tables = assign_tables_to_recipes(tables, recipe_sections)
+            
+            for i, section in enumerate(recipe_sections):
+                logger.info(f"Processing section {i}: {section['name']}")
+                tables_for_recipe = recipe_tables.get(i, [])
+                logger.info(f"  Assigned {len(tables_for_recipe)} tables to recipe {i}")
+                
+                recipe = extract_recipe_from_section(doc, section, tables_for_recipe)
                 if recipe and recipe['components']:
+                    logger.info(f"Extracted recipe '{recipe['name']}' with {len(recipe['components'])} components")
                     recipes.append(recipe)
+                else:
+                    logger.warning(f"No valid recipe extracted from section '{section['name']}'")
         else:
             # Single recipe or no clear boundaries - use original logic
+            logger.info("Using single recipe extraction logic")
             recipe = extract_recipe_from_docx_single(docx_path)
             if recipe:
                 recipes.append(recipe)
         
         # If no recipes found, create a default one
         if not recipes:
+            logger.info("No recipes found, creating default recipe")
             recipe = {
                 "name": Path(docx_path).stem,
                 "description": f"Extracted from {Path(docx_path).name}",
@@ -276,7 +321,7 @@ def extract_multiple_recipes_from_docx(docx_path):
             }
             
             for i, table in enumerate(tables[:-1]):  # Skip the last table (usually portion options)
-                component_name = table['header'] or f"Component {i+1}"
+                component_name = f"Component {i+1}"
                 component = {
                     "name": component_name,
                     "ingredients": []
@@ -330,6 +375,7 @@ def extract_multiple_recipes_from_docx(docx_path):
             
             recipes.append(recipe)
         
+        logger.info(f"Final result: {len(recipes)} recipes extracted")
         return recipes, document_content
         
     except Exception as e:
@@ -339,7 +385,7 @@ def extract_multiple_recipes_from_docx(docx_path):
 def extract_recipe_from_docx_single(docx_path):
     """Extract single recipe data from a Word document (original function)."""
     try:
-        tables = extract_tables_with_headers(docx_path)
+        tables = extract_tables_with_headers_and_positions(docx_path)
         
         if not tables:
             return None
@@ -351,7 +397,7 @@ def extract_recipe_from_docx_single(docx_path):
         }
         
         for i, table in enumerate(tables[:-1]):  # Skip the last table (usually portion options)
-            component_name = table['header'] or f"Component {i+1}"
+            component_name = f"Component {i+1}"
             component = {
                 "name": component_name,
                 "ingredients": []
