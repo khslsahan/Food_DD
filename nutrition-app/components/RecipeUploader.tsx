@@ -393,7 +393,8 @@ export function RecipeUploader() {
       />
 
       <main className="flex-1 p-2 sm:p-4 md:p-6">
-        <div className="max-w-2xl space-y-4 sm:space-y-6">
+        {/* Upload Recipe Document - narrower, more focused */}
+        <div className="max-w-xl space-y-4 sm:space-y-6 mb-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -461,135 +462,140 @@ export function RecipeUploader() {
               onClose={() => setShowPreview(false)}
             />
           )}
+        </div>
 
-          {editingRecipes.length > 0 && (
-            <div className="space-y-4 sm:space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <h2 className="text-xl sm:text-2xl font-bold">Extracted Recipes ({editingRecipes.length})</h2>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">
-                    {editingRecipes.filter(r => r.saved).length} saved
-                  </Badge>
-                  <Badge variant="outline">
-                    {editingRecipes.filter(r => !r.saved).length} pending
-                  </Badge>
+        {/* Extracted Recipes navigation - full width */}
+        {editingRecipes.length > 0 && (
+          <div className="w-full space-y-4 sm:space-y-6 mb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <h2 className="text-xl sm:text-2xl font-bold">Extracted Recipes ({editingRecipes.length})</h2>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline">
+                  {editingRecipes.filter(r => r.saved).length} saved
+                </Badge>
+                <Badge variant="outline">
+                  {editingRecipes.filter(r => !r.saved).length} pending
+                </Badge>
+              </div>
+            </div>
+
+            {/* Enhanced Tabs for recipe navigation */}
+            <div className="mb-4 sm:mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+                <h3 className="text-base sm:text-lg font-semibold">Select Recipe to Edit:</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                  <div className="text-sm text-muted-foreground">
+                    {editingRecipes.filter(r => r.saved).length} saved • {editingRecipes.filter(r => !r.saved).length} pending
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    Use ← → keys to navigate
+                  </div>
                 </div>
               </div>
-
-              {/* Enhanced Tabs for recipe navigation */}
-              <div className="mb-4 sm:mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
-                  <h3 className="text-base sm:text-lg font-semibold">Select Recipe to Edit:</h3>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                    <div className="text-sm text-muted-foreground">
-                      {editingRecipes.filter(r => r.saved).length} saved • {editingRecipes.filter(r => !r.saved).length} pending
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Use ← → keys to navigate
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Recipe tabs with improved styling */}
-                <div className="relative">
-                  {/* Navigation buttons */}
-                  <div className="flex items-center gap-2 mb-3">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedRecipeIndex(Math.max(0, selectedRecipeIndex - 1))}
-                      disabled={selectedRecipeIndex === 0}
-                      className="flex items-center gap-1"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      <span className="hidden sm:inline">Previous</span>
-                    </Button>
-                    
-                    <div className="flex-1 text-center">
-                      <span className="text-sm font-medium">
-                        Recipe {selectedRecipeIndex + 1} of {editingRecipes.length}
-                      </span>
-                    </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedRecipeIndex(Math.min(editingRecipes.length - 1, selectedRecipeIndex + 1))}
-                      disabled={selectedRecipeIndex === editingRecipes.length - 1}
-                      className="flex items-center gap-1"
-                    >
-                      <span className="hidden sm:inline">Next</span>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+              
+              {/* Recipe tabs with improved styling */}
+              <div className="relative">
+                {/* Navigation buttons */}
+                <div className="flex items-center gap-2 mb-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedRecipeIndex(Math.max(0, selectedRecipeIndex - 1))}
+                    disabled={selectedRecipeIndex === 0}
+                    className="flex items-center gap-1"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="hidden sm:inline">Previous</span>
+                  </Button>
+                  
+                  <div className="flex-1 text-center">
+                    <span className="text-sm font-medium">
+                      Recipe {selectedRecipeIndex + 1} of {editingRecipes.length}
+                    </span>
                   </div>
                   
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedRecipeIndex(Math.min(editingRecipes.length - 1, selectedRecipeIndex + 1))}
+                    disabled={selectedRecipeIndex === editingRecipes.length - 1}
+                    className="flex items-center gap-1"
+                  >
+                    <span className="hidden sm:inline">Next</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                  {editingRecipes.map((recipe, idx) => (
+                    <button
+                      key={`recipe-tab-${idx}-${recipe.name}`}
+                      onClick={() => setSelectedRecipeIndex(idx)}
+                      className={`
+                        flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200
+                        ${selectedRecipeIndex === idx 
+                          ? 'border-green-500 bg-green-50 text-green-700 shadow-sm' 
+                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                        }
+                        ${recipe.saved ? 'ring-2 ring-green-200' : ''}
+                        ${recipe.error ? 'border-red-300 bg-red-50 text-red-700' : ''}
+                      `}
+                    >
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        {recipe.saved ? (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        ) : recipe.error ? (
+                          <AlertCircle className="h-4 w-4 text-red-600" />
+                        ) : (
+                          <Edit className="h-4 w-4 text-gray-500" />
+                        )}
+                        <span className="hidden sm:inline">Recipe {idx + 1}</span>
+                        <span className="sm:hidden">{idx + 1}</span>
+                        {recipe.saved && (
+                          <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 hidden sm:inline">
+                            Saved
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1 truncate max-w-[80px] sm:max-w-[120px]">
+                        {recipe.name.length > 15 ? `${recipe.name.substring(0, 15)}...` : recipe.name}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Scroll indicators */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+              </div>
+              
+              {/* Quick navigation dots */}
+              {editingRecipes.length > 6 && (
+                <div className="flex justify-center mt-3">
+                  <div className="flex gap-1">
                     {editingRecipes.map((recipe, idx) => (
                       <button
-                        key={`recipe-tab-${idx}-${recipe.name}`}
+                        key={`recipe-dot-${idx}-${recipe.name}`}
                         onClick={() => setSelectedRecipeIndex(idx)}
                         className={`
-                          flex-shrink-0 px-3 sm:px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200
+                          w-2 h-2 rounded-full transition-all duration-200
                           ${selectedRecipeIndex === idx 
-                            ? 'border-green-500 bg-green-50 text-green-700 shadow-sm' 
-                            : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                            ? 'bg-green-500' 
+                            : 'bg-gray-300 hover:bg-gray-400'
                           }
-                          ${recipe.saved ? 'ring-2 ring-green-200' : ''}
-                          ${recipe.error ? 'border-red-300 bg-red-50 text-red-700' : ''}
                         `}
-                      >
-                        <div className="flex items-center gap-1 sm:gap-2">
-                          {recipe.saved ? (
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          ) : recipe.error ? (
-                            <AlertCircle className="h-4 w-4 text-red-600" />
-                          ) : (
-                            <Edit className="h-4 w-4 text-gray-500" />
-                          )}
-                          <span className="hidden sm:inline">Recipe {idx + 1}</span>
-                          <span className="sm:hidden">{idx + 1}</span>
-                          {recipe.saved && (
-                            <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 hidden sm:inline">
-                              Saved
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1 truncate max-w-[80px] sm:max-w-[120px]">
-                          {recipe.name.length > 15 ? `${recipe.name.substring(0, 15)}...` : recipe.name}
-                        </div>
-                      </button>
+                      />
                     ))}
                   </div>
-                  
-                  {/* Scroll indicators */}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
-                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
                 </div>
-                
-                {/* Quick navigation dots */}
-                {editingRecipes.length > 6 && (
-                  <div className="flex justify-center mt-3">
-                    <div className="flex gap-1">
-                      {editingRecipes.map((recipe, idx) => (
-                        <button
-                          key={`recipe-dot-${idx}-${recipe.name}`}
-                          onClick={() => setSelectedRecipeIndex(idx)}
-                          className={`
-                            w-2 h-2 rounded-full transition-all duration-200
-                            ${selectedRecipeIndex === idx 
-                              ? 'bg-green-500' 
-                              : 'bg-gray-300 hover:bg-gray-400'
-                            }
-                          `}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
+            </div>
+          </div>
+        )}
 
-              {/* Only show the selected recipe */}
-              {editingRecipes[selectedRecipeIndex] && (
+        {/* Recipe editing card - full width */}
+        {editingRecipes.length > 0 && editingRecipes[selectedRecipeIndex] && (
+          <div className="w-full">
                 <Card 
                   key={selectedRecipeIndex} 
                   className={`
@@ -845,11 +851,9 @@ export function RecipeUploader() {
                     </CardContent>
                   )}
                 </Card>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
+              </div>
+            )}
+        </main>
     </div>
   );
 } 
