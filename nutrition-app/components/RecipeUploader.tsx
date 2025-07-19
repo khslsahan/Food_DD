@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, FileText, CheckCircle, XCircle, Edit, Save, Loader2, Eye, Search, Zap, Check, AlertCircle } from "lucide-react";
+import { Upload, FileText, CheckCircle, XCircle, Edit, Save, Loader2, Eye, Search, Zap, Check, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter, useSearchParams, useRouter as useNextRouter } from "next/navigation";
 import { DocumentPreview } from "./DocumentPreview";
 import { UploaderComponentEditor } from "./UploaderComponentEditor";
@@ -83,6 +83,35 @@ export function RecipeUploader() {
       nextRouter.replace(newParam, { scroll: false });
     }
   }, [selectedRecipeIndex, editingRecipes.length, nextRouter]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (editingRecipes.length === 0) return;
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault();
+          setSelectedRecipeIndex(prev => Math.max(0, prev - 1));
+          break;
+        case 'ArrowRight':
+          event.preventDefault();
+          setSelectedRecipeIndex(prev => Math.min(editingRecipes.length - 1, prev + 1));
+          break;
+        case 'Home':
+          event.preventDefault();
+          setSelectedRecipeIndex(0);
+          break;
+        case 'End':
+          event.preventDefault();
+          setSelectedRecipeIndex(editingRecipes.length - 1);
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [editingRecipes.length]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -474,39 +503,161 @@ export function RecipeUploader() {
             </div>
           </div>
 
-          {/* Tabs for recipe navigation */}
-          <Tabs value={String(selectedRecipeIndex)} className="mb-4">
-            <TabsList>
-              {editingRecipes.map((recipe, idx) => (
-                <TabsTrigger
-                  key={idx}
-                  value={String(idx)}
-                  onClick={() => setSelectedRecipeIndex(idx)}
-                  className={selectedRecipeIndex === idx ? "font-bold" : ""}
+          {/* Enhanced Tabs for recipe navigation */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Select Recipe to Edit:</h3>
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-muted-foreground">
+                  {editingRecipes.filter(r => r.saved).length} saved • {editingRecipes.filter(r => !r.saved).length} pending
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Use ← → keys to navigate
+                </div>
+              </div>
+            </div>
+            
+            {/* Recipe tabs with improved styling */}
+            <div className="relative">
+              {/* Navigation buttons */}
+              <div className="flex items-center gap-2 mb-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedRecipeIndex(Math.max(0, selectedRecipeIndex - 1))}
+                  disabled={selectedRecipeIndex === 0}
+                  className="flex items-center gap-1"
                 >
-                  Recipe {idx + 1}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                
+                <div className="flex-1 text-center">
+                  <span className="text-sm font-medium">
+                    Recipe {selectedRecipeIndex + 1} of {editingRecipes.length}
+                  </span>
+                </div>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedRecipeIndex(Math.min(editingRecipes.length - 1, selectedRecipeIndex + 1))}
+                  disabled={selectedRecipeIndex === editingRecipes.length - 1}
+                  className="flex items-center gap-1"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                {editingRecipes.map((recipe, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedRecipeIndex(idx)}
+                    className={`
+                      flex-shrink-0 px-4 py-2 rounded-lg border-2 font-medium text-sm transition-all duration-200
+                      ${selectedRecipeIndex === idx 
+                        ? 'border-green-500 bg-green-50 text-green-700 shadow-sm' 
+                        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                      }
+                      ${recipe.saved ? 'ring-2 ring-green-200' : ''}
+                      ${recipe.error ? 'border-red-300 bg-red-50 text-red-700' : ''}
+                    `}
+                  >
+                    <div className="flex items-center gap-2">
+                      {recipe.saved ? (
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      ) : recipe.error ? (
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                      ) : (
+                        <Edit className="h-4 w-4 text-gray-500" />
+                      )}
+                      <span>Recipe {idx + 1}</span>
+                      {recipe.saved && (
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
+                          Saved
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1 truncate max-w-[120px]">
+                      {recipe.name.length > 20 ? `${recipe.name.substring(0, 20)}...` : recipe.name}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Scroll indicators */}
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-8 h-8 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+            </div>
+            
+            {/* Quick navigation dots */}
+            {editingRecipes.length > 6 && (
+              <div className="flex justify-center mt-3">
+                <div className="flex gap-1">
+                  {editingRecipes.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedRecipeIndex(idx)}
+                      className={`
+                        w-2 h-2 rounded-full transition-all duration-200
+                        ${selectedRecipeIndex === idx 
+                          ? 'bg-green-500' 
+                          : 'bg-gray-300 hover:bg-gray-400'
+                        }
+                      `}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Only show the selected recipe */}
           {editingRecipes[selectedRecipeIndex] && (
-            <Card key={selectedRecipeIndex} className={editingRecipes[selectedRecipeIndex].saved ? "border-green-200 bg-green-50" : ""}>
-              <CardHeader>
+            <Card 
+              key={selectedRecipeIndex} 
+              className={`
+                transition-all duration-300
+                ${editingRecipes[selectedRecipeIndex].saved 
+                  ? "border-green-300 bg-green-50/50 shadow-lg" 
+                  : editingRecipes[selectedRecipeIndex].error
+                  ? "border-red-300 bg-red-50/50"
+                  : "border-gray-200 bg-white"
+                }
+              `}
+            >
+              <CardHeader className={editingRecipes[selectedRecipeIndex].saved ? "bg-green-100/50" : ""}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {editingRecipes[selectedRecipeIndex].saved ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="flex items-center gap-2 text-green-800">
+                            Recipe {selectedRecipeIndex + 1}: {editingRecipes[selectedRecipeIndex].name}
+                          </CardTitle>
+                          <Badge variant="secondary" className="bg-green-200 text-green-800 border-green-300">
+                            ✓ Saved
+                          </Badge>
+                        </div>
+                      </div>
                     ) : editingRecipes[selectedRecipeIndex].error ? (
-                      <AlertCircle className="h-5 w-5 text-red-500" />
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="h-5 w-5 text-red-500" />
+                        <CardTitle className="flex items-center gap-2 text-red-700">
+                          Recipe {selectedRecipeIndex + 1}: {editingRecipes[selectedRecipeIndex].name}
+                        </CardTitle>
+                      </div>
                     ) : (
-                      <Edit className="h-5 w-5 text-blue-500" />
+                      <div className="flex items-center gap-2">
+                        <Edit className="h-5 w-5 text-blue-500" />
+                        <CardTitle className="flex items-center gap-2">
+                          Recipe {selectedRecipeIndex + 1}: {editingRecipes[selectedRecipeIndex].name}
+                        </CardTitle>
+                      </div>
                     )}
-                    <CardTitle className="flex items-center gap-2">
-                      Recipe {selectedRecipeIndex + 1}: {editingRecipes[selectedRecipeIndex].name}
-                      {editingRecipes[selectedRecipeIndex].saved && <Badge variant="secondary" className="bg-green-100 text-green-800">Saved</Badge>}
-                    </CardTitle>
                   </div>
                   {!editingRecipes[selectedRecipeIndex].saved && (
                     <Button 
@@ -527,10 +678,18 @@ export function RecipeUploader() {
                       )}
                     </Button>
                   )}
+                  {editingRecipes[selectedRecipeIndex].saved && (
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="bg-green-100 text-green-700 border-green-300">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Successfully Saved
+                      </Badge>
+                    </div>
+                  )}
                 </div>
-                <CardDescription>
+                <CardDescription className={editingRecipes[selectedRecipeIndex].saved ? "text-green-700" : ""}>
                   {editingRecipes[selectedRecipeIndex].saved 
-                    ? "This recipe has been successfully saved to the database."
+                    ? "✅ This recipe has been successfully saved to the database and is ready for use."
                     : editingRecipes[selectedRecipeIndex].error
                     ? editingRecipes[selectedRecipeIndex].error
                     : "Review and edit the recipe data before saving."
@@ -609,7 +768,7 @@ export function RecipeUploader() {
                             id={`gourmet-meal-${selectedRecipeIndex}`}
                             checked={editingRecipes[selectedRecipeIndex].isGourmetMeal || false}
                             onChange={(e) => updateRecipeField(selectedRecipeIndex, "isGourmetMeal", e.target.checked)}
-                            className="h-4 w-4 rounded border-gray-300"
+                            className="text-sm"
                           />
                           <Label htmlFor={`gourmet-meal-${selectedRecipeIndex}`} className="text-sm">
                             Gourmet Meal
@@ -661,6 +820,46 @@ export function RecipeUploader() {
                           setEditingRecipes(updatedRecipes);
                         }}
                       />
+                    ))}
+                  </div>
+                </CardContent>
+              )}
+
+              {/* Show saved recipe summary */}
+              {editingRecipes[selectedRecipeIndex].saved && (
+                <CardContent className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <h3 className="font-semibold text-green-800">Recipe Successfully Saved</h3>
+                    </div>
+                    <div className="space-y-2 text-sm text-green-700">
+                      <p><strong>Recipe Name:</strong> {editingRecipes[selectedRecipeIndex].name}</p>
+                      <p><strong>Components:</strong> {editingRecipes[selectedRecipeIndex].components.length} component(s)</p>
+                      <p><strong>Total Ingredients:</strong> {editingRecipes[selectedRecipeIndex].components.reduce((total, comp) => total + comp.ingredients.length, 0)} ingredient(s)</p>
+                      {editingRecipes[selectedRecipeIndex].description && (
+                        <p><strong>Description:</strong> {editingRecipes[selectedRecipeIndex].description}</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Show components in read-only mode */}
+                  <div className="space-y-4">
+                    <Label className="text-lg font-semibold text-green-800">Recipe Components</Label>
+                    {editingRecipes[selectedRecipeIndex].components.map((component, componentIndex) => (
+                      <div key={componentIndex} className="border border-green-200 rounded-lg p-4 bg-green-50/30">
+                        <h4 className="font-medium text-green-800 mb-3">{component.name}</h4>
+                        <div className="space-y-2">
+                          {component.ingredients.map((ingredient, ingredientIndex) => (
+                            <div key={ingredientIndex} className="flex items-center justify-between text-sm">
+                              <span className="text-green-700">{ingredient.name}</span>
+                              <span className="text-green-600">
+                                {ingredient.quantity} {ingredient.unit}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </CardContent>
