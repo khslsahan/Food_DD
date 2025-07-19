@@ -24,7 +24,7 @@ interface DataTableProps<TData, TValue> {
   filterColumn?: string
 }
 
-export function DataTable<TData, TValue>({ columns, data, filterColumn = "meal_name" }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, filterColumn = "component_name" }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({ columns, data, filterColumn = "meal_n
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter..."
+          placeholder="Filter components..."
           value={(table.getColumn(filterColumn)?.getFilterValue() as string) ?? ""}
           onChange={(event) => table.getColumn(filterColumn)?.setFilterValue(event.target.value)}
           className="max-w-sm"
@@ -162,4 +162,4 @@ export function DataTable<TData, TValue>({ columns, data, filterColumn = "meal_n
       </div>
     </div>
   )
-}
+} 

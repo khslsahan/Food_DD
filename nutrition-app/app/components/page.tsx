@@ -6,7 +6,7 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Header } from "@/components/layout/header"
 import { getComponents } from "@/lib/data"
-import { DataTable } from "../meals/data-table"
+import { DataTable } from "./data-table"
 import { columns } from "./columns"
 
 export default async function ComponentsPage() {
