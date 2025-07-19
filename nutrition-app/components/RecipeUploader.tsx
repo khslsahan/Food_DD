@@ -14,6 +14,8 @@ import { useRouter, useSearchParams, useRouter as useNextRouter } from "next/nav
 import { DocumentPreview } from "./DocumentPreview";
 import { UploaderComponentEditor } from "./UploaderComponentEditor";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GetNutritionButton } from "./ui/get-nutrition-button";
+import { updateIngredientWithNutrition } from "@/lib/nutrition-utils";
 
 interface ExtractedIngredient {
   name: string;
@@ -265,75 +267,38 @@ export function RecipeUploader() {
     }
   };
 
-  const handleGetNutrition = async (recipeIndex: number, componentIndex: number, ingredientIndex: number) => {
+  // Unified nutrition handler for recipe uploader
+  const handleNutritionUpdate = (
+    recipeIndex: number, 
+    componentIndex: number, 
+    ingredientIndex: number, 
+    updatedIngredient: any
+  ) => {
     if (!editingRecipes[recipeIndex]) return;
 
-    const ingredient = editingRecipes[recipeIndex].components[componentIndex].ingredients[ingredientIndex];
-    const key = `${recipeIndex}-${componentIndex}-${ingredientIndex}`;
+    const updatedRecipes = [...editingRecipes];
+    const updatedComponents = [...updatedRecipes[recipeIndex].components];
+    const updatedIngredients = [...updatedComponents[componentIndex].ingredients];
     
-    setLoadingNutrition(prev => ({ ...prev, [key]: true }));
+    updatedIngredients[ingredientIndex] = {
+      ...updatedIngredients[ingredientIndex],
+      calories: updatedIngredient.calories,
+      fat: updatedIngredient.fat,
+      protein: updatedIngredient.protein,
+      carbohydrates: updatedIngredient.carbohydrates,
+    };
 
-    try {
-      const response = await fetch("/api/nutrition-lookup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ingredientName: ingredient.name,
-          quantity: ingredient.quantity,
-          unit: ingredient.unit,
-        }),
-      });
+    updatedComponents[componentIndex] = {
+      ...updatedComponents[componentIndex],
+      ingredients: updatedIngredients,
+    };
 
-      const data = await response.json();
+    updatedRecipes[recipeIndex] = {
+      ...updatedRecipes[recipeIndex],
+      components: updatedComponents,
+    };
 
-      if (response.ok && data.nutrition) {
-        // Update the ingredient with nutrition data
-        const updatedRecipes = [...editingRecipes];
-        const updatedComponents = [...updatedRecipes[recipeIndex].components];
-        const updatedIngredients = [...updatedComponents[componentIndex].ingredients];
-        
-        // Extract nutrition data from the response
-        const nutrition = data.nutrition;
-        if (nutrition.macros) {
-          updatedIngredients[ingredientIndex] = {
-            ...updatedIngredients[ingredientIndex],
-            calories: nutrition.macros.calories || ingredient.calories,
-            fat: nutrition.macros.fat || ingredient.fat,
-            protein: nutrition.macros.protein || ingredient.protein,
-            carbohydrates: nutrition.macros.carbohydrates || ingredient.carbohydrates,
-          };
-        }
-
-        updatedComponents[componentIndex] = {
-          ...updatedComponents[componentIndex],
-          ingredients: updatedIngredients,
-        };
-
-        updatedRecipes[recipeIndex] = {
-          ...updatedRecipes[recipeIndex],
-          components: updatedComponents,
-        };
-
-        setEditingRecipes(updatedRecipes);
-        
-        toast({
-          title: "Nutrition data updated",
-          description: `Nutritional information for ${ingredient.name} has been fetched and updated.`,
-        });
-      } else {
-        throw new Error(data.error || "Failed to fetch nutrition data");
-      }
-    } catch (error) {
-      toast({
-        title: "Nutrition lookup failed",
-        description: error instanceof Error ? error.message : "An error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingNutrition(prev => ({ ...prev, [key]: false }));
-    }
+    setEditingRecipes(updatedRecipes);
   };
 
   const updateRecipeField = (recipeIndex: number, field: keyof ExtractedRecipe, value: any) => {

@@ -7,6 +7,8 @@ import { Button } from "./ui/button";
 import { XCircle, Zap, Loader2 } from "lucide-react";
 import { IngredientRow, IngredientInput } from "./IngredientRow";
 import { useToast } from "./ui/use-toast";
+import { GetNutritionButton } from "./ui/get-nutrition-button";
+import { updateIngredientWithNutrition } from "@/lib/nutrition-utils";
 
 interface PortionInput {
   label: string;
@@ -126,161 +128,31 @@ export function UploaderComponentEditor({
     onChange(componentIndex, { ...component, portions: [updatedPortion] });
   };
 
-  // Nutrition API fetch (with fallback and error handling)
-  const fetchNutrition = async (idx: number) => {
-    const ingredient = component.ingredients[idx];
-    if (!ingredient.name || !ingredient.quantity) return;
-    setLoadingIdx(idx);
-    try {
-      // 1. Try main nutrition API
-      let res = await fetch("/api/nutrition-lookup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ingredientName: ingredient.name,
-          quantity: ingredient.quantity,
-          unit: "g",
-        }),
-      });
-      if (res.status === 429) {
-        toast({
-          title: "Nutrition API Rate Limit",
-          description: "You have reached the nutrition API rate limit. Please try again later or update your API token.",
-          variant: "destructive"
-        });
-        return;
-      }
-      let data = await res.json();
-      if (res.status === 404 || (data.nutrition && data.nutrition.status === 404)) {
-        // 2. Try Edamam fallback
-        let edamamRes = await fetch("/api/edamam-proxy", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ingredient: ingredient.name,
-            quantity: ingredient.quantity,
-            unit: "g",
-          }),
-        });
-        let edamamData = await edamamRes.json();
-        if (
-          edamamRes.status === 429 ||
-          (edamamData.status === "error" && edamamData.message && edamamData.message.toLowerCase().includes("usage limits"))
-        ) {
-          toast({
-            title: "Edamam API Rate Limit",
-            description: "You have reached the Edamam API rate limit. Please try again later or update your Edamam API token.",
-            variant: "destructive"
-          });
-          return;
-        }
-        if (edamamRes.ok && edamamData.macros) {
-          // Update with Edamam macros
-          const macros = edamamData.macros;
-          const qty = Number(ingredient.quantity) || 100;
-          const factor = qty / 100;
-          const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
-            i === idx
-              ? {
-                  ...ing,
-                  calories: macros.calories ? (Number(macros.calories) * factor).toFixed(2) : "",
-                  fat: macros.fat ? (Number(macros.fat) * factor).toFixed(2) : "",
-                  protein: macros.protein ? (Number(macros.protein) * factor).toFixed(2) : "",
-                  carbohydrates: macros.carbohydrates ? (Number(macros.carbohydrates) * factor).toFixed(2) : "",
-                  caloriesPer100g: macros.calories?.toString() ?? "",
-                  fatPer100g: macros.fat?.toString() ?? "",
-                  proteinPer100g: macros.protein?.toString() ?? "",
-                  carbohydratesPer100g: macros.carbohydrates?.toString() ?? "",
-                }
-              : ing
-          );
-          onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-          return;
-        } else {
-          // 3. Try ChatGPT fallback
-          let gptRes = await fetch("/api/gpt-nutrition", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ingredient: ingredient.name }),
-          });
-          let gptMacros = await gptRes.json();
-          if (gptRes.ok && gptMacros) {
-            const qty = Number(ingredient.quantity) || 100;
-            const factor = qty / 100;
-            const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
-              i === idx
-                ? {
-                    ...ing,
-                    calories: gptMacros.calories ? (Number(gptMacros.calories) * factor).toFixed(2) : "",
-                    fat: gptMacros.fat ? (Number(gptMacros.fat) * factor).toFixed(2) : "",
-                    protein: gptMacros.protein ? (Number(gptMacros.protein) * factor).toFixed(2) : "",
-                    carbohydrates: gptMacros.carbs ? (Number(gptMacros.carbs) * factor).toFixed(2) : "",
-                    caloriesPer100g: gptMacros.calories?.toString() ?? "",
-                    fatPer100g: gptMacros.fat?.toString() ?? "",
-                    proteinPer100g: gptMacros.protein?.toString() ?? "",
-                    carbohydratesPer100g: gptMacros.carbs?.toString() ?? "",
-                  }
-                : ing
-            );
-            onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-            return;
-          } else {
-            toast({
-              title: "Nutrition Not Found",
-              description: "Could not find nutrition data for this ingredient in any source.",
-              variant: "destructive"
-            });
-            return;
-          }
-        }
-      }
-      // If main API returns macros, update as normal
-      if (res.ok && data.nutrition && data.nutrition.macros) {
-        const macros = data.nutrition.macros;
-        const qty = Number(ingredient.quantity) || 100;
-        const factor = qty / 100;
-        const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
-          i === idx
-            ? {
-                ...ing,
-                calories: macros.calories ? (Number(macros.calories) * factor).toFixed(2) : "",
-                fat: macros.fat ? (Number(macros.fat) * factor).toFixed(2) : "",
-                protein: macros.protein ? (Number(macros.protein) * factor).toFixed(2) : "",
-                carbohydrates: macros.carbohydrates ? (Number(macros.carbohydrates) * factor).toFixed(2) : "",
-                caloriesPer100g: macros.calories?.toString() ?? "",
-                fatPer100g: macros.fat?.toString() ?? "",
-                proteinPer100g: macros.protein?.toString() ?? "",
-                carbohydratesPer100g: macros.carbohydrates?.toString() ?? "",
-              }
-            : ing
-        );
-        onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-      } else {
-        toast({
-          title: "Nutrition Lookup Error",
-          description: data.error || "Unknown error occurred during nutrition lookup.",
-          variant: "destructive"
-        });
-      }
-    } catch (e) {
-      toast({
-        title: "Nutrition Lookup Error",
-        description: e instanceof Error ? e.message : "Unknown error occurred during nutrition lookup.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoadingIdx(null);
-    }
+  // Unified nutrition fetch handler
+  const handleNutritionUpdate = (idx: number, updatedIngredient: any) => {
+    const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
+      i === idx ? {
+        ...updatedIngredient,
+        quantity: updatedIngredient.quantity?.toString() || "100"
+      } : ing
+    );
+    onChange(componentIndex, { ...component, ingredients: updatedIngredients });
+  };
+
+  // Wrapper function to match expected signature
+  const fetchNutritionWrapper = (idx: number) => {
+    // This will be handled by the unified button system
   };
 
   // Fetch ingredient suggestions as user types
   const fetchIngredientSuggestions = async (idx: number, value: string) => {
-    if (!value) {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
       setIngredientSuggestions([]);
       setShowSuggestions(false);
       return;
     }
-    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(value)}`);
+    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(trimmedValue)}`);
     if (res.ok) {
       const data = await res.json();
       setIngredientSuggestions(data);
@@ -390,7 +262,9 @@ export function UploaderComponentEditor({
               showRemove={component.ingredients.length > 1}
               onChange={handleIngredientChange}
               onRemove={removeIngredient}
-              fetchNutrition={fetchNutrition}
+              fetchNutrition={fetchNutritionWrapper}
+              useUnifiedButton={true}
+              onNutritionUpdate={(updatedIngredient) => handleNutritionUpdate(idx, updatedIngredient)}
               inputRef={el => { ingredientInputRefs.current[idx] = el; }}
             />
           ))}

@@ -4,14 +4,16 @@ import React, { useRef, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Zap, Loader2 } from "lucide-react";
+import { GetNutritionButton } from "./ui/get-nutrition-button";
+import { IngredientInput as UnifiedIngredientInput } from "@/lib/nutrition-utils";
 
 export interface IngredientInput {
   name: string;
   quantity: string;
-  calories: string;
-  fat: string;
-  protein: string;
-  carbohydrates: string;
+  calories?: string;
+  fat?: string;
+  protein?: string;
+  carbohydrates?: string;
   caloriesPer100g?: string;
   fatPer100g?: string;
   proteinPer100g?: string;
@@ -27,6 +29,8 @@ interface IngredientRowProps {
   onRemove: (idx: number) => void;
   fetchNutrition: (idx: number) => void;
   inputRef?: (el: HTMLInputElement | null) => void;
+  useUnifiedButton?: boolean;
+  onNutritionUpdate?: (updatedIngredient: UnifiedIngredientInput) => void;
 }
 
 export function IngredientRow({
@@ -38,17 +42,20 @@ export function IngredientRow({
   onRemove,
   fetchNutrition,
   inputRef,
+  useUnifiedButton = false,
+  onNutritionUpdate,
 }: IngredientRowProps) {
   const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
   const fetchIngredientSuggestions = async (value: string) => {
-    if (!value) {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
       setIngredientSuggestions([]);
       setShowSuggestions(false);
       return;
     }
-    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(value)}`);
+    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(trimmedValue)}`);
     if (res.ok) {
       const data = await res.json();
       setIngredientSuggestions(data);
@@ -71,6 +78,24 @@ export function IngredientRow({
     });
     setShowSuggestions(false);
     setIngredientSuggestions([]);
+  };
+
+  const handleNutritionUpdate = (updatedIngredient: UnifiedIngredientInput) => {
+    if (onNutritionUpdate) {
+      onNutritionUpdate(updatedIngredient);
+    } else {
+      // Fallback to old method
+      onChange(idx, {
+        calories: updatedIngredient.calories || "",
+        fat: updatedIngredient.fat || "",
+        protein: updatedIngredient.protein || "",
+        carbohydrates: updatedIngredient.carbohydrates || "",
+        caloriesPer100g: updatedIngredient.caloriesPer100g || "",
+        fatPer100g: updatedIngredient.fatPer100g || "",
+        proteinPer100g: updatedIngredient.proteinPer100g || "",
+        carbohydratesPer100g: updatedIngredient.carbohydratesPer100g || "",
+      });
+    }
   };
 
   return (
@@ -108,16 +133,27 @@ export function IngredientRow({
           onChange={e => onChange(idx, "quantity", e.target.value)}
           required
         />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={!ingredient.name || loading}
-          onClick={() => fetchNutrition(idx)}
-        >
-          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
-          Get Nutrition
-        </Button>
+        {useUnifiedButton ? (
+          <GetNutritionButton
+            ingredient={{
+              ...ingredient,
+              unit: "g" // Ensure unit is always "g" for consistency
+            } as UnifiedIngredientInput}
+            onNutritionUpdate={handleNutritionUpdate}
+            disabled={loading}
+          />
+        ) : (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={!ingredient.name || loading}
+            onClick={() => fetchNutrition(idx)}
+          >
+            {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" />}
+            Get Nutrition
+          </Button>
+        )}
         {showRemove && (
           <Button type="button" variant="destructive" size="icon" onClick={() => onRemove(idx)}>
             -

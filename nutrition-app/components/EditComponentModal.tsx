@@ -16,6 +16,8 @@ import { Label } from "./ui/label";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import { IngredientRow, IngredientInput } from "./IngredientRow";
+import { GetNutritionButton } from "./ui/get-nutrition-button";
+import { updateIngredientWithNutrition } from "@/lib/nutrition-utils";
 
 interface PortionInput {
   label: string;
@@ -207,51 +209,11 @@ export function EditComponentModal({
     }
   };
 
-  // Edamam API fetch (frontend demo only)
-  const fetchNutrition = async (idx: number) => {
-    const ingredient = ingredients[idx];
-    if (!ingredient.name) return;
-    setLoadingIdx(idx);
-    try {
-      const ingr = `${ingredient.quantity || 100}g ${ingredient.name}`;
-      const res = await fetch("/api/edamam-proxy", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingr }),
-      });
-      const data = await res.json();
-      let nutrients = null;
-      if (data.totalNutrients) {
-        nutrients = data.totalNutrients;
-      } else if (
-        data.ingredients &&
-        data.ingredients[0] &&
-        data.ingredients[0].parsed &&
-        data.ingredients[0].parsed[0] &&
-        data.ingredients[0].parsed[0].nutrients
-      ) {
-        nutrients = data.ingredients[0].parsed[0].nutrients;
-      }
-      if (nutrients) {
-        setIngredients((prev) => prev.map((ing, i) =>
-          i === idx
-            ? {
-                ...ing,
-                calories: Math.round(nutrients.ENERC_KCAL?.quantity || 0).toString(),
-                fat: Math.round(nutrients.FAT?.quantity || 0).toString(),
-                protein: Math.round(nutrients.PROCNT?.quantity || 0).toString(),
-                carbohydrates: Math.round(nutrients.CHOCDF?.quantity || 0).toString(),
-              }
-            : ing
-        ));
-      } else {
-        alert("No nutrition data found.");
-      }
-    } catch (e) {
-      alert("Failed to fetch nutrition data");
-    } finally {
-      setLoadingIdx(null);
-    }
+  // Unified nutrition fetch handler
+  const handleNutritionUpdate = (idx: number, updatedIngredient: IngredientInput) => {
+    setIngredients((prev) => prev.map((ing, i) =>
+      i === idx ? updatedIngredient : ing
+    ));
   };
 
   return (
@@ -309,11 +271,15 @@ export function EditComponentModal({
                   key={idx}
                   ingredient={ingredient}
                   idx={idx}
-                  loading={loadingIdx === idx}
+                  loading={false} // Loading is now handled by GetNutritionButton
                   showRemove={ingredients.length > 1}
                   onChange={handleIngredientChange}
                   onRemove={removeIngredient}
-                  fetchNutrition={fetchNutrition}
+                  fetchNutrition={(idx) => {
+                    // This will be handled by GetNutritionButton component
+                  }}
+                  useUnifiedButton={true}
+                  onNutritionUpdate={(updatedIngredient) => handleNutritionUpdate(idx, updatedIngredient)}
                 />
               ))}
               <Button type="button" variant="secondary" onClick={addIngredient}>

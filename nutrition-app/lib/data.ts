@@ -53,8 +53,9 @@ export async function getPortionOptions(mealId?: number) {
 
 // CRUD operations for Ingredients
 export async function getIngredients(search?: string) {
-  const where = search
-    ? { ingredient_name: { contains: search, mode: 'insensitive' as const } }
+  const trimmedSearch = search?.trim();
+  const where = trimmedSearch
+    ? { ingredient_name: { contains: trimmedSearch, mode: 'insensitive' as const } }
     : undefined;
   const ingredients = await prisma.ingredients.findMany({
     where,
