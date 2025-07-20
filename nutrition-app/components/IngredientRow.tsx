@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useCallback, useMemo, forwardRef } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Zap, Loader2, Save } from "lucide-react";
 import { GetNutritionButton } from "./ui/get-nutrition-button";
 import { IngredientInput as UnifiedIngredientInput } from "@/lib/nutrition-utils";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 export interface IngredientInput {
   name: string;
@@ -34,6 +35,74 @@ interface IngredientRowProps {
   onNutritionUpdate?: (updatedIngredient: UnifiedIngredientInput) => void;
 }
 
+// Custom input component that preserves cursor position
+const CursorPreservingInput = forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, onChange, value, ...props }, ref) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const cursorPositionRef = useRef<number>(0);
+    const isFocusedRef = useRef<boolean>(false);
+
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+      // Store cursor position before the change
+      cursorPositionRef.current = e.target.selectionStart || 0;
+      
+      // Call the original onChange
+      if (onChange) {
+        onChange(e);
+      }
+    }, [onChange]);
+
+    const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+      isFocusedRef.current = true;
+      cursorPositionRef.current = e.target.selectionStart || 0;
+    }, []);
+
+    const handleBlur = useCallback(() => {
+      isFocusedRef.current = false;
+    }, []);
+
+    // Restore cursor position after render
+    React.useEffect(() => {
+      if (inputRef.current && isFocusedRef.current && cursorPositionRef.current > 0) {
+        const input = inputRef.current;
+        const position = Math.min(cursorPositionRef.current, input.value.length);
+        
+        // Use a small delay to ensure DOM is updated
+        setTimeout(() => {
+          if (input && document.activeElement === input) {
+            input.setSelectionRange(position, position);
+          }
+        }, 0);
+      }
+    });
+
+    return (
+      <input
+        ref={(el) => {
+          // Handle both refs
+          if (typeof ref === 'function') {
+            ref(el);
+          } else if (ref) {
+            ref.current = el;
+          }
+          inputRef.current = el;
+        }}
+        className={cn(
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          className
+        )}
+        value={value}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        {...props}
+      />
+    );
+  }
+);
+
+CursorPreservingInput.displayName = "CursorPreservingInput";
+
 export function IngredientRow({
   ingredient,
   idx,
@@ -49,24 +118,53 @@ export function IngredientRow({
   const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [savingMacros, setSavingMacros] = useState(false);
+  const [suggestionTimeout, setSuggestionTimeout] = useState<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
-  const fetchIngredientSuggestions = async (value: string) => {
+  // Memoize the fetchIngredientSuggestions function to prevent unnecessary re-renders
+  const fetchIngredientSuggestions = useCallback(async (value: string) => {
     const trimmedValue = value.trim();
     if (!trimmedValue) {
       setIngredientSuggestions([]);
       setShowSuggestions(false);
       return;
     }
-    const res = await fetch(`/api/ingredients?search=${encodeURIComponent(trimmedValue)}`);
-    if (res.ok) {
-      const data = await res.json();
-      setIngredientSuggestions(data);
-      setShowSuggestions(true);
+    
+    try {
+      const res = await fetch(`/api/ingredients?search=${encodeURIComponent(trimmedValue)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setIngredientSuggestions(data);
+        setShowSuggestions(true);
+      }
+    } catch (error) {
+      console.error("Error fetching ingredient suggestions:", error);
     }
-  };
+  }, []);
 
-  const handleSuggestionClick = (suggestion: any) => {
+  // Debounced version of fetchIngredientSuggestions
+  const debouncedFetchSuggestions = useCallback((value: string) => {
+    if (suggestionTimeout) {
+      clearTimeout(suggestionTimeout);
+    }
+    
+    const timeout = setTimeout(() => {
+      fetchIngredientSuggestions(value);
+    }, 300); // 300ms delay
+    
+    setSuggestionTimeout(timeout);
+  }, [fetchIngredientSuggestions, suggestionTimeout]);
+
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (suggestionTimeout) {
+        clearTimeout(suggestionTimeout);
+      }
+    };
+  }, [suggestionTimeout]);
+
+  const handleSuggestionClick = useCallback((suggestion: any) => {
     onChange(idx, {
       name: suggestion.ingredient_name,
       calories: suggestion.calories_per_100g?.toString() ?? "",
@@ -81,9 +179,9 @@ export function IngredientRow({
     });
     setShowSuggestions(false);
     setIngredientSuggestions([]);
-  };
+  }, [onChange, idx, ingredient.quantity]);
 
-  const handleNutritionUpdate = (updatedIngredient: UnifiedIngredientInput) => {
+  const handleNutritionUpdate = useCallback((updatedIngredient: UnifiedIngredientInput) => {
     if (onNutritionUpdate) {
       onNutritionUpdate(updatedIngredient);
     } else {
@@ -99,9 +197,9 @@ export function IngredientRow({
         carbohydratesPer100g: updatedIngredient.carbohydratesPer100g || "",
       });
     }
-  };
+  }, [onNutritionUpdate, onChange, idx]);
 
-  const handleSaveMacros = async () => {
+  const handleSaveMacros = useCallback(async () => {
     if (!ingredient.name || !ingredient.calories || !ingredient.fat || !ingredient.protein || !ingredient.carbohydrates) {
       toast({
         title: "Missing Data",
@@ -181,7 +279,55 @@ export function IngredientRow({
     } finally {
       setSavingMacros(false);
     }
-  };
+  }, [ingredient, toast]);
+
+  // Memoize the ingredient name change handler to prevent unnecessary re-renders
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    onChange(idx, "name", value);
+    debouncedFetchSuggestions(value);
+  }, [onChange, idx, debouncedFetchSuggestions]);
+
+  // Memoize other change handlers
+  const handleQuantityChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(idx, "quantity", e.target.value);
+  }, [onChange, idx]);
+
+  const handleCaloriesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(idx, "calories", e.target.value);
+  }, [onChange, idx]);
+
+  const handleFatChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(idx, "fat", e.target.value);
+  }, [onChange, idx]);
+
+  const handleProteinChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(idx, "protein", e.target.value);
+  }, [onChange, idx]);
+
+  const handleCarbohydratesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(idx, "carbohydrates", e.target.value);
+  }, [onChange, idx]);
+
+  const handleRemove = useCallback(() => {
+    onRemove(idx);
+  }, [onRemove, idx]);
+
+  const handleFocus = useCallback(() => {
+    if (ingredientSuggestions.length > 0) {
+      setShowSuggestions(true);
+    }
+  }, [ingredientSuggestions.length]);
+
+  const handleBlur = useCallback(() => {
+    setTimeout(() => setShowSuggestions(false), 150);
+  }, []);
+
+  // Memoize the unified ingredient object to prevent unnecessary re-renders
+  const unifiedIngredient = useMemo(() => ({
+    ...ingredient,
+    unit: "g" // Ensure unit is always "g" for consistency
+  } as UnifiedIngredientInput), [ingredient]);
 
   return (
     <div className="flex flex-col gap-3 border p-3 rounded-md bg-gray-50">
@@ -189,22 +335,19 @@ export function IngredientRow({
       <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center relative">
         {/* Ingredient name input with suggestions */}
         <div className="relative flex-1 w-full sm:w-auto">
-          <Input
+          <CursorPreservingInput
             placeholder="Ingredient Name"
             value={ingredient.name}
-            onChange={e => {
-              onChange(idx, "name", e.target.value);
-              fetchIngredientSuggestions(e.target.value);
-            }}
-            onFocus={() => ingredientSuggestions.length > 0 && setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            onChange={handleNameChange}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
             required
             ref={inputRef}
             className="w-full"
           />
           {showSuggestions && ingredientSuggestions.length > 0 && (
             <div className="absolute z-10 bg-white border rounded shadow w-full top-12 left-0 max-h-40 overflow-y-auto">
-              {ingredientSuggestions.map((suggestion, sidx) => (
+              {ingredientSuggestions.map((suggestion) => (
                 <div
                   key={suggestion.ingredient_id}
                   className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
@@ -218,11 +361,11 @@ export function IngredientRow({
         </div>
         
         {/* Quantity input */}
-        <Input
+        <CursorPreservingInput
           placeholder="Quantity (g)"
           type="number"
           value={ingredient.quantity}
-          onChange={e => onChange(idx, "quantity", e.target.value)}
+          onChange={handleQuantityChange}
           required
           className="w-full sm:w-24"
         />
@@ -231,10 +374,7 @@ export function IngredientRow({
         <div className="flex gap-2 w-full sm:w-auto">
           {useUnifiedButton ? (
             <GetNutritionButton
-              ingredient={{
-                ...ingredient,
-                unit: "g" // Ensure unit is always "g" for consistency
-              } as UnifiedIngredientInput}
+              ingredient={unifiedIngredient}
               onNutritionUpdate={handleNutritionUpdate}
               disabled={loading}
               className="flex-1 sm:flex-none"
@@ -271,7 +411,7 @@ export function IngredientRow({
               type="button" 
               variant="destructive" 
               size="icon" 
-              onClick={() => onRemove(idx)}
+              onClick={handleRemove}
               className="flex-shrink-0"
             >
               -
@@ -282,35 +422,35 @@ export function IngredientRow({
       
       {/* Nutrition inputs - responsive grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <Input
+        <CursorPreservingInput
           placeholder="Calories (per 100g)"
           type="number"
           value={ingredient.calories ?? ""}
-          onChange={e => onChange(idx, "calories", e.target.value)}
+          onChange={handleCaloriesChange}
           required
           className="text-sm"
         />
-        <Input
+        <CursorPreservingInput
           placeholder="Fat (g)"
           type="number"
           value={ingredient.fat ?? ""}
-          onChange={e => onChange(idx, "fat", e.target.value)}
+          onChange={handleFatChange}
           required
           className="text-sm"
         />
-        <Input
+        <CursorPreservingInput
           placeholder="Protein (g)"
           type="number"
           value={ingredient.protein ?? ""}
-          onChange={e => onChange(idx, "protein", e.target.value)}
+          onChange={handleProteinChange}
           required
           className="text-sm"
         />
-        <Input
+        <CursorPreservingInput
           placeholder="Carbohydrates (g)"
           type="number"
           value={ingredient.carbohydrates ?? ""}
-          onChange={e => onChange(idx, "carbohydrates", e.target.value)}
+          onChange={handleCarbohydratesChange}
           required
           className="text-sm"
         />

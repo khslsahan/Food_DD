@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -83,7 +83,7 @@ export function EditComponentModal({
     setSelectedCategory(initialCategoryId || "");
   }, [initialCategoryId, open]);
 
-  const handleIngredientChange = (
+  const handleIngredientChange = useCallback((
     idx: number,
     fieldOrObject: keyof IngredientInput | Partial<IngredientInput>,
     value?: string
@@ -144,32 +144,32 @@ export function EditComponentModal({
         }
       })
     );
-  };
+  }, []);
 
-  const addIngredient = () => {
+  const addIngredient = useCallback(() => {
     setIngredients((prev) => [
       ...prev,
       { name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" },
     ]);
-  };
+  }, []);
 
-  const removeIngredient = (idx: number) => {
+  const removeIngredient = useCallback((idx: number) => {
     setIngredients((prev) => prev.filter((_, i) => i !== idx));
-  };
+  }, []);
 
-  const handlePortionChange = (idx: number, field: "label" | "total_weight_g", value: string) => {
+  const handlePortionChange = useCallback((idx: number, field: "label" | "total_weight_g", value: string) => {
     setPortions((prev) => prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p)));
-  };
+  }, []);
 
-  const addPortion = () => {
+  const addPortion = useCallback(() => {
     setPortions((prev) => [...prev, { label: "2P", total_weight_g: "" }]);
-  };
+  }, []);
 
-  const removePortion = (idx: number) => {
+  const removePortion = useCallback((idx: number) => {
     setPortions((prev) => prev.filter((_, i) => i !== idx));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     // Convert all ingredient nutrition values to per 100g
@@ -189,7 +189,6 @@ export function EditComponentModal({
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          meal_id: mealId,
           component_name: componentName,
           before_cook_weight_g: beforeCookWeight,
           after_cook_weight_g: afterCookWeight,
@@ -200,21 +199,28 @@ export function EditComponentModal({
       });
       if (!res.ok) throw new Error("Failed to update component");
       setOpen(false);
-      toast({ title: "Component updated!", description: "The component was updated successfully." });
       router.refresh();
+      toast({ title: "Component updated!", description: "The component was updated successfully." });
     } catch (err) {
       toast({ title: "Failed to update component", description: "Please try again.", variant: "destructive" });
     } finally {
       setSaving(false);
     }
-  };
+  }, [componentId, componentName, beforeCookWeight, afterCookWeight, ingredients, portions, selectedCategory, router, toast, setOpen]);
 
   // Unified nutrition fetch handler
-  const handleNutritionUpdate = (idx: number, updatedIngredient: any) => {
-    setIngredients((prev) => prev.map((ing, i) =>
-      i === idx ? updatedIngredient : ing
-    ));
-  };
+  const handleNutritionUpdate = useCallback((idx: number, updatedIngredient: any) => {
+    setIngredients((prev) => {
+      const newIngredients = prev.map((ing, i) =>
+        i === idx ? {
+          ...updatedIngredient,
+          quantity: updatedIngredient.quantity?.toString() || "100"
+        } : ing
+      );
+      
+      return newIngredients;
+    });
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -268,7 +274,7 @@ export function EditComponentModal({
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
                 <IngredientRow
-                  key={`edit-ingredient-${idx}-${ingredient.name}-${ingredient.quantity}`}
+                  key={`edit-ingredient-${idx}`}
                   ingredient={ingredient}
                   idx={idx}
                   loading={false} // Loading is now handled by GetNutritionButton

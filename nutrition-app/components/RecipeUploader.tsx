@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -116,7 +116,7 @@ export function RecipeUploader() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [editingRecipes.length]);
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       if (!selectedFile.name.endsWith('.docx')) {
@@ -129,9 +129,9 @@ export function RecipeUploader() {
       }
       setFile(selectedFile);
     }
-  };
+  }, [toast]);
 
-  const handleUpload = async () => {
+  const handleUpload = useCallback(async () => {
     if (!file) return;
 
     setUploading(true);
@@ -175,9 +175,9 @@ export function RecipeUploader() {
     } finally {
       setUploading(false);
     }
-  };
+  }, [file, toast]);
 
-  const handleSaveRecipe = async (recipeIndex: number) => {
+  const handleSaveRecipe = useCallback(async (recipeIndex: number) => {
     if (!editingRecipes[recipeIndex] || !fileName) return;
 
     // Update the recipe status to saving
@@ -203,7 +203,6 @@ export function RecipeUploader() {
       const data = await response.json();
 
       if (response.ok) {
-        // Mark recipe as saved
         setEditingRecipes(prev => prev.map((recipe, idx) => 
           idx === recipeIndex 
             ? { ...recipe, saved: true, saving: false, error: undefined }
@@ -212,115 +211,77 @@ export function RecipeUploader() {
         
         toast({
           title: "Recipe saved successfully",
-          description: `"${editingRecipes[recipeIndex].name}" has been added to the database.`,
+          description: `${editingRecipes[recipeIndex].name} has been saved to the database.`,
         });
-        
-        // Check if all recipes are saved
-        const allSaved = editingRecipes.every((recipe, idx) => 
-          idx === recipeIndex ? true : recipe.saved
-        );
-        
-        if (allSaved) {
-          // Reset form after a delay
-          setTimeout(() => {
-            setFile(null);
-            setExtractedRecipes([]);
-            setEditingRecipes([]);
-            setFileName("");
-            setShowPreview(false);
-            setDocumentContent("");
-            if (fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
-            router.refresh();
-          }, 2000);
-        }
       } else {
-        // Handle specific error types
-        if (response.status === 409 && data.code === "DUPLICATE_MEAL_NAME") {
-          setEditingRecipes(prev => prev.map((recipe, idx) => 
-            idx === recipeIndex 
-              ? { ...recipe, saving: false, error: data.error }
-              : recipe
-          ));
-          
-          toast({
-            title: "Duplicate Recipe Name",
-            description: data.error,
-            variant: "destructive",
-          });
-        } else {
-          throw new Error(data.error || "Save failed");
-        }
+        throw new Error(data.error || "Save failed");
       }
     } catch (error) {
       setEditingRecipes(prev => prev.map((recipe, idx) => 
         idx === recipeIndex 
-          ? { ...recipe, saving: false, error: error instanceof Error ? error.message : "An error occurred" }
+          ? { ...recipe, saving: false, error: error instanceof Error ? error.message : "Save failed" }
           : recipe
       ));
       
       toast({
         title: "Save failed",
-        description: error instanceof Error ? error.message : "An error occurred",
+        description: error instanceof Error ? error.message : "An error occurred while saving",
         variant: "destructive",
       });
     }
-  };
+  }, [editingRecipes, fileName, toast]);
 
-  // Unified nutrition handler for recipe uploader
-  const handleNutritionUpdate = (
+  const handleNutritionUpdate = useCallback((
     recipeIndex: number, 
     componentIndex: number, 
     ingredientIndex: number, 
     updatedIngredient: any
   ) => {
     if (!editingRecipes[recipeIndex]) return;
-
+    
     const updatedRecipes = [...editingRecipes];
     const updatedComponents = [...updatedRecipes[recipeIndex].components];
     const updatedIngredients = [...updatedComponents[componentIndex].ingredients];
     
     updatedIngredients[ingredientIndex] = {
       ...updatedIngredients[ingredientIndex],
+      ...updatedIngredient,
       calories: updatedIngredient.calories,
       fat: updatedIngredient.fat,
       protein: updatedIngredient.protein,
       carbohydrates: updatedIngredient.carbohydrates,
     };
-
+    
     updatedComponents[componentIndex] = {
       ...updatedComponents[componentIndex],
       ingredients: updatedIngredients,
     };
-
-    updatedRecipes[recipeIndex] = {
-      ...updatedRecipes[recipeIndex],
-      components: updatedComponents,
+    
+    updatedRecipes[recipeIndex] = { 
+      ...updatedRecipes[recipeIndex], 
+      components: updatedComponents 
     };
-
+    
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
-  const updateRecipeField = (recipeIndex: number, field: keyof ExtractedRecipe, value: any) => {
+  const updateRecipeField = useCallback((recipeIndex: number, field: keyof ExtractedRecipe, value: any) => {
     if (!editingRecipes[recipeIndex]) return;
-    setEditingRecipes(prev => prev.map((recipe, idx) => 
-      idx === recipeIndex 
-        ? { ...recipe, [field]: value }
-        : recipe
-    ));
-  };
+    const updatedRecipes = [...editingRecipes];
+    updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], [field]: value };
+    setEditingRecipes(updatedRecipes);
+  }, [editingRecipes]);
 
-  const updateComponentField = (recipeIndex: number, componentIndex: number, field: keyof ExtractedComponent, value: any) => {
+  const updateComponentField = useCallback((recipeIndex: number, componentIndex: number, field: keyof ExtractedComponent, value: any) => {
     if (!editingRecipes[recipeIndex]) return;
     const updatedRecipes = [...editingRecipes];
     const updatedComponents = [...updatedRecipes[recipeIndex].components];
     updatedComponents[componentIndex] = { ...updatedComponents[componentIndex], [field]: value };
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
-  const updateIngredientField = (
+  const updateIngredientField = useCallback((
     recipeIndex: number,
     componentIndex: number,
     ingredientIndex: number,
@@ -338,9 +299,9 @@ export function RecipeUploader() {
     };
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
-  const addComponent = (recipeIndex: number) => {
+  const addComponent = useCallback((recipeIndex: number) => {
     if (!editingRecipes[recipeIndex]) return;
     const newComponent: ExtractedComponent = {
       name: "New Component",
@@ -352,9 +313,9 @@ export function RecipeUploader() {
       components: [...updatedRecipes[recipeIndex].components, newComponent],
     };
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
-  const addIngredient = (recipeIndex: number, componentIndex: number) => {
+  const addIngredient = useCallback((recipeIndex: number, componentIndex: number) => {
     if (!editingRecipes[recipeIndex]) return;
     const newIngredient: ExtractedIngredient = {
       name: "",
@@ -366,24 +327,24 @@ export function RecipeUploader() {
     updatedComponents[componentIndex].ingredients.push(newIngredient);
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
-  const removeComponent = (recipeIndex: number, componentIndex: number) => {
+  const removeComponent = useCallback((recipeIndex: number, componentIndex: number) => {
     if (!editingRecipes[recipeIndex]) return;
     const updatedRecipes = [...editingRecipes];
     const updatedComponents = updatedRecipes[recipeIndex].components.filter((_, index) => index !== componentIndex);
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
-  const removeIngredient = (recipeIndex: number, componentIndex: number, ingredientIndex: number) => {
+  const removeIngredient = useCallback((recipeIndex: number, componentIndex: number, ingredientIndex: number) => {
     if (!editingRecipes[recipeIndex]) return;
     const updatedRecipes = [...editingRecipes];
     const updatedComponents = [...updatedRecipes[recipeIndex].components];
     updatedComponents[componentIndex].ingredients.splice(ingredientIndex, 1);
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
     setEditingRecipes(updatedRecipes);
-  };
+  }, [editingRecipes]);
 
   return (
     <div className="flex flex-col min-h-screen">

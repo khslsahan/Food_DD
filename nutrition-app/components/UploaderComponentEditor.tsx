@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import { Button } from "./ui/button";
-import { XCircle, Zap, Loader2 } from "lucide-react";
+import { Label } from "./ui/label";
+import { XCircle } from "lucide-react";
 import { IngredientRow, IngredientInput } from "./IngredientRow";
-import { useToast } from "./ui/use-toast";
-import { GetNutritionButton } from "./ui/get-nutrition-button";
-import { updateIngredientWithNutrition } from "@/lib/nutrition-utils";
 
 interface PortionInput {
   label: string;
@@ -29,15 +26,10 @@ export function UploaderComponentEditor({
   onRemove,
 }: UploaderComponentEditorProps) {
   const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
-  const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const [ingredientSuggestions, setIngredientSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
   const ingredientInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [showGptPrompt, setShowGptPrompt] = useState(false);
-  const [showGptResult, setShowGptResult] = useState(false);
-  const [gptMacros, setGptMacros] = useState<any>(null);
-  const [gptIdx, setGptIdx] = useState<number | null>(null);
-  const { toast } = useToast();
 
   useEffect(() => {
     async function fetchCategories() {
@@ -50,12 +42,11 @@ export function UploaderComponentEditor({
     fetchCategories();
   }, []);
 
-  // Handlers for fields
-  const handleFieldChange = (field: string, value: any) => {
+  const handleFieldChange = useCallback((field: string, value: any) => {
     onChange(componentIndex, { ...component, [field]: value });
-  };
+  }, [onChange, componentIndex, component]);
 
-  const handleIngredientChange = (idx: number, fieldOrObject: keyof IngredientInput | Partial<IngredientInput>, value?: string) => {
+  const handleIngredientChange = useCallback((idx: number, fieldOrObject: keyof IngredientInput | Partial<IngredientInput>, value?: string) => {
     const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) => {
       if (i !== idx) return ing;
       if (typeof fieldOrObject === "object") {
@@ -107,29 +98,29 @@ export function UploaderComponentEditor({
       }
     });
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-  };
+  }, [component, componentIndex, onChange]);
 
-  const addIngredient = () => {
+  const addIngredient = useCallback(() => {
     const updatedIngredients = [
       ...component.ingredients,
       { name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" },
     ];
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-  };
+  }, [component, componentIndex, onChange]);
 
-  const removeIngredient = (idx: number) => {
+  const removeIngredient = useCallback((idx: number) => {
     const updatedIngredients = component.ingredients.filter((_: any, i: number) => i !== idx);
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-  };
+  }, [component, componentIndex, onChange]);
 
   // Only allow a single portion
-  const handleSinglePortionChange = (field: "label" | "total_weight_g", value: string) => {
+  const handleSinglePortionChange = useCallback((field: "label" | "total_weight_g", value: string) => {
     const updatedPortion = { ...((component.portions && component.portions[0]) || { label: "2P", total_weight_g: "" }), [field]: value };
     onChange(componentIndex, { ...component, portions: [updatedPortion] });
-  };
+  }, [component, componentIndex, onChange]);
 
   // Unified nutrition fetch handler
-  const handleNutritionUpdate = (idx: number, updatedIngredient: any) => {
+  const handleNutritionUpdate = useCallback((idx: number, updatedIngredient: any) => {
     const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
       i === idx ? {
         ...updatedIngredient,
@@ -137,15 +128,15 @@ export function UploaderComponentEditor({
       } : ing
     );
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-  };
+  }, [component, componentIndex, onChange]);
 
   // Wrapper function to match expected signature
-  const fetchNutritionWrapper = (idx: number) => {
+  const fetchNutritionWrapper = useCallback((idx: number) => {
     // This will be handled by the unified button system
-  };
+  }, []);
 
   // Fetch ingredient suggestions as user types
-  const fetchIngredientSuggestions = async (idx: number, value: string) => {
+  const fetchIngredientSuggestions = useCallback(async (idx: number, value: string) => {
     const trimmedValue = value.trim();
     if (!trimmedValue) {
       setIngredientSuggestions([]);
@@ -158,9 +149,9 @@ export function UploaderComponentEditor({
       setIngredientSuggestions(data);
       setShowSuggestions(true);
     }
-  };
+  }, []);
 
-  const handleSuggestionClick = (idx: number, suggestion: any) => {
+  const handleSuggestionClick = useCallback((idx: number, suggestion: any) => {
     const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) =>
       i === idx
         ? {
@@ -183,9 +174,9 @@ export function UploaderComponentEditor({
     setTimeout(() => {
       ingredientInputRefs.current[idx + 1]?.focus();
     }, 0);
-  };
+  }, [component, componentIndex, onChange]);
 
-  const handleQuantityChange = (idx: number, value: string) => {
+  const handleQuantityChange = useCallback((idx: number, value: string) => {
     const updatedIngredients = component.ingredients.map((ing: IngredientInput, i: number) => {
       if (i !== idx) return ing;
       const qty = Number(value) || 0;
@@ -200,7 +191,35 @@ export function UploaderComponentEditor({
       };
     });
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
-  };
+  }, [component, componentIndex, onChange]);
+
+  const handleRemove = useCallback(() => {
+    onRemove(componentIndex);
+  }, [onRemove, componentIndex]);
+
+  const handleNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFieldChange("name", e.target.value);
+  }, [handleFieldChange]);
+
+  const handleBeforeCookWeightChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFieldChange("before_cook_weight_g", e.target.value);
+  }, [handleFieldChange]);
+
+  const handleAfterCookWeightChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFieldChange("after_cook_weight_g", e.target.value);
+  }, [handleFieldChange]);
+
+  const handleCategoryChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleFieldChange("category_id", Number(e.target.value));
+  }, [handleFieldChange]);
+
+  const handlePortionLabelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    handleSinglePortionChange("label", e.target.value);
+  }, [handleSinglePortionChange]);
+
+  const handlePortionWeightChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    handleSinglePortionChange("total_weight_g", e.target.value);
+  }, [handleSinglePortionChange]);
 
   return (
     <div className="border-dashed border rounded-lg p-3 sm:p-4 mb-4 bg-white">
@@ -208,7 +227,7 @@ export function UploaderComponentEditor({
         <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center w-full">
           <Input
             value={component.name}
-            onChange={e => handleFieldChange("name", e.target.value)}
+            onChange={handleNameChange}
             placeholder="Component Name"
             required
             className="font-semibold flex-1"
@@ -216,7 +235,7 @@ export function UploaderComponentEditor({
           <select
             className="w-full sm:w-48 border rounded px-3 py-2"
             value={component.category_id || ""}
-            onChange={e => handleFieldChange("category_id", Number(e.target.value))}
+            onChange={handleCategoryChange}
             required
           >
             <option value="">Select category</option>
@@ -227,7 +246,7 @@ export function UploaderComponentEditor({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onRemove(componentIndex)}
+            onClick={handleRemove}
             className="text-red-500 hover:text-red-700 self-start sm:self-auto"
           >
             <XCircle className="h-4 w-4" />
@@ -239,7 +258,7 @@ export function UploaderComponentEditor({
         <Input
           type="number"
           value={component.before_cook_weight_g || ""}
-          onChange={e => handleFieldChange("before_cook_weight_g", e.target.value)}
+          onChange={handleBeforeCookWeightChange}
           placeholder="Before Cook Weight (g)"
           required
           className="flex-1"
@@ -247,7 +266,7 @@ export function UploaderComponentEditor({
         <Input
           type="number"
           value={component.after_cook_weight_g || ""}
-          onChange={e => handleFieldChange("after_cook_weight_g", e.target.value)}
+          onChange={handleAfterCookWeightChange}
           placeholder="After Cook Weight (g)"
           required
           className="flex-1"
@@ -259,7 +278,7 @@ export function UploaderComponentEditor({
         <div className="space-y-2 max-h-[60vh] overflow-y-auto">
           {component.ingredients.map((ingredient: IngredientInput, idx: number) => (
             <IngredientRow
-              key={`component-${componentIndex}-ingredient-${idx}-${ingredient.name}-${ingredient.quantity}`}
+              key={`component-${componentIndex}-ingredient-${idx}`}
               ingredient={ingredient}
               idx={idx}
               loading={loadingIdx === idx}
@@ -278,27 +297,34 @@ export function UploaderComponentEditor({
         </div>
       </div>
       
-      <div className="mb-2">
-        <Label className="text-sm font-medium">Portion Size</Label>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2 items-start sm:items-center">
-          <select
-            value={(component.portions && component.portions[0]?.label) || '2P'}
-            onChange={e => handleSinglePortionChange("label", e.target.value)}
-            required
-            className="border rounded px-2 py-1 w-full sm:w-auto"
-          >
-            <option value="1P">1P</option>
-            <option value="2P">2P</option>
-            <option value="3P">3P</option>
-          </select>
-          <Input
-            placeholder="Total Weight (g)"
-            type="number"
-            value={(component.portions && component.portions[0]?.total_weight_g) || ""}
-            onChange={e => handleSinglePortionChange("total_weight_g", e.target.value)}
-            required
-            className="flex-1"
-          />
+      <div className="mb-3">
+        <Label className="text-sm font-medium">Portion Sizes</Label>
+        <div className="space-y-2">
+          {(component.portions || [{ label: "2P", total_weight_g: "" }]).map((portion: PortionInput, idx: number) => (
+            <div key={`component-${componentIndex}-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex gap-2 items-center">
+              <select
+                value={portion.label || '2P'}
+                onChange={handlePortionLabelChange}
+                required
+                className="w-24 border rounded px-2 py-1"
+              >
+                <option value="1P">1P</option>
+                <option value="2P">2P</option>
+                <option value="3P">3P</option>
+                <option value="4P">4P</option>
+                <option value="5P">5P</option>
+                <option value="6P">6P</option>
+              </select>
+              <Input
+                type="number"
+                value={portion.total_weight_g || ""}
+                onChange={handlePortionWeightChange}
+                placeholder="Weight (g)"
+                required
+                className="flex-1"
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

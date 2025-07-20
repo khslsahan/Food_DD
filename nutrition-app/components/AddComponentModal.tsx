@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Dialog,
   DialogTrigger,
@@ -57,7 +57,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
   }, []);
 
   // Replace the old handleIngredientChange with the new one that supports both signatures
-  const handleIngredientChange = (
+  const handleIngredientChange = useCallback((
     idx: number,
     fieldOrObject: keyof IngredientInput | Partial<IngredientInput>,
     value?: string
@@ -118,32 +118,32 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
         }
       })
     );
-  };
+  }, []);
 
-  const addIngredient = () => {
+  const addIngredient = useCallback(() => {
     setIngredients((prev) => [
       ...prev,
       { name: "", quantity: "", calories: "", fat: "", protein: "", carbohydrates: "" },
     ]);
-  };
+  }, []);
 
-  const removeIngredient = (idx: number) => {
+  const removeIngredient = useCallback((idx: number) => {
     setIngredients((prev) => prev.filter((_, i) => i !== idx));
-  };
+  }, []);
 
-  const handlePortionChange = (idx: number, field: "label" | "total_weight_g", value: string) => {
+  const handlePortionChange = useCallback((idx: number, field: "label" | "total_weight_g", value: string) => {
     setPortions((prev) => prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p)));
-  };
+  }, []);
 
-  const addPortion = () => {
+  const addPortion = useCallback(() => {
     setPortions((prev) => [...prev, { label: "2P", total_weight_g: "" }]);
-  };
+  }, []);
 
-  const removePortion = (idx: number) => {
+  const removePortion = useCallback((idx: number) => {
     setPortions((prev) => prev.filter((_, i) => i !== idx));
-  };
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     // Convert all ingredient nutrition values to per 100g
@@ -186,10 +186,10 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
     } finally {
       setSaving(false);
     }
-  };
+  }, [mealId, componentName, beforeCookWeight, afterCookWeight, ingredients, portions, selectedCategory, router, toast]);
 
   // Unified nutrition fetch handler
-  const handleNutritionUpdate = (idx: number, updatedIngredient: any) => {
+  const handleNutritionUpdate = useCallback((idx: number, updatedIngredient: any) => {
     setIngredients((prev) => {
       const newIngredients = prev.map((ing, i) =>
         i === idx ? {
@@ -200,7 +200,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
       
       return newIngredients;
     });
-  };
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -257,7 +257,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             <div className="space-y-2 max-h-[60vh] overflow-y-auto">
               {ingredients.map((ingredient, idx) => (
                 <IngredientRow
-                  key={`add-ingredient-${idx}-${ingredient.name}-${ingredient.quantity}`}
+                  key={`add-ingredient-${idx}`}
                   ingredient={ingredient}
                   idx={idx}
                   loading={false} // Loading is now handled by GetNutritionButton
