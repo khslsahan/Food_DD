@@ -23,7 +23,7 @@ class NutritionService(
 
     fun getNutrition(foodItem: String, portion: Int): Mono<NutritionResponse> {
         println("Getting nutrition for food item: $foodItem, portion: $portion")
-        return mealRepository.findByMealName(foodItem)
+        return mealRepository.findByMealNameIgnoreCase(foodItem)
             .switchIfEmpty(
                 Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Meal '$foodItem' not found in database"))
             )

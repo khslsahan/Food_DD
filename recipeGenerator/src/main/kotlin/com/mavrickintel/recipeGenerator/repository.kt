@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface MealRepository : ReactiveCrudRepository<Meal, Long> {
-    fun findByMealName(mealName: String): reactor.core.publisher.Mono<Meal>
+    fun findByMealNameIgnoreCase(mealName: String): reactor.core.publisher.Mono<Meal>
     fun findByIsBalanced(isBalanced: Boolean): reactor.core.publisher.Flux<Meal>
     fun findByIsGourmet(isGourmet: Boolean): reactor.core.publisher.Flux<Meal>
     fun findByIsWeightLoss(isWeightLoss: Boolean): reactor.core.publisher.Flux<Meal>
