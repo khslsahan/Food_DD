@@ -34,6 +34,12 @@ interface ExtractedComponent {
   name: string;
   base_quantity?: number;
   ingredients: ExtractedIngredient[];
+  portions?: {
+    label: string;
+    total_weight_g: string;
+  }[];
+  before_cook_weight_g?: string;
+  after_cook_weight_g?: string;
 }
 
 interface ExtractedRecipe {
@@ -53,6 +59,21 @@ interface RecipeWithStatus extends ExtractedRecipe {
   saved?: boolean;
   saving?: boolean;
   error?: string;
+  validationErrors?: ValidationErrors;
+}
+
+interface ValidationErrors {
+  mealName?: string;
+  components?: { [key: number]: ComponentValidationErrors };
+  general?: string[];
+}
+
+interface ComponentValidationErrors {
+  name?: string;
+  weights?: string;
+  cookWeights?: string;
+  portions?: string;
+  ingredients?: { [key: number]: string };
 }
 
 export function RecipeUploader() {
@@ -177,13 +198,491 @@ export function RecipeUploader() {
     }
   }, [file, toast]);
 
+  // Validation function to check if meal name already exists
+  const validateMealName = useCallback(async (mealName: string, currentRecipeIndex?: number): Promise<string | null> => {
+    console.log(`Validating meal name: "${mealName}" for recipe ${currentRecipeIndex}`);
+    
+    if (!mealName.trim()) {
+      console.log("Meal name is empty");
+      return "Meal name is required";
+    }
+    
+    if (mealName.trim().length < 2) {
+      console.log(`Meal name is too short: "${mealName}"`);
+      return "Meal name must be at least 2 characters long";
+    }
+
+    try {
+      const response = await fetch(`/api/meals/check-name?name=${encodeURIComponent(mealName.trim())}`);
+      const data = await response.json();
+      
+      if (response.ok && data.exists) {
+        // If this is an update of the same recipe, it's okay
+        if (currentRecipeIndex !== undefined && editingRecipes[currentRecipeIndex]?.saved) {
+          console.log("Meal name exists but this is an update of existing recipe - allowing");
+          return null; // Allow update of existing recipe
+        }
+        console.log(`Meal name already exists: "${mealName}"`);
+        return "A meal with this name already exists. Please choose a different name.";
+      }
+      
+      console.log(`Meal name validation passed: "${mealName}"`);
+      return null;
+    } catch (error) {
+      console.error("Error checking meal name:", error);
+      return "Error checking meal name availability";
+    }
+  }, [editingRecipes]);
+
+  // Validation function for component names
+  const validateComponentName = useCallback((componentName: string, componentIndex: number, recipeIndex: number): string | null => {
+    console.log(`Validating component name: "${componentName}" for component ${componentIndex}`);
+    
+    if (!componentName.trim()) {
+      console.log(`Component ${componentIndex} name is empty`);
+      return "Component name is required";
+    }
+    
+    if (componentName.trim().length < 2) {
+      console.log(`Component ${componentIndex} name is too short: "${componentName}"`);
+      return "Component name must be at least 2 characters long";
+    }
+
+    // Check for duplicate component names within the same recipe
+    const recipe = editingRecipes[recipeIndex];
+    if (recipe) {
+      const duplicateIndex = recipe.components.findIndex((comp, idx) => 
+        idx !== componentIndex && 
+        comp.name.trim().toLowerCase() === componentName.trim().toLowerCase()
+      );
+      
+      if (duplicateIndex !== -1) {
+        console.log(`Component ${componentIndex} name is duplicate of component ${duplicateIndex}: "${componentName}"`);
+        return "Component name must be unique within the recipe";
+      }
+    }
+    
+    console.log(`Component ${componentIndex} name validation passed: "${componentName}"`);
+    return null;
+  }, [editingRecipes]);
+
+  // Validation function for weights
+  const validateWeights = useCallback((component: ExtractedComponent, componentIndex: number): string | null => {
+    const errors: string[] = [];
+    
+    // Debug: Log component ingredients data
+    console.log(`=== VALIDATE WEIGHTS FOR COMPONENT ${componentIndex} ===`);
+    console.log(`Component ${componentIndex} ingredients:`, component.ingredients);
+    
+    // Check if component has ingredients
+    if (!component.ingredients || component.ingredients.length === 0) {
+      console.log(`Component ${componentIndex} has no ingredients`);
+      errors.push("Component must have at least one ingredient");
+    }
+    
+    // Check ingredient weights
+    if (component.ingredients) {
+      component.ingredients.forEach((ingredient, ingredientIndex) => {
+        console.log(`=== INGREDIENT ${ingredientIndex} VALIDATION ===`);
+        console.log(`Component ${componentIndex} ingredient ${ingredientIndex}:`, ingredient);
+        
+        if (!ingredient.name.trim()) {
+          console.log(`Component ${componentIndex} ingredient ${ingredientIndex} has no name`);
+          errors.push(`Ingredient ${ingredientIndex + 1} name is required`);
+        }
+        
+        // Check all possible quantity fields and handle string parsing
+        let quantity = 0;
+        if (ingredient.raw_quantity) {
+          quantity = Number(ingredient.raw_quantity) || 0;
+        } else if (ingredient.quantity) {
+          quantity = Number(ingredient.quantity) || 0;
+        } else if (ingredient.cooked_quantity) {
+          quantity = Number(ingredient.cooked_quantity) || 0;
+        }
+        
+        console.log(`Component ${componentIndex} ingredient ${ingredientIndex} quantity:`, {
+          raw_quantity: ingredient.raw_quantity,
+          quantity: ingredient.quantity,
+          cooked_quantity: ingredient.cooked_quantity,
+          final_quantity: quantity,
+          isNaN: isNaN(quantity)
+        });
+        
+        if (isNaN(quantity) || quantity <= 0) {
+          console.log(`Component ${componentIndex} ingredient ${ingredientIndex} has invalid quantity: ${quantity}`);
+          errors.push(`Ingredient "${ingredient.name}" must have a valid weight greater than 0`);
+        }
+        
+        if (quantity > 10000) {
+          console.log(`Component ${componentIndex} ingredient ${ingredientIndex} has excessive quantity: ${quantity}`);
+          errors.push(`Ingredient "${ingredient.name}" weight seems too high (${quantity}g). Please verify.`);
+        }
+        
+        console.log(`=== END INGREDIENT ${ingredientIndex} VALIDATION ===`);
+      });
+    }
+    
+    console.log(`=== END VALIDATE WEIGHTS FOR COMPONENT ${componentIndex} ===`);
+    console.log(`Component ${componentIndex} weight validation errors:`, errors);
+    return errors.length > 0 ? errors.join("; ") : null;
+  }, []);
+
+  // Validation function for cook weights
+  const validateCookWeights = useCallback((component: ExtractedComponent, componentIndex: number): string | null => {
+    const errors: string[] = [];
+    
+    // Debug: Log component data
+    console.log(`=== VALIDATE COOK WEIGHTS FOR COMPONENT ${componentIndex} ===`);
+    console.log(`Component ${componentIndex} cook weights:`, {
+      before: component.before_cook_weight_g,
+      after: component.after_cook_weight_g,
+      component: component
+    });
+    
+    // Check before cook weight - required
+    const beforeCookWeight = Number(component.before_cook_weight_g) || 0;
+    console.log(`Component ${componentIndex} before cook weight:`, beforeCookWeight);
+    if (beforeCookWeight <= 0) {
+      console.log(`Component ${componentIndex} before cook weight is invalid: ${beforeCookWeight}`);
+      errors.push("Before cook weight must be greater than 0");
+    }
+    
+    // Check after cook weight - required
+    const afterCookWeight = Number(component.after_cook_weight_g) || 0;
+    console.log(`Component ${componentIndex} after cook weight:`, afterCookWeight);
+    if (afterCookWeight <= 0) {
+      console.log(`Component ${componentIndex} after cook weight is invalid: ${afterCookWeight}`);
+      errors.push("After cook weight must be greater than 0");
+    }
+    
+    // Check if after cook weight is reasonable compared to before cook weight
+    if (beforeCookWeight > 0 && afterCookWeight > 0) {
+      const weightLossPercentage = ((beforeCookWeight - afterCookWeight) / beforeCookWeight) * 100;
+      console.log(`Component ${componentIndex} weight loss percentage:`, weightLossPercentage);
+      
+      // More flexible weight difference validation
+      if (weightLossPercentage > 80) {
+        console.log(`Component ${componentIndex} weight loss too high: ${weightLossPercentage}%`);
+        errors.push("After cook weight seems too low compared to before cook weight. Please verify.");
+      }
+      if (weightLossPercentage < -50) {
+        console.log(`Component ${componentIndex} weight gain too high: ${weightLossPercentage}%`);
+        errors.push("After cook weight seems too high compared to before cook weight. Please verify.");
+      }
+    }
+    
+    console.log(`=== END VALIDATE COOK WEIGHTS FOR COMPONENT ${componentIndex} ===`);
+    console.log(`Component ${componentIndex} cook weights validation errors:`, errors);
+    return errors.length > 0 ? errors.join("; ") : null;
+  }, []);
+
+  // Validation function for portion sizes
+  const validatePortions = useCallback((component: ExtractedComponent, componentIndex: number): string | null => {
+    // Debug: Log component portions data
+    console.log(`=== VALIDATE PORTIONS FOR COMPONENT ${componentIndex} ===`);
+    console.log(`Component ${componentIndex} portions:`, component.portions);
+    
+    // Check if component has portions - required
+    if (!component.portions || component.portions.length === 0) {
+      console.log(`Component ${componentIndex} has no portions`);
+      return "At least one portion size must be entered";
+    }
+    
+    // Check if at least one portion has a valid weight
+    const hasValidPortion = component.portions.some(portion => {
+      const weight = Number(portion.total_weight_g) || 0;
+      console.log(`Component ${componentIndex} portion weight:`, weight);
+      return weight > 0;
+    });
+    
+    console.log(`Component ${componentIndex} has valid portion:`, hasValidPortion);
+    
+    if (!hasValidPortion) {
+      console.log(`Component ${componentIndex} has no valid portions`);
+      return "At least one portion size must have a valid weight greater than 0";
+    }
+    
+    console.log(`=== END VALIDATE PORTIONS FOR COMPONENT ${componentIndex} ===`);
+    console.log(`Component ${componentIndex} portions validation passed`);
+    return null;
+  }, []);
+
+  // Main validation function
+  const validateRecipe = useCallback(async (recipe: ExtractedRecipe, recipeIndex: number): Promise<ValidationErrors> => {
+    const errors: ValidationErrors = {
+      components: {},
+      general: []
+    };
+
+    // Validate meal name
+    const mealNameError = await validateMealName(recipe.name, recipeIndex);
+    if (mealNameError) {
+      errors.mealName = mealNameError;
+    }
+
+    // Validate components
+    if (!recipe.components || recipe.components.length === 0) {
+      errors.general?.push("Recipe must have at least one component");
+    } else {
+      recipe.components.forEach((component, componentIndex) => {
+        const componentErrors: ComponentValidationErrors = {};
+        
+        console.log(`Validating component ${componentIndex}:`, component);
+        
+        // Validate component name
+        const componentNameError = validateComponentName(component.name, componentIndex, recipeIndex);
+        if (componentNameError) {
+          componentErrors.name = componentNameError;
+          console.log(`Component ${componentIndex} name error:`, componentNameError);
+        }
+        
+        // Validate weights
+        const weightsError = validateWeights(component, componentIndex);
+        if (weightsError) {
+          componentErrors.weights = weightsError;
+          console.log(`Component ${componentIndex} weights error:`, weightsError);
+        }
+
+        // Validate cook weights
+        const cookWeightsError = validateCookWeights(component, componentIndex);
+        if (cookWeightsError) {
+          componentErrors.cookWeights = cookWeightsError;
+          console.log(`Component ${componentIndex} cook weights error:`, cookWeightsError);
+        }
+
+        // Validate portions
+        const portionsError = validatePortions(component, componentIndex);
+        if (portionsError) {
+          componentErrors.portions = portionsError;
+          console.log(`Component ${componentIndex} portions error:`, portionsError);
+        }
+        
+        // Validate individual ingredients
+        if (component.ingredients) {
+          componentErrors.ingredients = {};
+          component.ingredients.forEach((ingredient, ingredientIndex) => {
+            console.log(`Component ${componentIndex} ingredient ${ingredientIndex}:`, ingredient);
+            
+            if (!ingredient.name.trim()) {
+              componentErrors.ingredients![ingredientIndex] = "Ingredient name is required";
+              console.log(`Component ${componentIndex} ingredient ${ingredientIndex} name error`);
+            }
+            
+            // Use the same improved quantity parsing logic
+            let quantity = 0;
+            if (ingredient.raw_quantity) {
+              quantity = Number(ingredient.raw_quantity) || 0;
+            } else if (ingredient.quantity) {
+              quantity = Number(ingredient.quantity) || 0;
+            } else if (ingredient.cooked_quantity) {
+              quantity = Number(ingredient.cooked_quantity) || 0;
+            }
+            
+            if (isNaN(quantity) || quantity <= 0) {
+              componentErrors.ingredients![ingredientIndex] = "Weight must be greater than 0";
+              console.log(`Component ${componentIndex} ingredient ${ingredientIndex} weight error: quantity = ${quantity}`);
+            }
+          });
+          
+          // Only add ingredient errors if there are significant issues
+          if (Object.keys(componentErrors.ingredients).length === component.ingredients.length) {
+            // All ingredients have errors, this might be a data issue
+            console.log(`Component ${componentIndex} has errors for all ingredients, this might be a data issue`);
+          }
+        }
+        
+        if (Object.keys(componentErrors).length > 0) {
+          errors.components![componentIndex] = componentErrors;
+          console.log(`Component ${componentIndex} has validation errors:`, componentErrors);
+        } else {
+          console.log(`Component ${componentIndex} passed validation`);
+        }
+      });
+    }
+
+    return errors;
+  }, [validateMealName, validateComponentName, validateWeights, validatePortions, validateCookWeights]);
+
+  // Helper function to suggest a unique meal name
+  const suggestUniqueMealName = useCallback((originalName: string): string => {
+    const timestamp = new Date().getTime();
+    const randomSuffix = Math.floor(Math.random() * 1000);
+    return `${originalName} (${timestamp}-${randomSuffix})`;
+  }, []);
+
+  // Helper function to check if there are actual validation errors
+  const hasValidationErrors = useCallback((validationErrors: ValidationErrors | undefined): boolean => {
+    if (!validationErrors) return false;
+    
+    // Check meal name error
+    if (validationErrors.mealName) return true;
+    
+    // Check general errors
+    if (validationErrors.general && validationErrors.general.length > 0) return true;
+    
+    // Check component errors
+    if (validationErrors.components) {
+      for (const componentIndex in validationErrors.components) {
+        const componentErrors = validationErrors.components[componentIndex];
+        if (componentErrors.name || componentErrors.weights || componentErrors.cookWeights || 
+            componentErrors.portions || (componentErrors.ingredients && Object.keys(componentErrors.ingredients).length > 0)) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }, []);
+
+  // Clear validation errors for a recipe
+  const clearValidationErrors = useCallback((recipeIndex: number) => {
+    setEditingRecipes(prev => prev.map((recipe, idx) => 
+      idx === recipeIndex 
+        ? { ...recipe, validationErrors: undefined }
+        : recipe
+    ));
+  }, []);
+
+  // Clear specific validation error when user makes changes
+  const clearValidationError = useCallback((recipeIndex: number, errorType: 'mealName' | 'general' | 'components') => {
+    setEditingRecipes(prev => prev.map((recipe, idx) => {
+      if (idx !== recipeIndex) return recipe;
+      
+      if (!recipe.validationErrors) return recipe;
+      
+      const updatedErrors = { ...recipe.validationErrors };
+      
+      if (errorType === 'mealName') {
+        delete updatedErrors.mealName;
+      } else if (errorType === 'general') {
+        updatedErrors.general = [];
+      } else if (errorType === 'components') {
+        updatedErrors.components = {};
+      }
+      
+      // If no more errors, remove validationErrors entirely
+      if (!updatedErrors.mealName && 
+          (!updatedErrors.general || updatedErrors.general.length === 0) &&
+          (!updatedErrors.components || Object.keys(updatedErrors.components).length === 0)) {
+        return { ...recipe, validationErrors: undefined };
+      }
+      
+      return { ...recipe, validationErrors: updatedErrors };
+    }));
+  }, []);
+
+  // Clear component validation error
+  const clearComponentValidationError = useCallback((recipeIndex: number, componentIndex: number, errorType: 'name' | 'weights' | 'cookWeights' | 'portions' | 'ingredients') => {
+    setEditingRecipes(prev => prev.map((recipe, idx) => {
+      if (idx !== recipeIndex) return recipe;
+      
+      if (!recipe.validationErrors?.components?.[componentIndex]) return recipe;
+      
+      const updatedErrors = { ...recipe.validationErrors };
+      const updatedComponents = { ...updatedErrors.components };
+      const updatedComponentErrors = { ...updatedComponents[componentIndex] };
+      
+      delete updatedComponentErrors[errorType];
+      
+      if (Object.keys(updatedComponentErrors).length === 0) {
+        delete updatedComponents[componentIndex];
+      } else {
+        updatedComponents[componentIndex] = updatedComponentErrors;
+      }
+      
+      updatedErrors.components = updatedComponents;
+      
+      // If no more errors, remove validationErrors entirely
+      if (!updatedErrors.mealName && 
+          (!updatedErrors.general || updatedErrors.general.length === 0) &&
+          Object.keys(updatedErrors.components).length === 0) {
+        return { ...recipe, validationErrors: undefined };
+      }
+      
+      return { ...recipe, validationErrors: updatedErrors };
+    }));
+  }, []);
+
   const handleSaveRecipe = useCallback(async (recipeIndex: number) => {
     if (!editingRecipes[recipeIndex] || !fileName) return;
+
+    // Clear previous validation errors
+    clearValidationErrors(recipeIndex);
+
+    // Validate recipe before saving
+    const validationErrors = await validateRecipe(editingRecipes[recipeIndex], recipeIndex);
+    
+    // Debug: Log validation errors to console
+    console.log("=== VALIDATION DEBUG ===");
+    console.log("Recipe being validated:", editingRecipes[recipeIndex]);
+    console.log("Validation errors detected:", validationErrors);
+    console.log("Meal name error:", validationErrors.mealName);
+    console.log("General errors:", validationErrors.general);
+    console.log("Component errors:", validationErrors.components);
+    console.log("Has validation errors:", hasValidationErrors(validationErrors));
+    console.log("=== END VALIDATION DEBUG ===");
+    
+    if (validationErrors.mealName || validationErrors.general?.length || Object.keys(validationErrors.components || {}).length > 0) {
+      console.log("=== SAVE BLOCKED ===");
+      console.log("Save blocked due to validation errors");
+      console.log("Meal name error exists:", !!validationErrors.mealName);
+      console.log("General errors count:", validationErrors.general?.length || 0);
+      console.log("Component errors count:", Object.keys(validationErrors.components || {}).length);
+      console.log("=== END SAVE BLOCKED ===");
+      
+      // Check if there are actual component errors (not just empty objects)
+      const hasActualComponentErrors = Object.values(validationErrors.components || {}).some(compErrors => 
+        compErrors.name || compErrors.weights || compErrors.cookWeights || compErrors.portions || 
+        (compErrors.ingredients && Object.keys(compErrors.ingredients).length > 0)
+      );
+      
+      console.log("Has actual component errors:", hasActualComponentErrors);
+      
+      // Only block save if there are actual errors
+      if (validationErrors.mealName || validationErrors.general?.length || hasActualComponentErrors) {
+        console.log("=== ACTUAL ERRORS DETECTED ===");
+        console.log("Meal name error:", validationErrors.mealName);
+        console.log("General errors:", validationErrors.general);
+        console.log("Component errors:", validationErrors.components);
+        console.log("=== END ACTUAL ERRORS ===");
+        
+        // Update recipe with validation errors
+        setEditingRecipes(prev => prev.map((recipe, idx) => 
+          idx === recipeIndex 
+            ? { ...recipe, validationErrors }
+            : recipe
+        ));
+        
+        // Show validation error toast
+        const errorMessages = [
+          validationErrors.mealName,
+          ...(validationErrors.general || []),
+          ...Object.values(validationErrors.components || {}).map(comp => 
+            [comp.name, comp.weights, comp.cookWeights, comp.portions, ...Object.values(comp.ingredients || {})].filter(Boolean)
+          ).flat()
+        ].filter(Boolean);
+        
+        console.log("Error messages for toast:", errorMessages);
+        
+        toast({
+          title: "Validation Failed",
+          description: `Please fix the following errors: ${errorMessages.slice(0, 3).join(", ")}${errorMessages.length > 3 ? "..." : ""}`,
+          variant: "destructive",
+        });
+        
+        return;
+      }
+    }
+    
+    console.log("=== SAVE PROCEEDING ===");
+    console.log("No validation errors detected, proceeding with save");
+    console.log("=== END SAVE PROCEEDING ===");
 
     // Update the recipe status to saving
     setEditingRecipes(prev => prev.map((recipe, idx) => 
       idx === recipeIndex 
-        ? { ...recipe, saving: true, error: undefined }
+        ? { ...recipe, saving: true, error: undefined, validationErrors: undefined }
         : recipe
     ));
 
@@ -205,7 +704,7 @@ export function RecipeUploader() {
       if (response.ok) {
         setEditingRecipes(prev => prev.map((recipe, idx) => 
           idx === recipeIndex 
-            ? { ...recipe, saved: true, saving: false, error: undefined }
+            ? { ...recipe, saved: true, saving: false, error: undefined, validationErrors: undefined }
             : recipe
         ));
         
@@ -219,7 +718,7 @@ export function RecipeUploader() {
     } catch (error) {
       setEditingRecipes(prev => prev.map((recipe, idx) => 
         idx === recipeIndex 
-          ? { ...recipe, saving: false, error: error instanceof Error ? error.message : "Save failed" }
+          ? { ...recipe, saving: false, error: error instanceof Error ? error.message : "Save failed", validationErrors: undefined }
           : recipe
       ));
       
@@ -229,7 +728,7 @@ export function RecipeUploader() {
         variant: "destructive",
       });
     }
-  }, [editingRecipes, fileName, toast]);
+  }, [editingRecipes, fileName, toast, clearValidationErrors, validateRecipe]);
 
   const handleNutritionUpdate = useCallback((
     recipeIndex: number, 
@@ -270,7 +769,12 @@ export function RecipeUploader() {
     const updatedRecipes = [...editingRecipes];
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], [field]: value };
     setEditingRecipes(updatedRecipes);
-  }, [editingRecipes]);
+    
+    // Clear validation errors when user makes changes
+    if (field === 'name') {
+      clearValidationError(recipeIndex, 'mealName');
+    }
+  }, [editingRecipes, clearValidationError]);
 
   const updateComponentField = useCallback((recipeIndex: number, componentIndex: number, field: keyof ExtractedComponent, value: any) => {
     if (!editingRecipes[recipeIndex]) return;
@@ -279,7 +783,14 @@ export function RecipeUploader() {
     updatedComponents[componentIndex] = { ...updatedComponents[componentIndex], [field]: value };
     updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
     setEditingRecipes(updatedRecipes);
-  }, [editingRecipes]);
+    
+    // Clear validation errors when user makes changes
+    if (field === 'name') {
+      clearComponentValidationError(recipeIndex, componentIndex, 'name');
+    } else if (field === 'before_cook_weight_g' || field === 'after_cook_weight_g') {
+      clearComponentValidationError(recipeIndex, componentIndex, 'cookWeights');
+    }
+  }, [editingRecipes, clearComponentValidationError]);
 
   const updateIngredientField = useCallback((
     recipeIndex: number,
@@ -329,12 +840,69 @@ export function RecipeUploader() {
     setEditingRecipes(updatedRecipes);
   }, [editingRecipes]);
 
+  // Function to completely reset validation errors for a recipe
+  const resetValidationErrors = useCallback((recipeIndex: number) => {
+    console.log(`=== RESETTING VALIDATION ERRORS FOR RECIPE ${recipeIndex} ===`);
+    
+    setEditingRecipes(prev => prev.map((recipe, idx) => {
+      if (idx !== recipeIndex) return recipe;
+      
+      const resetRecipe = {
+        ...recipe,
+        validationErrors: undefined,
+        error: undefined,
+        saving: false,
+        saved: false
+      };
+      
+      console.log("Recipe after validation reset:", {
+        componentsCount: resetRecipe.components.length,
+        validationErrors: resetRecipe.validationErrors,
+        hasValidationErrors: resetRecipe.validationErrors ? 'YES' : 'NO'
+      });
+      
+      return resetRecipe;
+    }));
+  }, []);
+
   const removeComponent = useCallback((recipeIndex: number, componentIndex: number) => {
     if (!editingRecipes[recipeIndex]) return;
-    const updatedRecipes = [...editingRecipes];
-    const updatedComponents = updatedRecipes[recipeIndex].components.filter((_, index) => index !== componentIndex);
-    updatedRecipes[recipeIndex] = { ...updatedRecipes[recipeIndex], components: updatedComponents };
-    setEditingRecipes(updatedRecipes);
+    
+    console.log(`=== REMOVING COMPONENT ${componentIndex} ===`);
+    console.log("Before removal - validation errors:", editingRecipes[recipeIndex].validationErrors);
+    console.log("Before removal - components count:", editingRecipes[recipeIndex].components.length);
+    console.log("Before removal - component names:", editingRecipes[recipeIndex].components.map((comp, idx) => `${idx}: ${comp.name}`));
+    
+    // AGGRESSIVE APPROACH: Clear ALL validation errors immediately
+    setEditingRecipes(prev => prev.map((recipe, idx) => {
+      if (idx !== recipeIndex) return recipe;
+      
+      // Remove the component
+      const updatedComponents = recipe.components.filter((_, index) => index !== componentIndex);
+      
+      console.log("After filtering - components:", updatedComponents.map((comp, idx) => `${idx}: ${comp.name}`));
+      
+      // Create completely new recipe with NO validation errors
+      const newRecipe = {
+        ...recipe,
+        components: updatedComponents,
+        validationErrors: undefined, // AGGRESSIVE: Clear ALL validation errors
+        error: undefined,
+        saving: false,
+        saved: false
+      };
+      
+      console.log("New recipe created:", {
+        componentsCount: newRecipe.components.length,
+        validationErrors: newRecipe.validationErrors,
+        hasValidationErrors: newRecipe.validationErrors ? 'YES' : 'NO',
+        componentNames: newRecipe.components.map((comp, idx) => `${idx}: ${comp.name}`)
+      });
+      
+      return newRecipe;
+    }));
+    
+    console.log("=== END REMOVING COMPONENT ===");
   }, [editingRecipes]);
 
   const removeIngredient = useCallback((recipeIndex: number, componentIndex: number, ingredientIndex: number) => {
@@ -500,6 +1068,7 @@ export function RecipeUploader() {
                         }
                         ${recipe.saved ? 'ring-2 ring-green-200' : ''}
                         ${recipe.error ? 'border-red-300 bg-red-50 text-red-700' : ''}
+                        ${recipe.validationErrors && hasValidationErrors(recipe.validationErrors) ? 'border-orange-300 bg-orange-50 text-orange-700' : ''}
                       `}
                     >
                       <div className="flex items-center gap-1 sm:gap-2">
@@ -507,6 +1076,8 @@ export function RecipeUploader() {
                           <CheckCircle className="h-4 w-4 text-green-600" />
                         ) : recipe.error ? (
                           <AlertCircle className="h-4 w-4 text-red-600" />
+                        ) : recipe.validationErrors && hasValidationErrors(recipe.validationErrors) ? (
+                          <AlertCircle className="h-4 w-4 text-orange-600" />
                         ) : (
                           <Edit className="h-4 w-4 text-gray-500" />
                         )}
@@ -565,6 +1136,8 @@ export function RecipeUploader() {
                       ? "border-green-300 bg-green-50/50 shadow-lg" 
                       : editingRecipes[selectedRecipeIndex].error
                       ? "border-red-300 bg-red-50/50"
+                      : editingRecipes[selectedRecipeIndex].validationErrors && hasValidationErrors(editingRecipes[selectedRecipeIndex].validationErrors)
+                      ? "border-orange-300 bg-orange-50/50"
                       : "border-gray-200 bg-white"
                     }
                   `}
@@ -589,6 +1162,14 @@ export function RecipeUploader() {
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                             <AlertCircle className="h-5 w-5 text-red-500" />
                             <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-red-700 text-base sm:text-lg">
+                              <span>Recipe {selectedRecipeIndex + 1}:</span>
+                              <span className="break-words">{editingRecipes[selectedRecipeIndex].name}</span>
+                            </CardTitle>
+                          </div>
+                        ) : editingRecipes[selectedRecipeIndex].validationErrors && hasValidationErrors(editingRecipes[selectedRecipeIndex].validationErrors) ? (
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-orange-500" />
+                            <CardTitle className="flex flex-col sm:flex-row sm:items-center gap-2 text-orange-700 text-base sm:text-lg">
                               <span>Recipe {selectedRecipeIndex + 1}:</span>
                               <span className="break-words">{editingRecipes[selectedRecipeIndex].name}</span>
                             </CardTitle>
@@ -636,6 +1217,8 @@ export function RecipeUploader() {
                         ? "✅ This recipe has been successfully saved to the database and is ready for use."
                         : editingRecipes[selectedRecipeIndex].error
                         ? editingRecipes[selectedRecipeIndex].error
+                        : editingRecipes[selectedRecipeIndex].validationErrors && hasValidationErrors(editingRecipes[selectedRecipeIndex].validationErrors)
+                        ? "⚠️ Please fix the validation errors below before saving."
                         : "Review and edit the recipe data before saving."
                       }
                     </CardDescription>
@@ -651,7 +1234,28 @@ export function RecipeUploader() {
                             id={`recipe-name-${selectedRecipeIndex}`}
                             value={editingRecipes[selectedRecipeIndex].name}
                             onChange={(e) => updateRecipeField(selectedRecipeIndex, "name", e.target.value)}
+                            className={editingRecipes[selectedRecipeIndex].validationErrors?.mealName ? "border-red-500 focus:border-red-500" : ""}
                           />
+                          {editingRecipes[selectedRecipeIndex].validationErrors?.mealName && (
+                            <p className="text-sm text-red-600 flex items-center gap-1">
+                              <AlertCircle className="h-4 w-4" />
+                              {editingRecipes[selectedRecipeIndex].validationErrors.mealName}
+                              {editingRecipes[selectedRecipeIndex].validationErrors.mealName.includes("already exists") && (
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const newName = suggestUniqueMealName(editingRecipes[selectedRecipeIndex].name);
+                                    updateRecipeField(selectedRecipeIndex, "name", newName);
+                                  }}
+                                  className="ml-2 text-xs"
+                                >
+                                  Fix Name
+                                </Button>
+                              )}
+                            </p>
+                          )}
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor={`recipe-description-${selectedRecipeIndex}`}>Description</Label>
@@ -753,6 +1357,8 @@ export function RecipeUploader() {
                             key={componentIndex}
                             component={component}
                             componentIndex={componentIndex}
+                            validationErrors={editingRecipes[selectedRecipeIndex].validationErrors?.components?.[componentIndex]}
+                            onClearValidationError={(errorType) => clearComponentValidationError(selectedRecipeIndex, componentIndex, errorType)}
                             onChange={(idx, updatedComponent) => {
                               const updatedRecipes = [...editingRecipes];
                               const updatedComponents = [...updatedRecipes[selectedRecipeIndex].components];
@@ -817,4 +1423,4 @@ export function RecipeUploader() {
         </main>
     </div>
   );
-} 
+}
