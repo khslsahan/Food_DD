@@ -297,7 +297,7 @@ export function EditComponentModal({
             <Label>Portion Sizes</Label>
             <div className="space-y-2">
               {portions.map((portion, idx) => (
-                <div key={`edit-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex gap-2 items-center">
+                <div key={`edit-portion-${idx}`} className="flex gap-2 items-center">
                   <select
                     value={portion.label || '2P'}
                     onChange={e => handlePortionChange(idx, "label", e.target.value)}

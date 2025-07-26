@@ -125,15 +125,11 @@ export function UploaderComponentEditor({
     onChange(componentIndex, { ...component, ingredients: updatedIngredients });
   }, [component, componentIndex, onChange]);
 
-  // Only allow a single portion
-  const handleSinglePortionChange = useCallback((field: "label" | "total_weight_g", value: string) => {
-    const updatedPortion = { ...((component.portions && component.portions[0]) || { label: "2P", total_weight_g: "" }), [field]: value };
-    onChange(componentIndex, { ...component, portions: [updatedPortion] });
-  }, [component, componentIndex, onChange]);
-
   // Handle portion change for specific index
   const handlePortionChange = useCallback((idx: number, field: "label" | "total_weight_g", value: string) => {
-    const updatedPortions = (component.portions || []).map((portion: PortionInput, i: number) => 
+    // Ensure portions array exists
+    const currentPortions = component.portions || [{ label: "2P", total_weight_g: "" }];
+    const updatedPortions = currentPortions.map((portion: PortionInput, i: number) => 
       i === idx ? { ...portion, [field]: value } : portion
     );
     onChange(componentIndex, { ...component, portions: updatedPortions });
@@ -147,14 +143,16 @@ export function UploaderComponentEditor({
   // Add portion
   const addPortion = useCallback(() => {
     const newPortion = { label: "2P", total_weight_g: "" };
-    const updatedPortions = [...(component.portions || []), newPortion];
+    const currentPortions = component.portions || [{ label: "2P", total_weight_g: "" }];
+    const updatedPortions = [...currentPortions, newPortion];
     onChange(componentIndex, { ...component, portions: updatedPortions });
     onClearValidationError?.('portions');
   }, [component, componentIndex, onChange, onClearValidationError]);
 
   // Remove portion
   const removePortion = useCallback((idx: number) => {
-    const updatedPortions = (component.portions || []).filter((_: any, i: number) => i !== idx);
+    const currentPortions = component.portions || [{ label: "2P", total_weight_g: "" }];
+    const updatedPortions = currentPortions.filter((_: any, i: number) => i !== idx);
     onChange(componentIndex, { ...component, portions: updatedPortions });
   }, [component, componentIndex, onChange]);
 
@@ -256,12 +254,12 @@ export function UploaderComponentEditor({
   }, [handleFieldChange]);
 
   const handlePortionLabelChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    handleSinglePortionChange("label", e.target.value);
-  }, [handleSinglePortionChange]);
+    handlePortionChange(0, "label", e.target.value);
+  }, [handlePortionChange]);
 
   const handlePortionWeightChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    handleSinglePortionChange("total_weight_g", e.target.value);
-  }, [handleSinglePortionChange]);
+    handlePortionChange(0, "total_weight_g", e.target.value);
+  }, [handlePortionChange]);
 
   return (
     <div className="border-dashed border rounded-lg p-3 sm:p-4 mb-4 bg-white">
@@ -375,7 +373,7 @@ export function UploaderComponentEditor({
         <Label className="text-sm font-medium">Portion Sizes</Label>
         <div className="space-y-2">
           {(component.portions || [{ label: "2P", total_weight_g: "" }]).map((portion: PortionInput, idx: number) => (
-            <div key={`component-${componentIndex}-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex gap-2 items-center">
+            <div key={`component-${componentIndex}-portion-${idx}`} className="flex gap-2 items-center">
               <select
                 value={portion.label || '2P'}
                 onChange={(e) => handlePortionChange(idx, "label", e.target.value)}

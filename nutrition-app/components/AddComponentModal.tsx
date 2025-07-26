@@ -280,7 +280,7 @@ export function AddComponentModal({ mealId }: AddComponentModalProps) {
             <Label>Portion Sizes</Label>
             <div className="space-y-2">
               {portions.map((portion, idx) => (
-                <div key={`add-portion-${idx}-${portion.label}-${portion.total_weight_g}`} className="flex gap-2 items-center">
+                <div key={`add-portion-${idx}`} className="flex gap-2 items-center">
                   <select
                     value={portion.label || '2P'}
                     onChange={e => handlePortionChange(idx, "label", e.target.value)}
