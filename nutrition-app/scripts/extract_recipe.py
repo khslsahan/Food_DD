@@ -210,11 +210,44 @@ def extract_recipe_from_section(doc, section, tables_for_recipe):
         recipe = {
             "name": section['name'],
             "description": f"Extracted from {section['name']}",
+            "packaging": "",
+            "objective": "",
+            "itemCode": "",
             "components": []
         }
         
-        for i, table in enumerate(tables_for_recipe):
-            component_name = f"Component {i+1}"
+        # First pass: Look for general information table (usually the first table)
+        if tables_for_recipe and len(tables_for_recipe) > 0:
+            first_table = tables_for_recipe[0]
+            if first_table['rows']:
+                # Check if this looks like a general info table (2 columns, key-value pairs)
+                if len(first_table['rows']) > 0 and len(first_table['rows'][0]) == 2:
+                    for row in first_table['rows']:
+                        if len(row) == 2:
+                            key = row[0].strip().lower()
+                            value = row[1].strip()
+                            
+                            if 'package' in key:
+                                recipe["packaging"] = value
+                            elif 'objective' in key:
+                                recipe["objective"] = value
+                            elif 'item code' in key or 'itemcode' in key:
+                                recipe["itemCode"] = value
+                            elif 'item name' in key or 'itemname' in key:
+                                # Update recipe name if it's more specific
+                                if value and value != recipe["name"]:
+                                    recipe["name"] = value
+        
+        # Second pass: Process ingredient tables (skip the first table if it was general info)
+        ingredient_tables = tables_for_recipe[1:] if len(tables_for_recipe) > 1 and recipe["packaging"] else tables_for_recipe
+        
+        # Get component names from document paragraphs that appear before each table
+        component_names = extract_component_names_from_document(doc, len(ingredient_tables))
+        
+        for i, table in enumerate(ingredient_tables):
+            # Use extracted component name or fallback to generic name
+            component_name = component_names[i] if i < len(component_names) and component_names[i] else f"Component {i+1}"
+            
             component = {
                 "name": component_name,
                 "ingredients": []
@@ -272,6 +305,84 @@ def extract_recipe_from_section(doc, section, tables_for_recipe):
         logger.error(f"Error extracting recipe from section: {e}")
         return None
 
+def extract_component_names_from_document(doc, num_tables):
+    """Extract component names from document paragraphs that appear before tables."""
+    try:
+        component_names = []
+        table_count = 0
+        
+        for i, para in enumerate(doc.paragraphs):
+            text = para.text.strip()
+            
+            # Skip empty paragraphs
+            if not text:
+                continue
+            
+            # Skip metadata text (contains numbers and units)
+            if re.search(r'\d+\s*(g|kcal|cal|gram|pound|oz|ml|l)', text.lower()):
+                continue
+            
+            # Skip summary/total text
+            if any(keyword in text.lower() for keyword in ['total', 'summary', 'yield', 'calories per gram', 'cooked yield']):
+                continue
+            
+            # Pattern 1: Numbered sections like "3. Mushroom Sautéed with Gochujang"
+            numbered_match = re.match(r'^\d+\.\s*(.+)', text)
+            if numbered_match:
+                component_name = numbered_match.group(1).strip()
+                if component_name and len(component_name) > 2:
+                    # Clean up the component name
+                    name = component_name.strip()
+                    # Remove common suffixes
+                    name = re.sub(r'\s*ingredients?\s*$', '', name, flags=re.IGNORECASE)
+                    name = re.sub(r'\s*composition\s*$', '', name, flags=re.IGNORECASE)
+                    name = re.sub(r'\s*breakdown\s*$', '', name, flags=re.IGNORECASE)
+                    
+                    if name and len(name) > 2:
+                        component_names.append(name)
+                        table_count += 1
+                        continue
+            
+            # Pattern 2: Bold section titles like "Beef Bulgogi Ingredients"
+            # Check if this looks like a component title (contains keywords)
+            if any(keyword in text.lower() for keyword in [
+                'ingredients', 'composition', 'sautéed', 'dressing', 'bulgogi', 
+                'mushroom', 'sauce', 'marinade', 'breakdown'
+            ]):
+                # Clean up the component name
+                name = text.strip()
+                # Remove common suffixes
+                name = re.sub(r'\s*ingredients?\s*$', '', name, flags=re.IGNORECASE)
+                name = re.sub(r'\s*composition\s*$', '', name, flags=re.IGNORECASE)
+                name = re.sub(r'\s*breakdown\s*$', '', name, flags=re.IGNORECASE)
+                
+                if name and len(name) > 2:
+                    component_names.append(name)
+                    table_count += 1
+                    continue
+            
+            # Pattern 3: Check if this paragraph is followed by a table
+            # This is a fallback for when we can't identify the pattern clearly
+            if table_count < num_tables and len(text) > 3 and len(text) < 100:
+                # Check if this looks like a component title (not too long, not too short)
+                if not any(keyword in text.lower() for keyword in ['total', 'summary', 'note', 'instruction', 'yield', 'calories', 'cooked']):
+                    # Additional check: should not contain measurement patterns
+                    if not re.search(r'\d+\s*(g|kcal|cal|gram|pound|oz|ml|l)', text):
+                        component_names.append(text)
+                        table_count += 1
+        
+        # If we didn't find enough component names, fill with generic names
+        while len(component_names) < num_tables:
+            component_names.append(f"Component {len(component_names) + 1}")
+        
+        # Return only the number of names we need
+        return component_names[:num_tables]
+        
+    except Exception as e:
+        logger.error(f"Error extracting component names from document: {e}")
+        # Return generic names as fallback
+        return [f"Component {i+1}" for i in range(num_tables)]
+
 def extract_multiple_recipes_from_docx(docx_path):
     """Extract multiple recipes from a Word document with proper table association."""
     try:
@@ -317,11 +428,44 @@ def extract_multiple_recipes_from_docx(docx_path):
             recipe = {
                 "name": Path(docx_path).stem,
                 "description": f"Extracted from {Path(docx_path).name}",
+                "packaging": "",
+                "objective": "",
+                "itemCode": "",
                 "components": []
             }
             
-            for i, table in enumerate(tables[:-1]):  # Skip the last table (usually portion options)
-                component_name = f"Component {i+1}"
+            # First pass: Check if first table contains general information
+            if tables and len(tables) > 0:
+                first_table = tables[0]
+                if first_table['rows']:
+                    # Check if this looks like a general info table (2 columns, key-value pairs)
+                    if len(first_table['rows']) > 0 and len(first_table['rows'][0]) == 2:
+                        for row in first_table['rows']:
+                            if len(row) == 2:
+                                key = row[0].strip().lower()
+                                value = row[1].strip()
+                                
+                                if 'package' in key:
+                                    recipe["packaging"] = value
+                                elif 'objective' in key:
+                                    recipe["objective"] = value
+                                elif 'item code' in key or 'itemcode' in key:
+                                    recipe["itemCode"] = value
+                                elif 'item name' in key or 'itemname' in key:
+                                    # Update recipe name if it's more specific
+                                    if value and value != recipe["name"]:
+                                        recipe["name"] = value
+            
+            # Second pass: Process ingredient tables (skip the first table if it was general info)
+            ingredient_tables = tables[1:] if len(tables) > 1 and recipe["packaging"] else tables[:-1]  # Skip the last table (usually portion options)
+            
+            # Get component names from document paragraphs that appear before each table
+            component_names = extract_component_names_from_document(doc, len(ingredient_tables))
+            
+            for i, table in enumerate(ingredient_tables):
+                # Use extracted component name or fallback to generic name
+                component_name = component_names[i] if i < len(component_names) and component_names[i] else f"Component {i+1}"
+                
                 component = {
                     "name": component_name,
                     "ingredients": []
@@ -393,11 +537,45 @@ def extract_recipe_from_docx_single(docx_path):
         recipe = {
             "name": Path(docx_path).stem,
             "description": f"Extracted from {Path(docx_path).name}",
+            "packaging": "",
+            "objective": "",
+            "itemCode": "",
             "components": []
         }
         
-        for i, table in enumerate(tables[:-1]):  # Skip the last table (usually portion options)
-            component_name = f"Component {i+1}"
+        # First pass: Check if first table contains general information
+        if tables and len(tables) > 0:
+            first_table = tables[0]
+            if first_table['rows']:
+                # Check if this looks like a general info table (2 columns, key-value pairs)
+                if len(first_table['rows']) > 0 and len(first_table['rows'][0]) == 2:
+                    for row in first_table['rows']:
+                        if len(row) == 2:
+                            key = row[0].strip().lower()
+                            value = row[1].strip()
+                            
+                            if 'package' in key:
+                                recipe["packaging"] = value
+                            elif 'objective' in key:
+                                recipe["objective"] = value
+                            elif 'item code' in key or 'itemcode' in key:
+                                recipe["itemCode"] = value
+                            elif 'item name' in key or 'itemname' in key:
+                                # Update recipe name if it's more specific
+                                if value and value != recipe["name"]:
+                                    recipe["name"] = value
+        
+        # Second pass: Process ingredient tables (skip the first table if it was general info)
+        ingredient_tables = tables[1:] if len(tables) > 1 and recipe["packaging"] else tables
+        
+        # Get component names from document paragraphs that appear before each table
+        doc = Document(docx_path)
+        component_names = extract_component_names_from_document(doc, len(ingredient_tables))
+        
+        for i, table in enumerate(ingredient_tables):
+            # Use extracted component name or fallback to generic name
+            component_name = component_names[i] if i < len(component_names) and component_names[i] else f"Component {i+1}"
+            
             component = {
                 "name": component_name,
                 "ingredients": []
