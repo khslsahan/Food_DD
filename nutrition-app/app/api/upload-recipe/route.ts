@@ -5,6 +5,7 @@ import { existsSync } from "fs";
 import { spawn } from "child_process";
 import prisma from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { findMealByNameCaseInsensitive } from "@/lib/data";
 
 // Types for the extracted recipe data
 interface ExtractedIngredient {
@@ -158,9 +159,7 @@ export async function PUT(request: NextRequest) {
     const savedRecipe = await saveRecipeToDatabase(recipe);
 
     // Check if this was an update or new creation
-    const existingMeal = await prisma.meals.findUnique({
-      where: { meal_name: recipe.name }
-    });
+    const existingMeal = await findMealByNameCaseInsensitive(recipe.name);
 
     const isUpdate = existingMeal && existingMeal.meal_id === savedRecipe.mealId;
 
@@ -188,10 +187,8 @@ export async function PUT(request: NextRequest) {
 }
 
 async function saveRecipeToDatabase(recipe: ExtractedRecipe) {
-  // Check if meal already exists
-  let meal = await prisma.meals.findUnique({
-    where: { meal_name: recipe.name }
-  });
+  // Check if meal already exists (case insensitive)
+  let meal = await findMealByNameCaseInsensitive(recipe.name);
 
   if (meal) {
     // Meal already exists, update it instead of creating new one
