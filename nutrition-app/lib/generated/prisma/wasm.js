@@ -156,14 +156,14 @@ exports.Prisma.MealsScalarFieldEnum = {
   meal_id: 'meal_id',
   meal_name: 'meal_name',
   description: 'description',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
   is_balanced: 'is_balanced',
   is_gourmet: 'is_gourmet',
   is_weight_loss: 'is_weight_loss',
-  package: 'package',
-  objective: 'objective',
   item_code: 'item_code',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  objective: 'objective',
+  package: 'package'
 };
 
 exports.Prisma.Portion_optionsScalarFieldEnum = {

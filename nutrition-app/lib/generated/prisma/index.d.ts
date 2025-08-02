@@ -1597,13 +1597,13 @@ export namespace Prisma {
    */
 
   export type ComponentsCountOutputType = {
-    recipe_ingredients: number
     component_portions: number
+    recipe_ingredients: number
   }
 
   export type ComponentsCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    recipe_ingredients?: boolean | ComponentsCountOutputTypeCountRecipe_ingredientsArgs
     component_portions?: boolean | ComponentsCountOutputTypeCountComponent_portionsArgs
+    recipe_ingredients?: boolean | ComponentsCountOutputTypeCountRecipe_ingredientsArgs
   }
 
   // Custom InputTypes
@@ -1620,15 +1620,15 @@ export namespace Prisma {
   /**
    * ComponentsCountOutputType without action
    */
-  export type ComponentsCountOutputTypeCountRecipe_ingredientsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: recipe_ingredientsWhereInput
+  export type ComponentsCountOutputTypeCountComponent_portionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: component_portionsWhereInput
   }
 
   /**
    * ComponentsCountOutputType without action
    */
-  export type ComponentsCountOutputTypeCountComponent_portionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: component_portionsWhereInput
+  export type ComponentsCountOutputTypeCountRecipe_ingredientsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: recipe_ingredientsWhereInput
   }
 
 
@@ -1976,10 +1976,10 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     category_id?: boolean
-    meals?: boolean | components$mealsArgs<ExtArgs>
-    recipe_ingredients?: boolean | components$recipe_ingredientsArgs<ExtArgs>
     component_portions?: boolean | components$component_portionsArgs<ExtArgs>
     category?: boolean | components$categoryArgs<ExtArgs>
+    meals?: boolean | components$mealsArgs<ExtArgs>
+    recipe_ingredients?: boolean | components$recipe_ingredientsArgs<ExtArgs>
     _count?: boolean | ComponentsCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["components"]>
 
@@ -1992,8 +1992,8 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     category_id?: boolean
-    meals?: boolean | components$mealsArgs<ExtArgs>
     category?: boolean | components$categoryArgs<ExtArgs>
+    meals?: boolean | components$mealsArgs<ExtArgs>
   }, ExtArgs["result"]["components"]>
 
   export type componentsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -2005,8 +2005,8 @@ export namespace Prisma {
     created_at?: boolean
     updated_at?: boolean
     category_id?: boolean
-    meals?: boolean | components$mealsArgs<ExtArgs>
     category?: boolean | components$categoryArgs<ExtArgs>
+    meals?: boolean | components$mealsArgs<ExtArgs>
   }, ExtArgs["result"]["components"]>
 
   export type componentsSelectScalar = {
@@ -2022,28 +2022,28 @@ export namespace Prisma {
 
   export type componentsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"component_id" | "meal_id" | "component_name" | "before_cook_weight_g" | "after_cook_weight_g" | "created_at" | "updated_at" | "category_id", ExtArgs["result"]["components"]>
   export type componentsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    meals?: boolean | components$mealsArgs<ExtArgs>
-    recipe_ingredients?: boolean | components$recipe_ingredientsArgs<ExtArgs>
     component_portions?: boolean | components$component_portionsArgs<ExtArgs>
     category?: boolean | components$categoryArgs<ExtArgs>
+    meals?: boolean | components$mealsArgs<ExtArgs>
+    recipe_ingredients?: boolean | components$recipe_ingredientsArgs<ExtArgs>
     _count?: boolean | ComponentsCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type componentsIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    meals?: boolean | components$mealsArgs<ExtArgs>
     category?: boolean | components$categoryArgs<ExtArgs>
+    meals?: boolean | components$mealsArgs<ExtArgs>
   }
   export type componentsIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    meals?: boolean | components$mealsArgs<ExtArgs>
     category?: boolean | components$categoryArgs<ExtArgs>
+    meals?: boolean | components$mealsArgs<ExtArgs>
   }
 
   export type $componentsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "components"
     objects: {
-      meals: Prisma.$mealsPayload<ExtArgs> | null
-      recipe_ingredients: Prisma.$recipe_ingredientsPayload<ExtArgs>[]
       component_portions: Prisma.$component_portionsPayload<ExtArgs>[]
       category: Prisma.$component_categoryPayload<ExtArgs> | null
+      meals: Prisma.$mealsPayload<ExtArgs> | null
+      recipe_ingredients: Prisma.$recipe_ingredientsPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       component_id: number
@@ -2448,10 +2448,10 @@ export namespace Prisma {
    */
   export interface Prisma__componentsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    meals<T extends components$mealsArgs<ExtArgs> = {}>(args?: Subset<T, components$mealsArgs<ExtArgs>>): Prisma__mealsClient<$Result.GetResult<Prisma.$mealsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-    recipe_ingredients<T extends components$recipe_ingredientsArgs<ExtArgs> = {}>(args?: Subset<T, components$recipe_ingredientsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$recipe_ingredientsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     component_portions<T extends components$component_portionsArgs<ExtArgs> = {}>(args?: Subset<T, components$component_portionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$component_portionsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     category<T extends components$categoryArgs<ExtArgs> = {}>(args?: Subset<T, components$categoryArgs<ExtArgs>>): Prisma__component_categoryClient<$Result.GetResult<Prisma.$component_categoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    meals<T extends components$mealsArgs<ExtArgs> = {}>(args?: Subset<T, components$mealsArgs<ExtArgs>>): Prisma__mealsClient<$Result.GetResult<Prisma.$mealsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    recipe_ingredients<T extends components$recipe_ingredientsArgs<ExtArgs> = {}>(args?: Subset<T, components$recipe_ingredientsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$recipe_ingredientsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2885,49 +2885,6 @@ export namespace Prisma {
   }
 
   /**
-   * components.meals
-   */
-  export type components$mealsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the meals
-     */
-    select?: mealsSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the meals
-     */
-    omit?: mealsOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: mealsInclude<ExtArgs> | null
-    where?: mealsWhereInput
-  }
-
-  /**
-   * components.recipe_ingredients
-   */
-  export type components$recipe_ingredientsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the recipe_ingredients
-     */
-    select?: recipe_ingredientsSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the recipe_ingredients
-     */
-    omit?: recipe_ingredientsOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: recipe_ingredientsInclude<ExtArgs> | null
-    where?: recipe_ingredientsWhereInput
-    orderBy?: recipe_ingredientsOrderByWithRelationInput | recipe_ingredientsOrderByWithRelationInput[]
-    cursor?: recipe_ingredientsWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Recipe_ingredientsScalarFieldEnum | Recipe_ingredientsScalarFieldEnum[]
-  }
-
-  /**
    * components.component_portions
    */
   export type components$component_portionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2968,6 +2925,49 @@ export namespace Prisma {
      */
     include?: component_categoryInclude<ExtArgs> | null
     where?: component_categoryWhereInput
+  }
+
+  /**
+   * components.meals
+   */
+  export type components$mealsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the meals
+     */
+    select?: mealsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the meals
+     */
+    omit?: mealsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: mealsInclude<ExtArgs> | null
+    where?: mealsWhereInput
+  }
+
+  /**
+   * components.recipe_ingredients
+   */
+  export type components$recipe_ingredientsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the recipe_ingredients
+     */
+    select?: recipe_ingredientsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the recipe_ingredients
+     */
+    omit?: recipe_ingredientsOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: recipe_ingredientsInclude<ExtArgs> | null
+    where?: recipe_ingredientsWhereInput
+    orderBy?: recipe_ingredientsOrderByWithRelationInput | recipe_ingredientsOrderByWithRelationInput[]
+    cursor?: recipe_ingredientsWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Recipe_ingredientsScalarFieldEnum | Recipe_ingredientsScalarFieldEnum[]
   }
 
   /**
@@ -5298,42 +5298,42 @@ export namespace Prisma {
     meal_id: number | null
     meal_name: string | null
     description: string | null
+    created_at: Date | null
+    updated_at: Date | null
     is_balanced: boolean | null
     is_gourmet: boolean | null
     is_weight_loss: boolean | null
-    package: string | null
-    objective: string | null
     item_code: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    objective: string | null
+    package: string | null
   }
 
   export type MealsMaxAggregateOutputType = {
     meal_id: number | null
     meal_name: string | null
     description: string | null
+    created_at: Date | null
+    updated_at: Date | null
     is_balanced: boolean | null
     is_gourmet: boolean | null
     is_weight_loss: boolean | null
-    package: string | null
-    objective: string | null
     item_code: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    objective: string | null
+    package: string | null
   }
 
   export type MealsCountAggregateOutputType = {
     meal_id: number
     meal_name: number
     description: number
+    created_at: number
+    updated_at: number
     is_balanced: number
     is_gourmet: number
     is_weight_loss: number
-    package: number
-    objective: number
     item_code: number
-    created_at: number
-    updated_at: number
+    objective: number
+    package: number
     _all: number
   }
 
@@ -5350,42 +5350,42 @@ export namespace Prisma {
     meal_id?: true
     meal_name?: true
     description?: true
+    created_at?: true
+    updated_at?: true
     is_balanced?: true
     is_gourmet?: true
     is_weight_loss?: true
-    package?: true
-    objective?: true
     item_code?: true
-    created_at?: true
-    updated_at?: true
+    objective?: true
+    package?: true
   }
 
   export type MealsMaxAggregateInputType = {
     meal_id?: true
     meal_name?: true
     description?: true
+    created_at?: true
+    updated_at?: true
     is_balanced?: true
     is_gourmet?: true
     is_weight_loss?: true
-    package?: true
-    objective?: true
     item_code?: true
-    created_at?: true
-    updated_at?: true
+    objective?: true
+    package?: true
   }
 
   export type MealsCountAggregateInputType = {
     meal_id?: true
     meal_name?: true
     description?: true
+    created_at?: true
+    updated_at?: true
     is_balanced?: true
     is_gourmet?: true
     is_weight_loss?: true
-    package?: true
-    objective?: true
     item_code?: true
-    created_at?: true
-    updated_at?: true
+    objective?: true
+    package?: true
     _all?: true
   }
 
@@ -5479,14 +5479,14 @@ export namespace Prisma {
     meal_id: number
     meal_name: string
     description: string | null
+    created_at: Date | null
+    updated_at: Date | null
     is_balanced: boolean
     is_gourmet: boolean
     is_weight_loss: boolean
-    package: string | null
-    objective: string | null
     item_code: string | null
-    created_at: Date | null
-    updated_at: Date | null
+    objective: string | null
+    package: string | null
     _count: MealsCountAggregateOutputType | null
     _avg: MealsAvgAggregateOutputType | null
     _sum: MealsSumAggregateOutputType | null
@@ -5512,14 +5512,14 @@ export namespace Prisma {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    created_at?: boolean
+    updated_at?: boolean
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: boolean
-    objective?: boolean
     item_code?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    objective?: boolean
+    package?: boolean
     components?: boolean | meals$componentsArgs<ExtArgs>
     portion_options?: boolean | meals$portion_optionsArgs<ExtArgs>
     _count?: boolean | MealsCountOutputTypeDefaultArgs<ExtArgs>
@@ -5529,45 +5529,45 @@ export namespace Prisma {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    created_at?: boolean
+    updated_at?: boolean
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: boolean
-    objective?: boolean
     item_code?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    objective?: boolean
+    package?: boolean
   }, ExtArgs["result"]["meals"]>
 
   export type mealsSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    created_at?: boolean
+    updated_at?: boolean
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: boolean
-    objective?: boolean
     item_code?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    objective?: boolean
+    package?: boolean
   }, ExtArgs["result"]["meals"]>
 
   export type mealsSelectScalar = {
     meal_id?: boolean
     meal_name?: boolean
     description?: boolean
+    created_at?: boolean
+    updated_at?: boolean
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: boolean
-    objective?: boolean
     item_code?: boolean
-    created_at?: boolean
-    updated_at?: boolean
+    objective?: boolean
+    package?: boolean
   }
 
-  export type mealsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"meal_id" | "meal_name" | "description" | "is_balanced" | "is_gourmet" | "is_weight_loss" | "package" | "objective" | "item_code" | "created_at" | "updated_at", ExtArgs["result"]["meals"]>
+  export type mealsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"meal_id" | "meal_name" | "description" | "created_at" | "updated_at" | "is_balanced" | "is_gourmet" | "is_weight_loss" | "item_code" | "objective" | "package", ExtArgs["result"]["meals"]>
   export type mealsInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     components?: boolean | meals$componentsArgs<ExtArgs>
     portion_options?: boolean | meals$portion_optionsArgs<ExtArgs>
@@ -5586,14 +5586,14 @@ export namespace Prisma {
       meal_id: number
       meal_name: string
       description: string | null
+      created_at: Date | null
+      updated_at: Date | null
       is_balanced: boolean
       is_gourmet: boolean
       is_weight_loss: boolean
-      package: string | null
-      objective: string | null
       item_code: string | null
-      created_at: Date | null
-      updated_at: Date | null
+      objective: string | null
+      package: string | null
     }, ExtArgs["result"]["meals"]>
     composites: {}
   }
@@ -6022,14 +6022,14 @@ export namespace Prisma {
     readonly meal_id: FieldRef<"meals", 'Int'>
     readonly meal_name: FieldRef<"meals", 'String'>
     readonly description: FieldRef<"meals", 'String'>
+    readonly created_at: FieldRef<"meals", 'DateTime'>
+    readonly updated_at: FieldRef<"meals", 'DateTime'>
     readonly is_balanced: FieldRef<"meals", 'Boolean'>
     readonly is_gourmet: FieldRef<"meals", 'Boolean'>
     readonly is_weight_loss: FieldRef<"meals", 'Boolean'>
-    readonly package: FieldRef<"meals", 'String'>
-    readonly objective: FieldRef<"meals", 'String'>
     readonly item_code: FieldRef<"meals", 'String'>
-    readonly created_at: FieldRef<"meals", 'DateTime'>
-    readonly updated_at: FieldRef<"meals", 'DateTime'>
+    readonly objective: FieldRef<"meals", 'String'>
+    readonly package: FieldRef<"meals", 'String'>
   }
     
 
@@ -11923,14 +11923,14 @@ export namespace Prisma {
     meal_id: 'meal_id',
     meal_name: 'meal_name',
     description: 'description',
+    created_at: 'created_at',
+    updated_at: 'updated_at',
     is_balanced: 'is_balanced',
     is_gourmet: 'is_gourmet',
     is_weight_loss: 'is_weight_loss',
-    package: 'package',
-    objective: 'objective',
     item_code: 'item_code',
-    created_at: 'created_at',
-    updated_at: 'updated_at'
+    objective: 'objective',
+    package: 'package'
   };
 
   export type MealsScalarFieldEnum = (typeof MealsScalarFieldEnum)[keyof typeof MealsScalarFieldEnum]
@@ -12111,10 +12111,10 @@ export namespace Prisma {
     created_at?: DateTimeNullableFilter<"components"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"components"> | Date | string | null
     category_id?: IntNullableFilter<"components"> | number | null
-    meals?: XOR<MealsNullableScalarRelationFilter, mealsWhereInput> | null
-    recipe_ingredients?: Recipe_ingredientsListRelationFilter
     component_portions?: Component_portionsListRelationFilter
     category?: XOR<Component_categoryNullableScalarRelationFilter, component_categoryWhereInput> | null
+    meals?: XOR<MealsNullableScalarRelationFilter, mealsWhereInput> | null
+    recipe_ingredients?: Recipe_ingredientsListRelationFilter
   }
 
   export type componentsOrderByWithRelationInput = {
@@ -12126,10 +12126,10 @@ export namespace Prisma {
     created_at?: SortOrderInput | SortOrder
     updated_at?: SortOrderInput | SortOrder
     category_id?: SortOrderInput | SortOrder
-    meals?: mealsOrderByWithRelationInput
-    recipe_ingredients?: recipe_ingredientsOrderByRelationAggregateInput
     component_portions?: component_portionsOrderByRelationAggregateInput
     category?: component_categoryOrderByWithRelationInput
+    meals?: mealsOrderByWithRelationInput
+    recipe_ingredients?: recipe_ingredientsOrderByRelationAggregateInput
   }
 
   export type componentsWhereUniqueInput = Prisma.AtLeast<{
@@ -12144,10 +12144,10 @@ export namespace Prisma {
     created_at?: DateTimeNullableFilter<"components"> | Date | string | null
     updated_at?: DateTimeNullableFilter<"components"> | Date | string | null
     category_id?: IntNullableFilter<"components"> | number | null
-    meals?: XOR<MealsNullableScalarRelationFilter, mealsWhereInput> | null
-    recipe_ingredients?: Recipe_ingredientsListRelationFilter
     component_portions?: Component_portionsListRelationFilter
     category?: XOR<Component_categoryNullableScalarRelationFilter, component_categoryWhereInput> | null
+    meals?: XOR<MealsNullableScalarRelationFilter, mealsWhereInput> | null
+    recipe_ingredients?: Recipe_ingredientsListRelationFilter
   }, "component_id">
 
   export type componentsOrderByWithAggregationInput = {
@@ -12327,14 +12327,14 @@ export namespace Prisma {
     meal_id?: IntFilter<"meals"> | number
     meal_name?: StringFilter<"meals"> | string
     description?: StringNullableFilter<"meals"> | string | null
+    created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
+    updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     is_balanced?: BoolFilter<"meals"> | boolean
     is_gourmet?: BoolFilter<"meals"> | boolean
     is_weight_loss?: BoolFilter<"meals"> | boolean
-    package?: StringNullableFilter<"meals"> | string | null
-    objective?: StringNullableFilter<"meals"> | string | null
     item_code?: StringNullableFilter<"meals"> | string | null
-    created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
-    updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
+    objective?: StringNullableFilter<"meals"> | string | null
+    package?: StringNullableFilter<"meals"> | string | null
     components?: ComponentsListRelationFilter
     portion_options?: Portion_optionsListRelationFilter
   }
@@ -12343,14 +12343,14 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrderInput | SortOrder
+    created_at?: SortOrderInput | SortOrder
+    updated_at?: SortOrderInput | SortOrder
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
-    package?: SortOrderInput | SortOrder
-    objective?: SortOrderInput | SortOrder
     item_code?: SortOrderInput | SortOrder
-    created_at?: SortOrderInput | SortOrder
-    updated_at?: SortOrderInput | SortOrder
+    objective?: SortOrderInput | SortOrder
+    package?: SortOrderInput | SortOrder
     components?: componentsOrderByRelationAggregateInput
     portion_options?: portion_optionsOrderByRelationAggregateInput
   }
@@ -12362,14 +12362,14 @@ export namespace Prisma {
     OR?: mealsWhereInput[]
     NOT?: mealsWhereInput | mealsWhereInput[]
     description?: StringNullableFilter<"meals"> | string | null
+    created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
+    updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
     is_balanced?: BoolFilter<"meals"> | boolean
     is_gourmet?: BoolFilter<"meals"> | boolean
     is_weight_loss?: BoolFilter<"meals"> | boolean
-    package?: StringNullableFilter<"meals"> | string | null
-    objective?: StringNullableFilter<"meals"> | string | null
     item_code?: StringNullableFilter<"meals"> | string | null
-    created_at?: DateTimeNullableFilter<"meals"> | Date | string | null
-    updated_at?: DateTimeNullableFilter<"meals"> | Date | string | null
+    objective?: StringNullableFilter<"meals"> | string | null
+    package?: StringNullableFilter<"meals"> | string | null
     components?: ComponentsListRelationFilter
     portion_options?: Portion_optionsListRelationFilter
   }, "meal_id" | "meal_name">
@@ -12378,14 +12378,14 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrderInput | SortOrder
+    created_at?: SortOrderInput | SortOrder
+    updated_at?: SortOrderInput | SortOrder
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
-    package?: SortOrderInput | SortOrder
-    objective?: SortOrderInput | SortOrder
     item_code?: SortOrderInput | SortOrder
-    created_at?: SortOrderInput | SortOrder
-    updated_at?: SortOrderInput | SortOrder
+    objective?: SortOrderInput | SortOrder
+    package?: SortOrderInput | SortOrder
     _count?: mealsCountOrderByAggregateInput
     _avg?: mealsAvgOrderByAggregateInput
     _max?: mealsMaxOrderByAggregateInput
@@ -12400,14 +12400,14 @@ export namespace Prisma {
     meal_id?: IntWithAggregatesFilter<"meals"> | number
     meal_name?: StringWithAggregatesFilter<"meals"> | string
     description?: StringNullableWithAggregatesFilter<"meals"> | string | null
+    created_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
+    updated_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
     is_balanced?: BoolWithAggregatesFilter<"meals"> | boolean
     is_gourmet?: BoolWithAggregatesFilter<"meals"> | boolean
     is_weight_loss?: BoolWithAggregatesFilter<"meals"> | boolean
-    package?: StringNullableWithAggregatesFilter<"meals"> | string | null
-    objective?: StringNullableWithAggregatesFilter<"meals"> | string | null
     item_code?: StringNullableWithAggregatesFilter<"meals"> | string | null
-    created_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
-    updated_at?: DateTimeNullableWithAggregatesFilter<"meals"> | Date | string | null
+    objective?: StringNullableWithAggregatesFilter<"meals"> | string | null
+    package?: StringNullableWithAggregatesFilter<"meals"> | string | null
   }
 
   export type portion_optionsWhereInput = {
@@ -12695,10 +12695,10 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    meals?: mealsCreateNestedOneWithoutComponentsInput
-    recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
     category?: component_categoryCreateNestedOneWithoutComponentsInput
+    meals?: mealsCreateNestedOneWithoutComponentsInput
+    recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateInput = {
@@ -12710,8 +12710,8 @@ export namespace Prisma {
     created_at?: Date | string | null
     updated_at?: Date | string | null
     category_id?: number | null
-    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
+    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
   }
 
   export type componentsUpdateInput = {
@@ -12720,10 +12720,10 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    meals?: mealsUpdateOneWithoutComponentsNestedInput
-    recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
     category?: component_categoryUpdateOneWithoutComponentsNestedInput
+    meals?: mealsUpdateOneWithoutComponentsNestedInput
+    recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateInput = {
@@ -12735,8 +12735,8 @@ export namespace Prisma {
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     category_id?: NullableIntFieldUpdateOperationsInput | number | null
-    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
+    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
   }
 
   export type componentsCreateManyInput = {
@@ -12916,14 +12916,14 @@ export namespace Prisma {
   export type mealsCreateInput = {
     meal_name: string
     description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
     item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
+    objective?: string | null
+    package?: string | null
     components?: componentsCreateNestedManyWithoutMealsInput
     portion_options?: portion_optionsCreateNestedManyWithoutMealsInput
   }
@@ -12932,14 +12932,14 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
     item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
+    objective?: string | null
+    package?: string | null
     components?: componentsUncheckedCreateNestedManyWithoutMealsInput
     portion_options?: portion_optionsUncheckedCreateNestedManyWithoutMealsInput
   }
@@ -12947,14 +12947,14 @@ export namespace Prisma {
   export type mealsUpdateInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
     item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
     components?: componentsUpdateManyWithoutMealsNestedInput
     portion_options?: portion_optionsUpdateManyWithoutMealsNestedInput
   }
@@ -12963,14 +12963,14 @@ export namespace Prisma {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
     item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
     components?: componentsUncheckedUpdateManyWithoutMealsNestedInput
     portion_options?: portion_optionsUncheckedUpdateManyWithoutMealsNestedInput
   }
@@ -12979,41 +12979,41 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
     item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
+    objective?: string | null
+    package?: string | null
   }
 
   export type mealsUpdateManyMutationInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
     item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type mealsUncheckedUpdateManyInput = {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
     item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type portion_optionsCreateInput = {
@@ -13337,17 +13337,6 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
-  export type MealsNullableScalarRelationFilter = {
-    is?: mealsWhereInput | null
-    isNot?: mealsWhereInput | null
-  }
-
-  export type Recipe_ingredientsListRelationFilter = {
-    every?: recipe_ingredientsWhereInput
-    some?: recipe_ingredientsWhereInput
-    none?: recipe_ingredientsWhereInput
-  }
-
   export type Component_portionsListRelationFilter = {
     every?: component_portionsWhereInput
     some?: component_portionsWhereInput
@@ -13359,16 +13348,27 @@ export namespace Prisma {
     isNot?: component_categoryWhereInput | null
   }
 
+  export type MealsNullableScalarRelationFilter = {
+    is?: mealsWhereInput | null
+    isNot?: mealsWhereInput | null
+  }
+
+  export type Recipe_ingredientsListRelationFilter = {
+    every?: recipe_ingredientsWhereInput
+    some?: recipe_ingredientsWhereInput
+    none?: recipe_ingredientsWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
-  export type recipe_ingredientsOrderByRelationAggregateInput = {
+  export type component_portionsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
-  export type component_portionsOrderByRelationAggregateInput = {
+  export type recipe_ingredientsOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -13673,14 +13673,14 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
-    package?: SortOrder
-    objective?: SortOrder
     item_code?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    objective?: SortOrder
+    package?: SortOrder
   }
 
   export type mealsAvgOrderByAggregateInput = {
@@ -13691,28 +13691,28 @@ export namespace Prisma {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
-    package?: SortOrder
-    objective?: SortOrder
     item_code?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    objective?: SortOrder
+    package?: SortOrder
   }
 
   export type mealsMinOrderByAggregateInput = {
     meal_id?: SortOrder
     meal_name?: SortOrder
     description?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
     is_balanced?: SortOrder
     is_gourmet?: SortOrder
     is_weight_loss?: SortOrder
-    package?: SortOrder
-    objective?: SortOrder
     item_code?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
+    objective?: SortOrder
+    package?: SortOrder
   }
 
   export type mealsSumOrderByAggregateInput = {
@@ -13952,19 +13952,6 @@ export namespace Prisma {
     id?: SortOrder
   }
 
-  export type mealsCreateNestedOneWithoutComponentsInput = {
-    create?: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
-    connectOrCreate?: mealsCreateOrConnectWithoutComponentsInput
-    connect?: mealsWhereUniqueInput
-  }
-
-  export type recipe_ingredientsCreateNestedManyWithoutComponentsInput = {
-    create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
-    connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
-    createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
-    connect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-  }
-
   export type component_portionsCreateNestedManyWithoutComponentsInput = {
     create?: XOR<component_portionsCreateWithoutComponentsInput, component_portionsUncheckedCreateWithoutComponentsInput> | component_portionsCreateWithoutComponentsInput[] | component_portionsUncheckedCreateWithoutComponentsInput[]
     connectOrCreate?: component_portionsCreateOrConnectWithoutComponentsInput | component_portionsCreateOrConnectWithoutComponentsInput[]
@@ -13978,7 +13965,13 @@ export namespace Prisma {
     connect?: component_categoryWhereUniqueInput
   }
 
-  export type recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput = {
+  export type mealsCreateNestedOneWithoutComponentsInput = {
+    create?: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
+    connectOrCreate?: mealsCreateOrConnectWithoutComponentsInput
+    connect?: mealsWhereUniqueInput
+  }
+
+  export type recipe_ingredientsCreateNestedManyWithoutComponentsInput = {
     create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
     connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
     createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
@@ -13990,6 +13983,13 @@ export namespace Prisma {
     connectOrCreate?: component_portionsCreateOrConnectWithoutComponentsInput | component_portionsCreateOrConnectWithoutComponentsInput[]
     createMany?: component_portionsCreateManyComponentsInputEnvelope
     connect?: component_portionsWhereUniqueInput | component_portionsWhereUniqueInput[]
+  }
+
+  export type recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput = {
+    create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
+    connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
+    createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
+    connect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -14006,30 +14006,6 @@ export namespace Prisma {
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
     set?: Date | string | null
-  }
-
-  export type mealsUpdateOneWithoutComponentsNestedInput = {
-    create?: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
-    connectOrCreate?: mealsCreateOrConnectWithoutComponentsInput
-    upsert?: mealsUpsertWithoutComponentsInput
-    disconnect?: mealsWhereInput | boolean
-    delete?: mealsWhereInput | boolean
-    connect?: mealsWhereUniqueInput
-    update?: XOR<XOR<mealsUpdateToOneWithWhereWithoutComponentsInput, mealsUpdateWithoutComponentsInput>, mealsUncheckedUpdateWithoutComponentsInput>
-  }
-
-  export type recipe_ingredientsUpdateManyWithoutComponentsNestedInput = {
-    create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
-    connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
-    upsert?: recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput[]
-    createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
-    set?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    disconnect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    delete?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    connect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    update?: recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput[]
-    updateMany?: recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput | recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput[]
-    deleteMany?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
   }
 
   export type component_portionsUpdateManyWithoutComponentsNestedInput = {
@@ -14056,6 +14032,30 @@ export namespace Prisma {
     update?: XOR<XOR<component_categoryUpdateToOneWithWhereWithoutComponentsInput, component_categoryUpdateWithoutComponentsInput>, component_categoryUncheckedUpdateWithoutComponentsInput>
   }
 
+  export type mealsUpdateOneWithoutComponentsNestedInput = {
+    create?: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
+    connectOrCreate?: mealsCreateOrConnectWithoutComponentsInput
+    upsert?: mealsUpsertWithoutComponentsInput
+    disconnect?: mealsWhereInput | boolean
+    delete?: mealsWhereInput | boolean
+    connect?: mealsWhereUniqueInput
+    update?: XOR<XOR<mealsUpdateToOneWithWhereWithoutComponentsInput, mealsUpdateWithoutComponentsInput>, mealsUncheckedUpdateWithoutComponentsInput>
+  }
+
+  export type recipe_ingredientsUpdateManyWithoutComponentsNestedInput = {
+    create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
+    connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
+    upsert?: recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput[]
+    createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
+    set?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    disconnect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    delete?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    connect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    update?: recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput[]
+    updateMany?: recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput | recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput[]
+    deleteMany?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
+  }
+
   export type IntFieldUpdateOperationsInput = {
     set?: number
     increment?: number
@@ -14072,20 +14072,6 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput = {
-    create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
-    connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
-    upsert?: recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput[]
-    createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
-    set?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    disconnect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    delete?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    connect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
-    update?: recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput[]
-    updateMany?: recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput | recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput[]
-    deleteMany?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
-  }
-
   export type component_portionsUncheckedUpdateManyWithoutComponentsNestedInput = {
     create?: XOR<component_portionsCreateWithoutComponentsInput, component_portionsUncheckedCreateWithoutComponentsInput> | component_portionsCreateWithoutComponentsInput[] | component_portionsUncheckedCreateWithoutComponentsInput[]
     connectOrCreate?: component_portionsCreateOrConnectWithoutComponentsInput | component_portionsCreateOrConnectWithoutComponentsInput[]
@@ -14098,6 +14084,20 @@ export namespace Prisma {
     update?: component_portionsUpdateWithWhereUniqueWithoutComponentsInput | component_portionsUpdateWithWhereUniqueWithoutComponentsInput[]
     updateMany?: component_portionsUpdateManyWithWhereWithoutComponentsInput | component_portionsUpdateManyWithWhereWithoutComponentsInput[]
     deleteMany?: component_portionsScalarWhereInput | component_portionsScalarWhereInput[]
+  }
+
+  export type recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput = {
+    create?: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput> | recipe_ingredientsCreateWithoutComponentsInput[] | recipe_ingredientsUncheckedCreateWithoutComponentsInput[]
+    connectOrCreate?: recipe_ingredientsCreateOrConnectWithoutComponentsInput | recipe_ingredientsCreateOrConnectWithoutComponentsInput[]
+    upsert?: recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput[]
+    createMany?: recipe_ingredientsCreateManyComponentsInputEnvelope
+    set?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    disconnect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    delete?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    connect?: recipe_ingredientsWhereUniqueInput | recipe_ingredientsWhereUniqueInput[]
+    update?: recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput | recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput[]
+    updateMany?: recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput | recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput[]
+    deleteMany?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
   }
 
   export type componentsCreateNestedOneWithoutComponent_portionsInput = {
@@ -14601,66 +14601,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type mealsCreateWithoutComponentsInput = {
-    meal_name: string
-    description?: string | null
-    is_balanced?: boolean
-    is_gourmet?: boolean
-    is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
-    item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-    portion_options?: portion_optionsCreateNestedManyWithoutMealsInput
-  }
-
-  export type mealsUncheckedCreateWithoutComponentsInput = {
-    meal_id?: number
-    meal_name: string
-    description?: string | null
-    is_balanced?: boolean
-    is_gourmet?: boolean
-    is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
-    item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-    portion_options?: portion_optionsUncheckedCreateNestedManyWithoutMealsInput
-  }
-
-  export type mealsCreateOrConnectWithoutComponentsInput = {
-    where: mealsWhereUniqueInput
-    create: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
-  }
-
-  export type recipe_ingredientsCreateWithoutComponentsInput = {
-    raw_quantity_g: Decimal | DecimalJsLike | number | string
-    cooked_quantity_g?: Decimal | DecimalJsLike | number | string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-    ingredients: ingredientsCreateNestedOneWithoutRecipe_ingredientsInput
-  }
-
-  export type recipe_ingredientsUncheckedCreateWithoutComponentsInput = {
-    ingredient_id: number
-    raw_quantity_g: Decimal | DecimalJsLike | number | string
-    cooked_quantity_g?: Decimal | DecimalJsLike | number | string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
-  }
-
-  export type recipe_ingredientsCreateOrConnectWithoutComponentsInput = {
-    where: recipe_ingredientsWhereUniqueInput
-    create: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput>
-  }
-
-  export type recipe_ingredientsCreateManyComponentsInputEnvelope = {
-    data: recipe_ingredientsCreateManyComponentsInput | recipe_ingredientsCreateManyComponentsInput[]
-    skipDuplicates?: boolean
-  }
-
   export type component_portionsCreateWithoutComponentsInput = {
     label: string
     total_weight_g: Decimal | DecimalJsLike | number | string
@@ -14700,72 +14640,64 @@ export namespace Prisma {
     create: XOR<component_categoryCreateWithoutComponentsInput, component_categoryUncheckedCreateWithoutComponentsInput>
   }
 
-  export type mealsUpsertWithoutComponentsInput = {
-    update: XOR<mealsUpdateWithoutComponentsInput, mealsUncheckedUpdateWithoutComponentsInput>
+  export type mealsCreateWithoutComponentsInput = {
+    meal_name: string
+    description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
+    item_code?: string | null
+    objective?: string | null
+    package?: string | null
+    portion_options?: portion_optionsCreateNestedManyWithoutMealsInput
+  }
+
+  export type mealsUncheckedCreateWithoutComponentsInput = {
+    meal_id?: number
+    meal_name: string
+    description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    is_balanced?: boolean
+    is_gourmet?: boolean
+    is_weight_loss?: boolean
+    item_code?: string | null
+    objective?: string | null
+    package?: string | null
+    portion_options?: portion_optionsUncheckedCreateNestedManyWithoutMealsInput
+  }
+
+  export type mealsCreateOrConnectWithoutComponentsInput = {
+    where: mealsWhereUniqueInput
     create: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
-    where?: mealsWhereInput
   }
 
-  export type mealsUpdateToOneWithWhereWithoutComponentsInput = {
-    where?: mealsWhereInput
-    data: XOR<mealsUpdateWithoutComponentsInput, mealsUncheckedUpdateWithoutComponentsInput>
+  export type recipe_ingredientsCreateWithoutComponentsInput = {
+    raw_quantity_g: Decimal | DecimalJsLike | number | string
+    cooked_quantity_g?: Decimal | DecimalJsLike | number | string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+    ingredients: ingredientsCreateNestedOneWithoutRecipe_ingredientsInput
   }
 
-  export type mealsUpdateWithoutComponentsInput = {
-    meal_name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    is_balanced?: BoolFieldUpdateOperationsInput | boolean
-    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
-    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
-    item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    portion_options?: portion_optionsUpdateManyWithoutMealsNestedInput
+  export type recipe_ingredientsUncheckedCreateWithoutComponentsInput = {
+    ingredient_id: number
+    raw_quantity_g: Decimal | DecimalJsLike | number | string
+    cooked_quantity_g?: Decimal | DecimalJsLike | number | string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
   }
 
-  export type mealsUncheckedUpdateWithoutComponentsInput = {
-    meal_id?: IntFieldUpdateOperationsInput | number
-    meal_name?: StringFieldUpdateOperationsInput | string
-    description?: NullableStringFieldUpdateOperationsInput | string | null
-    is_balanced?: BoolFieldUpdateOperationsInput | boolean
-    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
-    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
-    item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    portion_options?: portion_optionsUncheckedUpdateManyWithoutMealsNestedInput
-  }
-
-  export type recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput = {
+  export type recipe_ingredientsCreateOrConnectWithoutComponentsInput = {
     where: recipe_ingredientsWhereUniqueInput
-    update: XOR<recipe_ingredientsUpdateWithoutComponentsInput, recipe_ingredientsUncheckedUpdateWithoutComponentsInput>
     create: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput>
   }
 
-  export type recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput = {
-    where: recipe_ingredientsWhereUniqueInput
-    data: XOR<recipe_ingredientsUpdateWithoutComponentsInput, recipe_ingredientsUncheckedUpdateWithoutComponentsInput>
-  }
-
-  export type recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput = {
-    where: recipe_ingredientsScalarWhereInput
-    data: XOR<recipe_ingredientsUpdateManyMutationInput, recipe_ingredientsUncheckedUpdateManyWithoutComponentsInput>
-  }
-
-  export type recipe_ingredientsScalarWhereInput = {
-    AND?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
-    OR?: recipe_ingredientsScalarWhereInput[]
-    NOT?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
-    component_id?: IntFilter<"recipe_ingredients"> | number
-    ingredient_id?: IntFilter<"recipe_ingredients"> | number
-    raw_quantity_g?: DecimalFilter<"recipe_ingredients"> | Decimal | DecimalJsLike | number | string
-    cooked_quantity_g?: DecimalNullableFilter<"recipe_ingredients"> | Decimal | DecimalJsLike | number | string | null
-    created_at?: DateTimeNullableFilter<"recipe_ingredients"> | Date | string | null
-    updated_at?: DateTimeNullableFilter<"recipe_ingredients"> | Date | string | null
+  export type recipe_ingredientsCreateManyComponentsInputEnvelope = {
+    data: recipe_ingredientsCreateManyComponentsInput | recipe_ingredientsCreateManyComponentsInput[]
+    skipDuplicates?: boolean
   }
 
   export type component_portionsUpsertWithWhereUniqueWithoutComponentsInput = {
@@ -14816,15 +14748,83 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
   }
 
+  export type mealsUpsertWithoutComponentsInput = {
+    update: XOR<mealsUpdateWithoutComponentsInput, mealsUncheckedUpdateWithoutComponentsInput>
+    create: XOR<mealsCreateWithoutComponentsInput, mealsUncheckedCreateWithoutComponentsInput>
+    where?: mealsWhereInput
+  }
+
+  export type mealsUpdateToOneWithWhereWithoutComponentsInput = {
+    where?: mealsWhereInput
+    data: XOR<mealsUpdateWithoutComponentsInput, mealsUncheckedUpdateWithoutComponentsInput>
+  }
+
+  export type mealsUpdateWithoutComponentsInput = {
+    meal_name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    portion_options?: portion_optionsUpdateManyWithoutMealsNestedInput
+  }
+
+  export type mealsUncheckedUpdateWithoutComponentsInput = {
+    meal_id?: IntFieldUpdateOperationsInput | number
+    meal_name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    is_balanced?: BoolFieldUpdateOperationsInput | boolean
+    is_gourmet?: BoolFieldUpdateOperationsInput | boolean
+    is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
+    item_code?: NullableStringFieldUpdateOperationsInput | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
+    portion_options?: portion_optionsUncheckedUpdateManyWithoutMealsNestedInput
+  }
+
+  export type recipe_ingredientsUpsertWithWhereUniqueWithoutComponentsInput = {
+    where: recipe_ingredientsWhereUniqueInput
+    update: XOR<recipe_ingredientsUpdateWithoutComponentsInput, recipe_ingredientsUncheckedUpdateWithoutComponentsInput>
+    create: XOR<recipe_ingredientsCreateWithoutComponentsInput, recipe_ingredientsUncheckedCreateWithoutComponentsInput>
+  }
+
+  export type recipe_ingredientsUpdateWithWhereUniqueWithoutComponentsInput = {
+    where: recipe_ingredientsWhereUniqueInput
+    data: XOR<recipe_ingredientsUpdateWithoutComponentsInput, recipe_ingredientsUncheckedUpdateWithoutComponentsInput>
+  }
+
+  export type recipe_ingredientsUpdateManyWithWhereWithoutComponentsInput = {
+    where: recipe_ingredientsScalarWhereInput
+    data: XOR<recipe_ingredientsUpdateManyMutationInput, recipe_ingredientsUncheckedUpdateManyWithoutComponentsInput>
+  }
+
+  export type recipe_ingredientsScalarWhereInput = {
+    AND?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
+    OR?: recipe_ingredientsScalarWhereInput[]
+    NOT?: recipe_ingredientsScalarWhereInput | recipe_ingredientsScalarWhereInput[]
+    component_id?: IntFilter<"recipe_ingredients"> | number
+    ingredient_id?: IntFilter<"recipe_ingredients"> | number
+    raw_quantity_g?: DecimalFilter<"recipe_ingredients"> | Decimal | DecimalJsLike | number | string
+    cooked_quantity_g?: DecimalNullableFilter<"recipe_ingredients"> | Decimal | DecimalJsLike | number | string | null
+    created_at?: DateTimeNullableFilter<"recipe_ingredients"> | Date | string | null
+    updated_at?: DateTimeNullableFilter<"recipe_ingredients"> | Date | string | null
+  }
+
   export type componentsCreateWithoutComponent_portionsInput = {
     component_name: string
     before_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    category?: component_categoryCreateNestedOneWithoutComponentsInput
     meals?: mealsCreateNestedOneWithoutComponentsInput
     recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
-    category?: component_categoryCreateNestedOneWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutComponent_portionsInput = {
@@ -14861,9 +14861,9 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    category?: component_categoryUpdateOneWithoutComponentsNestedInput
     meals?: mealsUpdateOneWithoutComponentsNestedInput
     recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
-    category?: component_categoryUpdateOneWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutComponent_portionsInput = {
@@ -14926,9 +14926,9 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
     category?: component_categoryCreateNestedOneWithoutComponentsInput
+    recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutMealsInput = {
@@ -14939,8 +14939,8 @@ export namespace Prisma {
     created_at?: Date | string | null
     updated_at?: Date | string | null
     category_id?: number | null
-    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
+    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
   }
 
   export type componentsCreateOrConnectWithoutMealsInput = {
@@ -15039,14 +15039,14 @@ export namespace Prisma {
   export type mealsCreateWithoutPortion_optionsInput = {
     meal_name: string
     description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
     item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
+    objective?: string | null
+    package?: string | null
     components?: componentsCreateNestedManyWithoutMealsInput
   }
 
@@ -15054,14 +15054,14 @@ export namespace Prisma {
     meal_id?: number
     meal_name: string
     description?: string | null
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
     is_balanced?: boolean
     is_gourmet?: boolean
     is_weight_loss?: boolean
-    package?: string | null
-    objective?: string | null
     item_code?: string | null
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
+    objective?: string | null
+    package?: string | null
     components?: componentsUncheckedCreateNestedManyWithoutMealsInput
   }
 
@@ -15084,14 +15084,14 @@ export namespace Prisma {
   export type mealsUpdateWithoutPortion_optionsInput = {
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
     item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
     components?: componentsUpdateManyWithoutMealsNestedInput
   }
 
@@ -15099,14 +15099,14 @@ export namespace Prisma {
     meal_id?: IntFieldUpdateOperationsInput | number
     meal_name?: StringFieldUpdateOperationsInput | string
     description?: NullableStringFieldUpdateOperationsInput | string | null
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     is_balanced?: BoolFieldUpdateOperationsInput | boolean
     is_gourmet?: BoolFieldUpdateOperationsInput | boolean
     is_weight_loss?: BoolFieldUpdateOperationsInput | boolean
-    package?: NullableStringFieldUpdateOperationsInput | string | null
-    objective?: NullableStringFieldUpdateOperationsInput | string | null
     item_code?: NullableStringFieldUpdateOperationsInput | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    objective?: NullableStringFieldUpdateOperationsInput | string | null
+    package?: NullableStringFieldUpdateOperationsInput | string | null
     components?: componentsUncheckedUpdateManyWithoutMealsNestedInput
   }
 
@@ -15116,9 +15116,9 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    meals?: mealsCreateNestedOneWithoutComponentsInput
     component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
     category?: component_categoryCreateNestedOneWithoutComponentsInput
+    meals?: mealsCreateNestedOneWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutRecipe_ingredientsInput = {
@@ -15183,9 +15183,9 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    meals?: mealsUpdateOneWithoutComponentsNestedInput
     component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
     category?: component_categoryUpdateOneWithoutComponentsNestedInput
+    meals?: mealsUpdateOneWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutRecipe_ingredientsInput = {
@@ -15240,9 +15240,9 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
+    component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
     meals?: mealsCreateNestedOneWithoutComponentsInput
     recipe_ingredients?: recipe_ingredientsCreateNestedManyWithoutComponentsInput
-    component_portions?: component_portionsCreateNestedManyWithoutComponentsInput
   }
 
   export type componentsUncheckedCreateWithoutCategoryInput = {
@@ -15253,8 +15253,8 @@ export namespace Prisma {
     after_cook_weight_g?: Decimal | DecimalJsLike | number | string | null
     created_at?: Date | string | null
     updated_at?: Date | string | null
-    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
     component_portions?: component_portionsUncheckedCreateNestedManyWithoutComponentsInput
+    recipe_ingredients?: recipe_ingredientsUncheckedCreateNestedManyWithoutComponentsInput
   }
 
   export type componentsCreateOrConnectWithoutCategoryInput = {
@@ -15283,6 +15283,14 @@ export namespace Prisma {
     data: XOR<componentsUpdateManyMutationInput, componentsUncheckedUpdateManyWithoutCategoryInput>
   }
 
+  export type component_portionsCreateManyComponentsInput = {
+    portion_id?: number
+    label: string
+    total_weight_g: Decimal | DecimalJsLike | number | string
+    created_at?: Date | string | null
+    updated_at?: Date | string | null
+  }
+
   export type recipe_ingredientsCreateManyComponentsInput = {
     ingredient_id: number
     raw_quantity_g: Decimal | DecimalJsLike | number | string
@@ -15291,12 +15299,27 @@ export namespace Prisma {
     updated_at?: Date | string | null
   }
 
-  export type component_portionsCreateManyComponentsInput = {
-    portion_id?: number
-    label: string
-    total_weight_g: Decimal | DecimalJsLike | number | string
-    created_at?: Date | string | null
-    updated_at?: Date | string | null
+  export type component_portionsUpdateWithoutComponentsInput = {
+    label?: StringFieldUpdateOperationsInput | string
+    total_weight_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type component_portionsUncheckedUpdateWithoutComponentsInput = {
+    portion_id?: IntFieldUpdateOperationsInput | number
+    label?: StringFieldUpdateOperationsInput | string
+    total_weight_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type component_portionsUncheckedUpdateManyWithoutComponentsInput = {
+    portion_id?: IntFieldUpdateOperationsInput | number
+    label?: StringFieldUpdateOperationsInput | string
+    total_weight_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type recipe_ingredientsUpdateWithoutComponentsInput = {
@@ -15319,29 +15342,6 @@ export namespace Prisma {
     ingredient_id?: IntFieldUpdateOperationsInput | number
     raw_quantity_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     cooked_quantity_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type component_portionsUpdateWithoutComponentsInput = {
-    label?: StringFieldUpdateOperationsInput | string
-    total_weight_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type component_portionsUncheckedUpdateWithoutComponentsInput = {
-    portion_id?: IntFieldUpdateOperationsInput | number
-    label?: StringFieldUpdateOperationsInput | string
-    total_weight_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
-    created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  }
-
-  export type component_portionsUncheckedUpdateManyWithoutComponentsInput = {
-    portion_id?: IntFieldUpdateOperationsInput | number
-    label?: StringFieldUpdateOperationsInput | string
-    total_weight_g?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
@@ -15402,9 +15402,9 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
     category?: component_categoryUpdateOneWithoutComponentsNestedInput
+    recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutMealsInput = {
@@ -15415,8 +15415,8 @@ export namespace Prisma {
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     category_id?: NullableIntFieldUpdateOperationsInput | number | null
-    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
+    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateManyWithoutMealsInput = {
@@ -15468,9 +15468,9 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
     meals?: mealsUpdateOneWithoutComponentsNestedInput
     recipe_ingredients?: recipe_ingredientsUpdateManyWithoutComponentsNestedInput
-    component_portions?: component_portionsUpdateManyWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateWithoutCategoryInput = {
@@ -15481,8 +15481,8 @@ export namespace Prisma {
     after_cook_weight_g?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     created_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     updated_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
     component_portions?: component_portionsUncheckedUpdateManyWithoutComponentsNestedInput
+    recipe_ingredients?: recipe_ingredientsUncheckedUpdateManyWithoutComponentsNestedInput
   }
 
   export type componentsUncheckedUpdateManyWithoutCategoryInput = {
