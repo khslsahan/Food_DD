@@ -21,8 +21,17 @@ class NutritionService(
         return mealRepository.findAll()
     }
 
-    fun getNutrition(foodItem: String, portion: Int): Mono<NutritionResponse> {
+    fun getNutrition(
+        foodItem: String, 
+        portion: Int,
+        dislikes: List<String> = emptyList(),
+        allergens: List<String> = emptyList(),
+        replacers: List<String> = emptyList(),
+        replacements: List<String> = emptyList()
+    ): Mono<NutritionResponse> {
         println("Getting nutrition for food item: $foodItem, portion: $portion")
+        println("Filters - Dislikes: $dislikes, Allergens: $allergens, Replacers: $replacers, Replacements: $replacements")
+        
         return mealRepository.findByMealNameIgnoreCase(foodItem)
             .switchIfEmpty(
                 Mono.error(ResponseStatusException(HttpStatus.NOT_FOUND, "Meal '$foodItem' not found in database"))
@@ -87,11 +96,26 @@ class NutritionService(
                                                                                 }
                                                                         }
                                                                         .collectList()
-                                                                        .map { nutritionIngredients ->
-                                                                            val totalCalories = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.calories) }
-                                                                            val totalFat = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.fat) }
-                                                                            val totalProtein = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.protein) }
-                                                                            val totalCarbs = nutritionIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.carbs) }
+                                                                        .flatMap { nutritionIngredients ->
+                                                                            // Apply ingredient filtering
+                                                                            val filteredIngredients = applyIngredientFilters(
+                                                                                nutritionIngredients,
+                                                                                dislikes,
+                                                                                allergens,
+                                                                                replacers
+                                                                            )
+                                                                            
+                                                                            // Add replacement ingredients
+                                                                            val finalIngredients = if (replacements.isNotEmpty()) {
+                                                                                addReplacementIngredients(filteredIngredients, replacements, compPortion.totalWeightG)
+                                                                            } else {
+                                                                                filteredIngredients
+                                                                            }
+                                                                            
+                                                                            val totalCalories = finalIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.calories) }
+                                                                            val totalFat = finalIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.fat) }
+                                                                            val totalProtein = finalIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.protein) }
+                                                                            val totalCarbs = finalIngredients.fold(BigDecimal.ZERO) { acc, ni -> acc.add(ni.carbs) }
                                                                             val totalCooked = component.afterCookWeightG ?: compPortion.totalWeightG
                                                                             // Per-gram values
                                                                             val calPerG = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else totalCalories.divide(totalCooked, 6, RoundingMode.HALF_UP)
@@ -114,7 +138,7 @@ class NutritionService(
                                                                             )
 
                                                                             val scalingFactor = if (totalCooked.compareTo(BigDecimal.ZERO) == 0) BigDecimal.ZERO else portionWeight.divide(totalCooked, 6, RoundingMode.HALF_UP)
-                                                                            val ingredientDetails = nutritionIngredients.map {
+                                                                            val ingredientDetails = finalIngredients.map {
                                                                                 IngredientDetails(
                                                                                     ingredient_name = it.name,
                                                                                     calories = it.calories.multiply(scalingFactor).setScale(0, RoundingMode.HALF_UP).toInt(),
@@ -123,7 +147,7 @@ class NutritionService(
                                                                                     carbohydrates_g = it.carbs.multiply(scalingFactor).setScale(1, RoundingMode.HALF_UP).toDouble().toInt()
                                                                                 )
                                                                             }
-                                                                            Pair(componentMacroSummary, ingredientDetails)
+                                                                            Mono.just(Pair(componentMacroSummary, ingredientDetails))
                                                                         }
                                                                 }
                                                             }
@@ -176,3 +200,92 @@ data class NutritionIngredient(
     val protein: BigDecimal,
     val carbs: BigDecimal
 )
+
+private fun applyIngredientFilters(
+    ingredients: List<NutritionIngredient>,
+    dislikes: List<String>,
+    allergens: List<String>,
+    replacers: List<String>
+): List<NutritionIngredient> {
+    var filteredIngredients = ingredients.toMutableList()
+    
+    // Normalize filter terms (trim whitespace, lowercase)
+    val normalizedDislikes = dislikes.map { it.trim().lowercase() }
+    val normalizedAllergens = allergens.map { it.trim().lowercase() }
+    val normalizedReplacers = replacers.map { it.trim().lowercase() }
+    
+    // Remove disliked ingredients (word boundary matching for more precision)
+    if (normalizedDislikes.isNotEmpty()) {
+        filteredIngredients = filteredIngredients.filter { ingredient ->
+            val ingredientName = ingredient.name.lowercase()
+            normalizedDislikes.none { dislike ->
+                // Use word boundary matching for more precise filtering
+                ingredientName.matches(Regex(".*\\b${Regex.escape(dislike)}\\b.*", RegexOption.IGNORE_CASE)) ||
+                ingredientName == dislike // Also match exact names
+            }
+        }.toMutableList()
+        println("After removing dislikes: ${filteredIngredients.map { it.name }}")
+    }
+    
+    // Remove allergen ingredients (word boundary matching)
+    if (normalizedAllergens.isNotEmpty()) {
+        filteredIngredients = filteredIngredients.filter { ingredient ->
+            val ingredientName = ingredient.name.lowercase()
+            normalizedAllergens.none { allergen ->
+                ingredientName.matches(Regex(".*\\b${Regex.escape(allergen)}\\b.*", RegexOption.IGNORE_CASE)) ||
+                ingredientName == allergen
+            }
+        }.toMutableList()
+        println("After removing allergens: ${filteredIngredients.map { it.name }}")
+    }
+    
+    // Remove replacer ingredients (word boundary matching)
+    if (normalizedReplacers.isNotEmpty()) {
+        filteredIngredients = filteredIngredients.filter { ingredient ->
+            val ingredientName = ingredient.name.lowercase()
+            normalizedReplacers.none { replacer ->
+                ingredientName.matches(Regex(".*\\b${Regex.escape(replacer)}\\b.*", RegexOption.IGNORE_CASE)) ||
+                ingredientName == replacer
+            }
+        }.toMutableList()
+        println("After removing replacers: ${filteredIngredients.map { it.name }}")
+    }
+    
+    return filteredIngredients
+}
+
+private fun addReplacementIngredients(
+    existingIngredients: List<NutritionIngredient>,
+    replacements: List<String>,
+    portionWeight: BigDecimal
+): List<NutritionIngredient> {
+    val result = existingIngredients.toMutableList()
+    
+    // Normalize replacement terms and existing ingredient names
+    val normalizedReplacements = replacements.map { it.trim() }
+    val existingIngredientNames = existingIngredients.map { it.name.lowercase() }
+    
+    // Add replacement ingredients (avoid duplicates)
+    normalizedReplacements.forEach { replacementName ->
+        val normalizedReplacement = replacementName.lowercase()
+        
+        // Only add if it doesn't already exist
+        if (!existingIngredientNames.contains(normalizedReplacement)) {
+            // Use default nutritional values (should be looked up from DB in production)
+            val factor = portionWeight.divide(BigDecimal(100), 6, RoundingMode.HALF_UP)
+            val replacementIngredient = NutritionIngredient(
+                name = replacementName,
+                calories = BigDecimal("100").multiply(factor), // Default 100 cal per 100g
+                fat = BigDecimal("2").multiply(factor),        // Default 2g fat per 100g
+                protein = BigDecimal("5").multiply(factor),    // Default 5g protein per 100g
+                carbs = BigDecimal("15").multiply(factor)      // Default 15g carbs per 100g
+            )
+            result.add(replacementIngredient)
+            println("Added replacement ingredient: $replacementName")
+        } else {
+            println("Skipped duplicate replacement ingredient: $replacementName")
+        }
+    }
+    
+    return result
+}

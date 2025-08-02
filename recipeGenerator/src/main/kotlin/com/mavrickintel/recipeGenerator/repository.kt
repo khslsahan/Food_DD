@@ -21,6 +21,7 @@ interface ComponentRepository : ReactiveCrudRepository<Component, Long> {
 @Repository
 interface IngredientRepository : ReactiveCrudRepository<Ingredient, Long> {
     fun findByIngredientName(ingredientName: String): reactor.core.publisher.Mono<Ingredient>
+    fun findByIngredientNameIgnoreCase(ingredientName: String): reactor.core.publisher.Mono<Ingredient>
 }
 
 @Repository

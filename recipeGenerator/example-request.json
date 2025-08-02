@@ -1,0 +1,10 @@
+{
+  "food_items": ["Alfredo Pasta with Cheese"],
+  "dislikes": ["Tomato"],
+  "allergen": ["Cheese"],
+  "replacer": ["White Pasta"],
+  "replacement": ["Whole Wheat Pasta"],
+  "objective_type": "weight_loss",
+  "package_type": "gourmet",
+  "comments": "Remove tomato and cheese due to allergies, replace white pasta with whole wheat"
+} 

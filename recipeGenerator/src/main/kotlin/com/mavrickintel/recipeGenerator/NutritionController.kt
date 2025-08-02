@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import reactor.core.publisher.Mono
+import org.springframework.http.HttpStatus
 
 // Request DTO
 data class NutritionRequest(
     val food_items: List<String>,
     val objective_type: String? = null,
     val package_type: String? = null,
-    val dislikes: String? = null,
-    val replacement: String? = null,
-    val comments: String? = null,
-    val allergen: String? = null
+    val dislikes: List<String>? = null,
+    val allergen: List<String>? = null,
+    val replacer: List<String>? = null,
+    val replacement: List<String>? = null,
+    val comments: String? = null
 )
 
 // Response DTOs
@@ -96,12 +98,24 @@ class NutritionController(private val nutritionService: NutritionService) {
 
     @PostMapping("/api/nutrition")
     fun getNutrition(@RequestBody request: NutritionRequest): Mono<BatchNutritionResponse> {
+        // Input validation
+        if (request.food_items.isEmpty()) {
+            return Mono.error(ResponseStatusException(HttpStatus.BAD_REQUEST, "food_items cannot be empty"))
+        }
+        
         val successfulItems = mutableListOf<NutritionResponse>()
         val failedItems = mutableListOf<FailedItem>()
         
         return reactor.core.publisher.Flux.fromIterable(request.food_items)
             .flatMap { foodItem ->
-                nutritionService.getNutrition(foodItem, 2)
+                nutritionService.getNutrition(
+                    foodItem, 
+                    2, 
+                    request.dislikes ?: emptyList(),
+                    request.allergen ?: emptyList(),
+                    request.replacer ?: emptyList(),
+                    request.replacement ?: emptyList()
+                )
                     .doOnNext { response ->
                         successfulItems.add(response)
                     }
